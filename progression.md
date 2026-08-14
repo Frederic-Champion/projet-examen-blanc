@@ -137,3 +137,74 @@
 2. Consolidation vacances : réviser, renforcer, valider sur un périmètre large — pas seulement les dernières sessions.
 3. **Après les vacances** : approfondir **React Router mode Declarative** (demande explicite de Frédéric — marché SPA réel sans Next.js).
 4. Toujours en attente : projet CSS Grid (dette n°1 du socle) · `children` (non enseigné) · `useParams` sur un vrai cas API.
+
+## Session 70 — Organisation `projet-examen-blanc` + démarrage calculatrice
+
+**Durée** : ~3h (vendredi, semaine 2 de vacances). Énergie bonne. Séance de consolidation stricte, aucune notion neuve — conforme à la consigne vacances.
+
+**Révision éclair (`position: fixed` + contexte parent)** 🔴 : **même inversion qu'en S64** — « fixed se fixe par rapport au parent direct ». Deuxième passage identique → règle des trois échecs appliquée par anticipation, cours complet redonné (`fixed` vise le **viewport** ; `transform`/`filter`/`backdrop-filter`/`will-change`/`contain` sur un ancêtre créent un bloc conteneur qui **capture** les descendants `fixed`). La conclusion pratique était juste, la règle sous-jacente fausse. **Reste en rotation.**
+
+**⚠️ Audit exercices types intégré** (livré entre S69 et S70) : recommandation n°2 retenue comme cap du jour. Le Pokédex liste→détail (reco n°1) attend la semaine 3 car il repose sur `useParams` = notion neuve.
+
+---
+
+### 1. Organisation de `projet-examen-blanc` — tranchée
+
+**Périmètre** : React + TS + Tailwind uniquement. Pas de DOM vanilla séparé — le socle Phase 1 se rejoue **dans** les composants (sémantique, Grid, méthodes de tableau, `fetch`).
+
+**Structure actée** : `pages/` (une page routée par exercice) · `data/exercices.ts` (source unique) · `components/` réservé aux composants réellement partagés.
+
+**`App.tsx` = layout permanent** : lien home + `<Routes>`, layout Grid `grid-rows-[auto_1fr]`. `Accueil` = page routée sur `/`, sans statut particulier.
+
+**Ajout d'un exercice = 3 gestes** : créer la page → ajouter une `<Route>` → ajouter une entrée au tableau. Le tableau ne remplace **pas** les routes (correctif explicite de mon erreur DRY de la S68).
+
+**🎓 Blocage d'architecture — le vrai contenu de la séance** : Frédéric plaçait nav + bouton home + `<Routes>` dans `Accueil`, en raisonnant « page d'accueil = point d'entrée » (réflexe `index.html`). Débloqué par les conséquences (boucle infinie, puis perte de la nav au changement de page). **Point posé** : `<Routes>` est une fenêtre qui remplace son contenu → ce qui doit survivre à la navigation vit **au-dessus**. Critère retenu : « cet élément doit-il rester visible quand je change de page ? »
+
+Chaîne `index.html → main.tsx → App.tsx → pages` détaillée à sa demande, ainsi que `<script type="module">`, le chaînage `createRoot(...).render(...)` (forme longue donnée) et la logique des **enveloppes** (`StrictMode`, `BrowserRouter` : une enveloppe contient tous ceux qui s'en servent).
+
+**Décision de design** : carte entièrement cliquable — critère énoncé seul et correct (*la zone de clic doit correspondre à ce que l'œil perçoit comme cliquable*).
+
+**⚠️ Erreur de ma part** : j'ai reconduit une `<nav>` dans `App.tsx` sans la questionner, alors que sa demande initiale ne mentionnait qu'un bouton home. Doublon avec la liste d'accueil. Corrigé après qu'il l'ait relevé. **Récurrence de « demander avant de reconduire » (§9 bis), version design.**
+
+---
+
+### 2. `Accueil.tsx` — page blanche
+
+`.map()` sur `EXERCICES`, `to={path}` branché sur la donnée, structure sortie seule.
+
+- **🔴 `key` oubliée — 3ᵉ fois (S64, S70).** Aggravant : justification explicite (« c'est moi qui ajoute en dur, donc pas important »). **Raisonnement à corriger : la `key` ne dépend pas de l'origine des données.** Réflexe à réinstaller : `key` posée dans la foulée du `.map()`, avant le contenu.
+- **🌟 Initiative non demandée** : a proposé de déstructurer directement dans le callback — `({ path, titre, description }) => ...`. Correct, plus propre que ma version, connexion faite seul avec la déstructuration des props (S60). **Sa version retenue.**
+- `<article>` autour d'un `<Link>` : imbrication corrigée. Test S61 réappliqué.
+- `flex` sans `flex-col` alors qu'il voulait un empilement vertical.
+
+---
+
+### 3. Calculatrice — machine à états (démarrée)
+
+Version 2 validée (afficheur + pavé complet), pas la version « deux champs » qui n'aurait rien drillé. **Comble la famille logique pure, seul vrai trou du canon selon l'audit.**
+
+**✅ Les trois états trouvés — la partie difficile de l'exercice.** Première proposition en `premier`/`second`/`resultat` (découpage par nombre) → reformulée en **rôles** après mise à l'épreuve sur le scénario : `affichage` / `memoire` / `operateur`. Corrections mineures : nommage (un état porte une donnée, pas une action) · valeur de départ `"0"` et non `""`.
+
+**Choix du type chaîne pour l'afficheur** compris via « une variable = un rôle = un type » (S61).
+
+**`<table>` écarté** pour le pavé — critère données tabulaires vs mise en page réappliqué correctement une fois posé. Pavé en `grid grid-cols-4` → entame la dette Grid.
+
+**Arrêté à** : le handler `tapeChiffre` — deux questions posées, non traitées (quel état signale qu'un opérateur vient d'être pressé, et ce test suffit-il après un `=`).
+
+---
+
+**Niveaux** : architecture `main`/`App`/pages 🟢 (débloquée par un vrai contresens) · `<Routes>` = fenêtre, layout au-dessus 🟢 · `.map()` + `Link` sur source unique 🟢 · déstructuration dans un callback 🟢 · `key` 🔴 · identification des états d'une machine à états 🟡 (trouvés avec une reformulation, premier contact) · `position: fixed` 🔴.
+
+**🆕 Dettes ouvertes ce jour** :
+- **Generics / `useState<T>`** — demandé explicitement, non enseigné (l'inférence suffit ici). À traiter après React Router. Rejoint la dette S67.
+- **`<table>`** — souhaite le repratiquer, peu vu. À caler sur un exercice à vraies données tabulaires.
+- `useLocation` (masquer le lien home sur l'accueil) — écarté, notion neuve.
+
+**🎹 Raccourci** : `Ctrl+.` — **non joué cette séance, rotation toujours en attente.** À demander en ouverture s'il est acquis avant d'en poser un nouveau.
+
+**⏭️ Prochaine étape**
+
+1. **Reprendre la calculatrice** au handler `tapeChiffre` (les deux questions en suspens).
+2. Puis : opérateurs, `=`, `C`, cas limites (zéro en tête, chaîne d'opérations).
+3. Habillage de l'accueil + pavé en Grid — bon créneau basse énergie, entame la dette CSS Grid.
+4. **Semaine 3 (à partir du 18/08)** : décision à prendre sur la reprise des notions neuves — `useParams` sur Pokédex liste→détail (reco n°1 de l'audit) et approfondissement React Router Declarative.
