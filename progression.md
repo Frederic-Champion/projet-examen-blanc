@@ -162,7 +162,7 @@
 
 Chaîne `index.html → main.tsx → App.tsx → pages` détaillée à sa demande, ainsi que `<script type="module">`, le chaînage `createRoot(...).render(...)` (forme longue donnée) et la logique des **enveloppes** (`StrictMode`, `BrowserRouter` : une enveloppe contient tous ceux qui s'en servent).
 
-**Décision de design** : carte entièrement cliquable — critère énoncé seul et correct (*la zone de clic doit correspondre à ce que l'œil perçoit comme cliquable*).
+**Décision de design** : carte entièrement cliquable — critère énoncé seul et correct (_la zone de clic doit correspondre à ce que l'œil perçoit comme cliquable_).
 
 **⚠️ Erreur de ma part** : j'ai reconduit une `<nav>` dans `App.tsx` sans la questionner, alors que sa demande initiale ne mentionnait qu'un bouton home. Doublon avec la liste d'accueil. Corrigé après qu'il l'ait relevé. **Récurrence de « demander avant de reconduire » (§9 bis), version design.**
 
@@ -196,6 +196,7 @@ Version 2 validée (afficheur + pavé complet), pas la version « deux champs »
 **Niveaux** : architecture `main`/`App`/pages 🟢 (débloquée par un vrai contresens) · `<Routes>` = fenêtre, layout au-dessus 🟢 · `.map()` + `Link` sur source unique 🟢 · déstructuration dans un callback 🟢 · `key` 🔴 · identification des états d'une machine à états 🟡 (trouvés avec une reformulation, premier contact) · `position: fixed` 🔴.
 
 **🆕 Dettes ouvertes ce jour** :
+
 - **Generics / `useState<T>`** — demandé explicitement, non enseigné (l'inférence suffit ici). À traiter après React Router. Rejoint la dette S67.
 - **`<table>`** — souhaite le repratiquer, peu vu. À caler sur un exercice à vraies données tabulaires.
 - `useLocation` (masquer le lien home sur l'accueil) — écarté, notion neuve.
@@ -208,3 +209,81 @@ Version 2 validée (afficheur + pavé complet), pas la version « deux champs »
 2. Puis : opérateurs, `=`, `C`, cas limites (zéro en tête, chaîne d'opérations).
 3. Habillage de l'accueil + pavé en Grid — bon créneau basse énergie, entame la dette CSS Grid.
 4. **Semaine 3 (à partir du 18/08)** : décision à prendre sur la reprise des notions neuves — `useParams` sur Pokédex liste→détail (reco n°1 de l'audit) et approfondissement React Router Declarative.
+
+## Session 71 — Calculatrice terminée (machine à états complète)
+
+**Durée** : ~2h (soir, PC fixe). Suite directe de la S70, même journée.
+
+**Pas de révision éclair** (séance de continuité, reprise en cours d'exercice).
+
+---
+
+### Calculatrice — terminée et fonctionnelle
+
+**✅ Sorti seul** : les 4 fonctions identifiées par nature de touche (déduction correcte, `efface` en plus après signalement) · structure `switch` complète et juste du premier coup · `tapeChiffre` avec ses deux branches · ternaire du zéro initial (`affichage === "0" ? chiffre : affichage + chiffre`) · pavé complet en `grid grid-cols-4`, `type="button"` posé spontanément · **`<table>` écarté seul** après rappel du critère.
+
+**🔴 Blocages — tous sur du React ancien, pas sur la logique du jour** :
+
+1. **Le contrat `void` des handlers, 3ᵉ fois** (S64, S67, S70-71). `switch` écrit avec `memoire + affichage;` — calcul produit puis jeté, aucun setter. Même famille d'erreur que `return liste.map(...)` en S64. **Le setter va DANS la fonction.** À recroiser.
+2. **Handlers qui écrivent dans le mauvais état** : `tapeChiffre` alimentait `memoire`, puis `tapeOperateur` a écrit deux fois dans `affichage` (`memoire + operateur`, puis `""`). Point posé : **chaque fonction n'écrit que dans les états dont elle a la charge.**
+3. **Lecture d'un état juste après son setter** dans la même fonction — la photo figée du rendu (S53). Ressorti deux fois.
+4. **`!nouveauNombre` au lieu de `true`** : `!x` est fait pour un **basculement**, pas pour une affirmation. Casse sur deux appuis d'opérateur consécutifs.
+5. **Coercion string/number** non anticipée : `"12" + "7"` = `"127"`. `Number()` avant, `String()` après.
+6. **Un opérateur ne se stocke pas dans une variable** — `a + operateur + b` produit du texte. Il faut tester et écrire les 4 calculs à la main.
+
+**🎓 Question de fond posée — « faut-il un 5ᵉ useState ? »** : critère redonné (un état est nécessaire seulement si l'information n'est pas recalculable depuis les autres). A tranché lui-même pour l'historique persistant après `=`, cas où l'état est effectivement justifié puisque `memoire`/`operateur` sont vidés. **Distinction state vs donnée dérivée réactivée correctement.**
+
+**Fin donnée en entier sur demande** : `calcul()` complète, `efface()`, la ligne `saisie` (donnée dérivée), le JSX de l'afficheur.
+
+**Retour sur `saisie`** : demande explicite de dépliage → forme longue (`if`/`else` + concaténations) donnée avant la version compressée. Template literal 🟢, ternaire dans `${}` 🟢 (même contrainte que les accolades JSX : une valeur, pas une instruction).
+
+---
+
+**✅ Trou de l'audit comblé** : famille logique pure (machine à états, cas limites) — était le seul vrai manque du canon. Quiz / pendu / memory restent ❌ mais le mécanisme central est désormais pratiqué.
+
+**Niveaux** : identification des états d'une machine à états 🟡 (trouvés avec reformulation) · `switch` 🟢 (structure juste sans aide, **sort de la rotation**) · contrat `void` des handlers 🔴 — **3ᵉ récurrence, priorité n°1** · lecture d'un état après son setter 🟡 · coercion string/number 🟡 (neuf en pratique) · state vs donnée dérivée 🟢 · template literal 🟢 · Grid `grid-cols-4` en contexte réel 🟢.
+
+**📌 Reste sur l'exercice** (non fait, optionnel) : habillage Tailwind de l'afficheur · division par zéro · opérations enchaînées sans `=` · **factorisation des 16 boutons en composant `Touche`** — terrain DRY signalé, mécanisme déjà acquis (props + prop fonction, S64), bon exercice à part entière.
+
+**📌 À vérifier en ouverture** : la calculatrice a-t-elle été ajoutée à `EXERCICES` et à `App.tsx` (le 3ᵉ geste de la règle d'ajout) ?
+
+**🎹 Raccourci** : `Ctrl+.` — non joué sur les deux séances. **Demander s'il est acquis avant d'en poser un nouveau.**
+
+**⏭️ Prochaine étape**
+
+1. Recroiser le **contrat `void` des handlers** — page blanche courte, 3ᵉ récurrence.
+2. Habillage de l'accueil + de la calculatrice (créneau basse énergie, Tailwind solide).
+3. **Semaine 3 (à partir du 18/08)** : décision sur la reprise des notions neuves — `useParams` sur Pokédex liste→détail, approfondissement React Router Declarative.
+4. Toujours en attente : projet CSS Grid · `children` · generics (`useState<T>`) · `<table>`.
+
+**📝 Edit post-séance (retour de Frédéric)**
+
+Frustration exprimée en fin de séance : _« j'ai beaucoup galéré sans trouver la réponse, la logique ne venait pas alors que la technique est connue. »_
+
+Recadrage donné, à conserver pour le calibrage : **c'est le premier exercice du parcours sans motif à reconnaître.** Tous les précédents fournissaient la logique (afficher, filtrer, transformer, envoyer) ; il ne restait qu'à brancher le mécanisme. Ici il fallait inventer le comportement — décider ce que le composant doit retenir, quand et pourquoi. Compétence distincte, jamais entraînée, dont c'était le premier contact. **La difficulté ressentie confirme le diagnostic de l'audit, elle ne mesure pas le niveau.**
+
+**Mesure réelle reportée** : refaire la calculatrice en page blanche dans quelques jours. C'est ce passage-là qui vaudra verdict, pas celui-ci.
+
+**🎯 Décidé pour la prochaine session — refactor DRY de la calculatrice** (demande de Frédéric, à faire en priorité)
+
+Zéro notion neuve, conforme à la consigne vacances. Deux niveaux, dans l'ordre :
+
+1. **Composant `Touche`** (props `label` + `onClick`) — la chaîne Tailwind vit à un seul endroit. Échauffement.
+2. **Tableau `TOUCHES` + `.map()`** — même pattern que `EXERCICES` sur l'accueil, mais plus exigeant : il faut décider quel handler chaque touche déclenche. C'est le vrai exercice.
+
+Recroise au passage le **contrat `void` des handlers** (récurrence n°1) sur un terrain déjà connu.
+
+---
+
+**🗺️ Famille logique pure — suite du programme (après consolidation de la calculatrice)**
+
+Exercices partageant le même mécanisme (un état invisible qui décide du comportement), par proximité décroissante :
+
+- **Quiz / QCM** — index courant + score ; le même bouton fait deux choses selon qu'on a répondu ou non. **Recommandé comme prochain de la famille** : tableau d'objets typé (terrain fort), résultat présentable en portfolio sur un thème optique.
+- **Jeu de mémoire** — mémoriser la première carte + délai avant retournement. Ajoute la dimension temps.
+- **Pendu / devine le nombre** — état de partie, tentatives, conditions de fin. Le plus exigeant.
+- **Carrousel** — index circulaire, modulo. Le plus rapide (~20 min), jamais fait.
+
+⚠️ **Ne pas confondre** : convertisseur d'unités, calcul de RAC, pourboire = **calculs dérivés**, pas des machines à états. Ils ne drillent pas la même chose.
+
+**Ordre retenu** : consolider la calculatrice (refactor puis page blanche) **avant** d'ouvrir un nouvel exercice de la famille.
