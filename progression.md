@@ -287,3 +287,76 @@ Exercices partageant le même mécanisme (un état invisible qui décide du comp
 ⚠️ **Ne pas confondre** : convertisseur d'unités, calcul de RAC, pourboire = **calculs dérivés**, pas des machines à états. Ils ne drillent pas la même chose.
 
 **Ordre retenu** : consolider la calculatrice (refactor puis page blanche) **avant** d'ouvrir un nouvel exercice de la famille.
+
+
+## Session 72 — Refactor DRY calculatrice + raccordement clavier
+
+**Durée** : ~3h (dimanche, semaine 2 de vacances). Énergie bonne, séance tenue en entier.
+
+**Ouverture** : bilan de la S71 posé par Frédéric comme un « échec » (aide nécessaire). Recadré sur les faits — les blocages de la veille portaient sur du React ancien, pas sur la logique de l'exercice. La mesure reste la page blanche à venir, pas la séance de construction.
+
+**Révision éclair (`fetch` POST)** 🟢 : structure complète et juste à froid — `method` en chaîne, `headers` en objet, `body` en chaîne JSON. **L'inversion de la S67 n'est pas revenue → sort de la rotation.** `"Content-Type"` cherché en ligne : réflexe correct, chaîne imposée par une norme externe, même famille que `toLocaleString("fr-FR")`. Seule correction : nommage inversé (`data` pour la `Response`, `reponse` pour les données) — l'enveloppe porte `ok` et `status`, le nom doit le rappeler.
+
+**🎹 Raccourci** : `Ctrl+.` acté 🟢 et sorti de rotation. Usage volontairement faible assumé — cherche ses erreurs lui-même, raison valable. **Nouveau : `F2`** (renommer un symbole dans tout le projet), utilisé en contexte réel dans la séance. Donnés en passant : `Shift+Alt+↓` (dupliquer une ligne), `Ctrl+D` (occurrence suivante), `Alt+↑/↓` (déplacer une ligne).
+
+---
+
+### 1. Refactor DRY — composant `Touche` puis tableau
+
+**✅ Sorti seul** : interface `ToucheProps` complète du premier coup, **y compris `onClick: () => void`** · composant `Touche` correct · les 16 entrées du tableau · le `.map()` avec **`key` posée dès la première écriture** (dette 🔴 depuis S64, pas de rappel nécessaire) · `ToucheProps[]` comme type du tableau, choix pertinent · `onClick={() => tapeChiffre("7")}` sans confusion `fn`/`fn()`.
+
+**🔴 Blocage sur le vocabulaire, pas sur le mécanisme.** Demande explicite de redéfinir *prop*, *type*, *contrat* — le code était juste, les mots ne l'étaient pas. Cours complet redonné (une prop = une information parent→enfant ; React les rassemble en un objet ; l'interface = le contrat). **Le piège des deux `=>` n'était pas compris** malgré son application correcte : redonné avec le repère de position — à droite d'un `:` dans une interface = description ; ailleurs = fabrication.
+
+**`void` non compris non plus** : redonné (TS exige que toute fonction annonce son retour ; `void` = ne compte sur aucune valeur en sortie ; conséquence pratique = le résultat sort par un setter, pas par un `return`).
+
+**Corrections mineures** : `() => efface()` → `efface` (pas d'argument à figer, on passe la référence) · `TOUCHES` → `touches` (tableau reconstruit à chaque rendu, dépend du state — nature différente de `EXERCICES`) · template literal superflu.
+
+**Emplacement du tableau** : question posée par moi, mal formulée, réponse donnée directement. Point retenu : le tableau contient des fonctions qui lisent le state → il vit **dans** le composant. Question de fond posée derrière (ordre de lecture du fichier) → **hoisting mentionné, non enseigné**.
+
+**Spread de props `{...t}`** — demandé explicitement. Forme longue → déstructuration → spread. Points posés : l'ordre décide (ce qui suit le spread écrase) · `key` reste hors du spread · ne fonctionne que si les clés correspondent exactement, garanti ici par le typage.
+
+---
+
+### 2. Raccordement clavier (proposé par Frédéric)
+
+**✅ Sorti seul** : structure `useEffect` + `addEventListener("keydown")` + nettoyage identifié comme nécessaire · tableau de dépendances non vide · les quatre familles de touches et leur aiguillage · early return non retenu mais `if` corrects.
+
+**🔴 Blocage principal — la même référence pour `add` et `remove`.** Deux flèches au texte identique = deux fonctions distinctes ; `removeEventListener` compare par identité. **Non ressorti seul, deux indices nécessaires** malgré le rappel valeur/référence. Squelette finalement donné. À recroiser : c'est le mécanisme central du nettoyage d'écouteur.
+
+**Autres points** : `removeEventListener` placé dans le corps de l'effet au lieu d'être renvoyé (le `return` **confie** la fonction à React) · `filter` proposé là où `includes` suffit (tableau vs booléen) · `"enter"`/`"c"` au lieu de `"Enter"`/`"Escape"` (casse) · `0` manquant dans la liste des chiffres.
+
+**Dépendances de l'effet** : point de fond posé — le tableau doit contenir **tout ce que l'écouteur lit indirectement** via les handlers, pas seulement `affichage`. Sans quoi l'écouteur reste branché sur des fonctions d'un rendu précédent. Corrigé en `[affichage, memoire, operateur, nouveauNombre]`.
+
+**`KeyboardEvent`** 🟡 : type du catalogue navigateur embarqué par TS, à écrire uniquement parce que la fonction est définie hors de son point d'usage. **Question de fond posée — « faut-il connaître ces noms de tête ? »** Réponse : non, geste outillé donné (écrire la fonction inline, survoler `e`, lire le type déduit, puis extraire). Même principe que `"Content-Type"`.
+
+---
+
+**⚠️ Mes erreurs** :
+
+1. **Renvois systématiques aux sessions passées** — recadré explicitement par Frédéric, règle du §9 bis non respectée. Corrigé en cours de séance.
+2. **Réponse juste traitée comme fausse** : ma question portait sur les arguments reçus, sa réponse était correcte ; j'ai englobé la partie fausse (le retour, qui répondait à une autre question) dans le même verdict.
+3. **Nom `TOUCHES` donné en consigne puis corrigé en `touches`** — la différence de nature n'était visible qu'une fois le code écrit.
+4. Question sur l'emplacement du tableau posée de façon incompréhensible, sans que l'enjeu réel (portée) soit énoncé.
+
+**⚠️ Écart à la consigne vacances** : deux notions neuves croisées (spread de props, `KeyboardEvent`), les deux à sa demande explicite. Le raccordement clavier lui-même est de la recombinaison pure.
+
+---
+
+**Niveaux** : interface de props + composant simple 🟢 (page blanche, premier coup) · `key` 🟢 (dette soldée, posée sans rappel) · contrat `void` — **écrit correctement, mais le sens du mot était inconnu** ; le décrire ≠ le comprendre · piège des deux `=>` 🟡 (appliqué juste, expliqué faux) · spread de props 🟡 (neuf) · référence unique add/remove 🔴 (non ressortie seule) · dépendances complètes d'un effet 🟡 · `includes` vs `filter` 🟡 · `KeyboardEvent` 🟡.
+
+**🆕 Dettes ouvertes ce jour** :
+
+- **Types fonction dans une interface au-delà de `() => void`** — avec paramètres, avec valeur de retour. Demandé explicitement.
+- **Hoisting** — mentionné, non enseigné.
+- **`useRef`** — mentionné (accès au DOM réel en React), non enseigné.
+- `tabIndex` / écouteur scopé à un élément — alternative montrée, non pratiquée.
+
+**⏭️ Prochaine étape — reprise directe dans la même conversation**
+
+Trois blocs livrés en fin de séance, à traiter demain dans l'ordre :
+
+1. **Défauts réels** : double déclenchement clavier/souris (bouton focalisé réactivé par `Entrée`/`Espace`) · historique périmé · AZERTY (rangée du haut = `& é " '` sans `Shift`) · `"C"` majuscule non gérée · enchaînement `7 + 3 +` sans `=`.
+2. **Clean code** : `switch` répétant `setAffichage(String(...))` 4× (séparer calcul et écriture) · `chiffres`/`operateurs` à sortir de l'effet · quatre `if` indépendants → `else if` ou early return.
+3. **DRY** : la table de correspondance existe **deux fois** (tableau `touches` + aiguillage clavier). `e.key` contient la même chaîne que `label` → retrouver l'entrée et appeler son `onClick`. `Enter`/`Escape` restent à part.
+
+Puis : habillage Tailwind (non fait) · page blanche calculatrice (mesure réelle, à distance) · **semaine 3 à partir du 18/08 — décision sur la reprise des notions neuves**.

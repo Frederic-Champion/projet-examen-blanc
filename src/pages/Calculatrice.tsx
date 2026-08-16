@@ -1,4 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface ToucheProps {
+  label: string;
+  onClick: () => void;
+}
+
+function Touche({ onClick, label }: ToucheProps) {
+  return (
+    <button className="size-16 rounded-md border p-1 hover:bg-blue-400" type="button" onClick={onClick}>
+      {label}
+    </button>
+  );
+}
 
 function Calculatrice() {
   const [affichage, setAffichage] = useState("0");
@@ -59,121 +72,53 @@ function Calculatrice() {
 
   const saisie = `${memoire} ${operateur} ${nouveauNombre ? "" : affichage}`;
 
+  const touches: ToucheProps[] = [
+    { label: "7", onClick: () => tapeChiffre("7") },
+    { label: "8", onClick: () => tapeChiffre("8") },
+    { label: "9", onClick: () => tapeChiffre("9") },
+    { label: "/", onClick: () => tapeOperateur("/") },
+    { label: "4", onClick: () => tapeChiffre("4") },
+    { label: "5", onClick: () => tapeChiffre("5") },
+    { label: "6", onClick: () => tapeChiffre("6") },
+    { label: "*", onClick: () => tapeOperateur("*") },
+    { label: "1", onClick: () => tapeChiffre("1") },
+    { label: "2", onClick: () => tapeChiffre("2") },
+    { label: "3", onClick: () => tapeChiffre("3") },
+    { label: "-", onClick: () => tapeOperateur("-") },
+    { label: "C", onClick: efface },
+    { label: "0", onClick: () => tapeChiffre("0") },
+    { label: "=", onClick: calcul },
+    { label: "+", onClick: () => tapeOperateur("+") },
+  ];
+
+  useEffect(() => {
+    const chiffres = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+    const operateurs = ["-", "+", "*", "/"];
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (chiffres.includes(e.key)) {
+        tapeChiffre(e.key);
+      }
+      if (operateurs.includes(e.key)) {
+        tapeOperateur(e.key);
+      }
+      if (e.key === "Enter" || e.key === "=") calcul();
+      if (e.key === "Escape" || e.key === "c") efface();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [affichage, memoire, operateur, nouveauNombre]);
+
   return (
     <div className="m-auto w-fit rounded-lg border-2">
       <div>
-        <p className="text-gray-500">{historique || `${saisie}`}</p>
+        <p className="text-gray-500">{historique || saisie}</p>
         <p className="font-semibold">{affichage}</p>
       </div>
 
       <div className="grid grid-cols-4 gap-2 p-4">
-        <button
-          onClick={() => tapeChiffre("7")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          7
-        </button>
-        <button
-          onClick={() => tapeChiffre("8")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          8
-        </button>
-        <button
-          onClick={() => tapeChiffre("9")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          9
-        </button>
-        <button
-          onClick={() => tapeOperateur("/")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          /
-        </button>
-
-        <button
-          onClick={() => tapeChiffre("4")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          4
-        </button>
-        <button
-          onClick={() => tapeChiffre("5")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          5
-        </button>
-        <button
-          onClick={() => tapeChiffre("6")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          6
-        </button>
-        <button
-          onClick={() => tapeOperateur("*")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          *
-        </button>
-
-        <button
-          onClick={() => tapeChiffre("1")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          1
-        </button>
-        <button
-          onClick={() => tapeChiffre("2")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          2
-        </button>
-        <button
-          onClick={() => tapeChiffre("3")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          3
-        </button>
-        <button
-          onClick={() => tapeOperateur("-")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          -
-        </button>
-
-        <button onClick={efface} type="button" className="size-16 rounded-md border p-1 hover:bg-blue-400">
-          C
-        </button>
-        <button
-          onClick={() => tapeChiffre("0")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          0
-        </button>
-        <button onClick={calcul} type="button" className="size-16 rounded-md border p-1 hover:bg-blue-400">
-          =
-        </button>
-        <button
-          onClick={() => tapeOperateur("+")}
-          type="button"
-          className="size-16 rounded-md border p-1 hover:bg-blue-400"
-        >
-          +
-        </button>
+        {touches.map((t) => (
+          <Touche key={t.label} {...t} />
+        ))}
       </div>
     </div>
   );
