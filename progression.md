@@ -360,3 +360,87 @@ Trois blocs livrés en fin de séance, à traiter demain dans l'ordre :
 3. **DRY** : la table de correspondance existe **deux fois** (tableau `touches` + aiguillage clavier). `e.key` contient la même chaîne que `label` → retrouver l'entrée et appeler son `onClick`. `Enter`/`Escape` restent à part.
 
 Puis : habillage Tailwind (non fait) · page blanche calculatrice (mesure réelle, à distance) · **semaine 3 à partir du 18/08 — décision sur la reprise des notions neuves**.
+
+## Session 73 — Calculatrice : DRY de l'aiguillage clavier + enchaînement des opérateurs
+
+**Durée** : ~2h15 (lundi, dernier jour de semaine 2 de vacances). Énergie bonne, reprise directe dans la conversation de la veille.
+
+**Révision éclair (`Object.keys` / `values` / `entries`)** 🟡 : `keys` et `values` justes de mémoire, `entries` inconnu (cherché en ligne). Cours donné — tableau de paires `[clé, valeur]`, déstructuration par position `([marque, quantite])`, usage React pour transformer un objet en liste. **Faux-ami identifié par Frédéric lui-même** : le `entries` de `IntersectionObserver` est un simple nom de paramètre, aucun rapport. **Demande explicite : mettre `Object.entries` en rotation, se sent fragile.**
+
+**Somme d'un objet** : `Object.values(...).reduce(...)` reconstruit seul, ~10 min d'effort. Confirmé qu'aucune méthode native de somme n'existe en JS — `reduce` **est** la réponse standard, ce n'est pas un contournement.
+
+---
+
+### 1. DRY de l'aiguillage clavier
+
+**Constat de départ** : deux sources de vérité pour le même comportement — le tableau `touches` et les listes `chiffres`/`operateurs` de l'écouteur.
+
+**Première explication incomprise** ("j'ai du mal à comprendre") → reprise à zéro par le déroulé de ce qui se passe au clic, puis squelette à deux trous. A fonctionné.
+
+**✅ Trouvé seul** : `find` + condition `t.label === e.key`. **🟡 Trou 2 manqué** : a testé `e.key === touche.label` (redondant avec ce que `find` vient de vérifier, et plante si `touche` est `undefined`) au lieu de tester l'existence. Correction donnée. **Repère posé : `find` renvoie l'élément ou `undefined`, on teste toujours son résultat.**
+
+**Question posée derrière** : pourquoi `touche.onClick()` avec parenthèses. Réponse redonnée sur `fn` vs `fn()` — les deux formes cohabitent dans son fichier (`onClick={efface}` vs `touche.onClick()`), une transmet, l'autre exécute.
+
+---
+
+### 2. Enchaînement des opérateurs (`2 + 5 + 7` sans `=`)
+
+**🌟 Diagnostic et solution trouvés seul, énoncés en français** : « il n'y a pas de deuxième mémoire, il faudrait que setMemoire fasse un calcul dans le cas où il y a déjà un opérateur ». C'est exactement le comportement d'une vraie calculette — calculer au fil, ne jamais retenir plus d'un nombre.
+
+**✅ Écrit seul** : la branche conditionnelle, la variable locale, les deux setters qui la consomment. Le piège du state non mis à jour dans la fonction en cours a été **évité spontanément**.
+
+**🔴 Bug unique** : `operation(..., op)` au lieu de `operation(..., operateur)` — l'opérateur qui arrive au lieu de celui en attente.
+
+**Extraction de `operation`** : proposée par moi, comprise après une explication ratée (voir erreurs). Fonction pure, hors composant, `return` sans `break`. `calcul()` réécrite pour l'utiliser — **fait seul, avec un `String()` posé directement autour de l'appel, plus propre que ma version en deux temps**.
+
+---
+
+### 3. Points de vocabulaire redemandés
+
+Trois demandes explicites de définition, toutes sur des mots que j'employais sans les avoir posés : **setter**, **variable locale**, **early return**. Cours donnés séparément.
+
+**Sur `return` vs `break` dans un `switch`** : question légitime ("je croyais qu'il fallait un break"). Ma réponse a mélangé trois sujets → **stop net de Frédéric** ("tu m'as perdu, tu as mélangé trop de trucs"). Repris isolément avec deux exemples hors contexte calculatrice : `break` sort du switch, `return` sort de la fonction. Compris immédiatement.
+
+**Early return appliqué seul** dans la foulée : `if (!operateur) return;` — avec, sans le formuler, l'usage du falsy sur chaîne vide.
+
+---
+
+### 4. Notions posées en passant
+
+- **Debugger** : demandé par Frédéric ("comment faire défiler ligne par ligne"). Procédure Chrome donnée (Sources, `Ctrl+P`, breakpoint sur numéro de ligne, `F10`/`F11`/`F8`, panneau Scope) + instruction `debugger;`. **Non pratiqué dans la séance.**
+- **Double déclenchement clavier/souris** 🟢 : mécanisme compris (bouton focalisé réactivé par `Entrée`, plus l'écouteur `window`). **A résisté à la correction, à juste titre** — impact nul ici, coût réel sur la navigation `Tab`. **Décision : ne rien corriger.**
+- **`onClick` vs `onMouseDown`** 🟢 : trois moments d'un même geste, `onClick` exige `down` et `up` sur le même élément (d'où l'annulation par glissement). Défaut = `onClick`.
+- **Warning `exhaustive-deps`** : expliqué à sa demande. `touches` et `calcul` manquants, volontairement — les ajouter relancerait l'effet à chaque rendu. **Consigne donnée : laisser le warning, ne pas le faire taire.** Justifie `useCallback`/`useMemo`, déjà en attente depuis le scaffolding.
+
+---
+
+**⚠️ Mes erreurs** :
+
+1. **Empilement de trois sujets** dans l'explication `return`/`break` (extraction de fonction + enchaînement + switch) → arrêt net. Récurrence directe du §9. Reprise à un seul sujet, hors contexte, immédiatement efficace.
+2. **Consigne du bloc DRY incompréhensible au premier envoi** — j'ai donné l'objectif sans dérouler le mécanisme.
+3. **Vocabulaire employé sans être posé** : setter, variable locale, early return. Trois arrêts sur définition dans une même séance. À poser avant usage, pas après.
+
+---
+
+**Décisions de Frédéric** :
+
+- **AZERTY et `"C"` majuscule** : pas corrigés, aucun apprentissage à la clé. Jugement correct.
+- **Division par zéro** : message texte renvoyé par `operation`. Effet de bord signalé (type de retour `number | string`, `NaN` si on enchaîne après une erreur) et deux alternatives proposées. **Choix assumé de laisser en l'état.**
+- **Commentaires pédagogiques dans le code** : conservés. Le fichier est son support de révision, pas un livrable d'équipe. Position légitime, à revoir seulement au moment du SaaS portfolio.
+
+---
+
+**Niveaux** : `find` + test d'existence 🟡 (méthode trouvée seule, garde manqué) · enchaînement des opérateurs / machine à états 🟢 (**diagnostic et solution énoncés seul**) · extraction de fonction pure hors composant 🟢 · `return` vs `break` 🟢 · early return 🟢 (appliqué seul juste après le cours) · falsy sur chaîne vide 🟢 · variable locale vs state 🟢 (piège évité spontanément) · `Object.entries` 🔴 · `fn` vs `fn()` 🟢 · debugger 🔴 (procédure donnée, non pratiquée).
+
+**🔄 Rotation** : `Object.entries` **entre** (demande explicite). Toujours dedans : `position: fixed` 🔴 · `IntersectionObserver` 🔵 · `slice(0, n)` en contexte neutre.
+
+**📋 File d'attente des notions repoussées** (cohérente, à traiter à la reprise) : types fonction dans une interface au-delà de `() => void` · `useCallback` / `useMemo` / `React.memo` (+ React Compiler) · generics `useState<T>` · hoisting · `useRef` · `children` · `useParams` sur vrai cas API.
+
+**📌 Reste sur la calculatrice** : habillage Tailwind (jamais fait) · **page blanche à distance = la vraie mesure**, pas encore programmée.
+
+**⏭️ Prochaine étape**
+
+1. **Demain** : habillage visuel de la calculatrice et de la page d'accueil. Séance légère, terrain Tailwind solide, après deux jours denses.
+2. Puis : page blanche calculatrice (mesure réelle).
+3. **Semaine 3 démarre le 18/08** — décision à prendre sur la reprise des notions neuves. Candidats posés : `useParams` sur Pokédex liste→détail, approfondissement React Router Declarative.
+4. Toujours en attente : projet CSS Grid (dette n°1 du socle).

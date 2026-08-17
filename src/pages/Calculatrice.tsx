@@ -13,6 +13,19 @@ function Touche({ onClick, label }: ToucheProps) {
   );
 }
 
+function operation(a: number, b: number, op: string) {
+  switch (op) {
+    case "+":
+      return a + b;
+    case "-":
+      return a - b;
+    case "*":
+      return a * b;
+    case "/":
+      return b === 0 ? "Erreur ça marche pas en divisant avec 0 !" : a / b;
+  }
+}
+
 function Calculatrice() {
   const [affichage, setAffichage] = useState("0");
   const [memoire, setMemoire] = useState("");
@@ -31,32 +44,26 @@ function Calculatrice() {
   }
 
   function tapeOperateur(op: string) {
+    if (operateur !== "") {
+      const resultat = operation(Number(memoire), Number(affichage), operateur);
+      setAffichage(String(resultat));
+      setMemoire(String(resultat));
+    } else {
+      setMemoire(affichage);
+      setHistorique("");
+    }
     setOperateur(op);
-    setMemoire(affichage);
     setNouveauNombre(true);
   }
 
   function calcul() {
+    if (!operateur) return;
     const a = Number(memoire);
     const b = Number(affichage);
 
     setHistorique(`${memoire} ${operateur} ${affichage}`);
-
-    switch (operateur) {
-      case "+":
-        setAffichage(String(a + b));
-        break;
-      case "-":
-        setAffichage(String(a - b));
-        break;
-      case "*":
-        setAffichage(String(a * b));
-        break;
-      case "/":
-        setAffichage(String(a / b));
-        break;
-    }
-
+    const resultat = String(operation(a, b, operateur));
+    setAffichage(resultat);
     setMemoire("");
     setOperateur("");
     setNouveauNombre(true);
@@ -92,21 +99,19 @@ function Calculatrice() {
   ];
 
   useEffect(() => {
-    const chiffres = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
-    const operateurs = ["-", "+", "*", "/"];
     const onKeyDown = (e: KeyboardEvent) => {
-      if (chiffres.includes(e.key)) {
-        tapeChiffre(e.key);
+      const touche = touches.find((t) => t.label === e.key);
+      if (touche) {
+        touche.onClick();
       }
-      if (operateurs.includes(e.key)) {
-        tapeOperateur(e.key);
-      }
-      if (e.key === "Enter" || e.key === "=") calcul();
+      if (e.key === "Enter") calcul();
       if (e.key === "Escape" || e.key === "c") efface();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [affichage, memoire, operateur, nouveauNombre]);
+
+  // useCallback et useMemo pas encore étudié à ce moment précis donc normal.
 
   return (
     <div className="m-auto w-fit rounded-lg border-2">
