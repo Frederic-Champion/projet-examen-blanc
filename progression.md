@@ -444,3 +444,93 @@ Trois demandes explicites de définition, toutes sur des mots que j'employais sa
 2. Puis : page blanche calculatrice (mesure réelle).
 3. **Semaine 3 démarre le 18/08** — décision à prendre sur la reprise des notions neuves. Candidats posés : `useParams` sur Pokédex liste→détail, approfondissement React Router Declarative.
 4. Toujours en attente : projet CSS Grid (dette n°1 du socle).
+
+## Session 74 — Placement Grid + point décimal + flottants IEEE 754
+
+**Durée** : ~2h30 (mardi, semaine 3 de vacances). Énergie bonne.
+
+**Consigne vacances prolongée par Frédéric** : semaine 3 = consolidation également (absent en semaine 1). Pas de grosse nouveauté, exercices tirés de l'audit exercices types. Écarte le Pokédex (`useParams` = neuf).
+
+**Révision éclair (`position: fixed` + contexte parent)** 🔴 : **3ᵉ échec identique** (S64, S70, S74) — cause attribuée au glassmorphism, mais la règle sous-jacente ("`fixed` vise le viewport, pas le parent") toujours pas produite. Règle des trois échecs appliquée, cours complet redonné avec la liste des propriétés créatrices de bloc conteneur. **Reste en rotation.**
+
+**🎹 Raccourci** : `F2` commencé, reconduit.
+
+---
+
+### 1. Placement Grid — dette n°1 du socle, entamée pour de bon
+
+Constat de départ **posé par Frédéric** : « il n'y a pas trop de grid à faire ». Juste — une grille régulière ne drille rien. Le contenu de la dette, c'est le **placement** (`col-span`, `row-span`), jamais pratiqué.
+
+Pavé réorganisé en disposition de vraie calculette : `C` sur 2 colonnes, `+` sur 2 rangées, `0` et `=` sur 2 colonnes. 16 touches, aucune ajoutée.
+
+**🌟 Diagnostic trouvé seul, avant moi** : `size-16` sur le bouton empêche le `col-span-2` de produire un effet visible. C'est **le** point de fond de Grid — la case dimensionne l'élément (`stretch` par défaut), pas l'inverse. Formulé spontanément, avec la bonne solution pressentie.
+
+**Notions posées** : `auto-rows` vs `grid-template-rows` — deux **populations** de pistes (explicites déclarées / implicites fabriquées par le navigateur), pas deux façons de dimensionner. Demandé deux fois, la seconde explication a porté. Valeur arbitraire `[4rem]` → forme canonique `auto-rows-16` (warning du plugin, juste).
+
+**Habillage** : afficheur hiérarchisé (`text-end`, tailles différenciées), fond, titre. Corrections : `flex-col` sans `flex` (classe inerte — le bon résultat par la mauvaise raison, les `<p>` sont block) · `py-1 p-4` sur le même élément (deux utilitaires en conflit sur le même axe) · répétition `py-1 px-4` à remonter sur le parent.
+
+---
+
+### 2. Point décimal
+
+**🎓 Question à l'origine du bloc, posée par Frédéric** : « est-ce que l'exercice canonique intègre les décimales ? » — question de dev qui compare son travail à une référence externe. C'est elle qui a structuré toute la fin de séance.
+
+**✅ Sorti seul** : fonction dédiée plutôt que `tapeChiffre` (justifié : un point n'obéit pas aux mêmes règles) · garde `affichage.includes(".")` en early return · branche `nouveauNombre` produisant `"0."` · abaissement du drapeau.
+
+**Corrections** : `,` comme séparateur → `Number(",")` = `NaN`, le séparateur décimal JS est le point, toujours ; la virgule est une convention d'**affichage** (`toLocaleString`) · `e.key === "dot"` → `e.key` contient le caractère, les noms style `Period` appartiennent à `e.code` · ligne clavier redondante avec le `find` existant · `return setAffichage(...)` → le `return` nu, un seul métier à la fois (**4ᵉ occurrence de la famille contrat `void`**, mais cette fois sur la forme uniquement, pas sur le fond).
+
+**Tentative écartée** : `toLocaleString` avec `style: "currency"` sur l'afficheur. Point posé — **on formate un résultat, jamais une saisie** : `"3."` formaté devient `"3"`, le point disparaît sous les doigts de l'utilisateur.
+
+---
+
+### 3. Flottants IEEE 754
+
+`0.1 + 0.2` = `0.30000000000000004`. Représentation binaire, norme commune à tous les langages ; spécificité JS = un seul type numérique. Conséquence retenue : **jamais d'égalité stricte entre deux flottants calculés**.
+
+Parade : `String(Number(x.toFixed(10)))` — trois métiers distincts (couper / jeter les zéros / rendre du texte). Question posée derrière : « pourquoi `Number` enlève les zéros » → répondu par la nature du texte vs celle du nombre, aller-retour analogue à `JSON.stringify`/`parse`.
+
+**🔴 Bloc mal construit de ma part (voir erreurs)** — correction finalement livrée en entier.
+
+**Effet de bord révélateur** : trois `ts(2345)` sur `undefined`. Cause — `switch` sans `default` dans `operation`, donc retour `undefined` possible. **Le trou existait depuis la S71, invisible.** TS l'a désigné avant exécution. Réaction : « TS c'est juste trop chiant, je ne comprends pas pourquoi tout le monde bosse avec » — recadré sur le coût payé d'avance vs le bénéfice dispersé, et sur le fait qu'un fichier de 130 lignes écrit seul est le format où TS rapporte le moins.
+
+**Union `number | string`** donnée toute faite (❌ au programme), avec `typeof` comme narrowing. Non enseignée, à ouvrir plus tard.
+
+---
+
+### 4. Comparaison aux énoncés canoniques (vérifiée, non reconstruite)
+
+Sources fetchées : les 15 user stories freeCodeCamp et l'énoncé Odin (essentiel + extra credit).
+
+**Couvert** : clear, saisie visible, chaîne d'opérations, pas de zéros multiples en tête, un seul point, opérations sur décimaux, opérateur après `=`, précision ≥ 4 décimales, division par zéro, une paire à la fois, clavier, CSS.
+
+**Restant — 2 items seulement** :
+- **Opérateurs consécutifs** (fCC #13) : le dernier opérateur doit écraser, sans calculer. Bug réel — `tapeOperateur` calcule dès que `operateur` n'est pas vide.
+- **Backspace** (Odin, extra credit).
+
+**Note d'énoncé** : logique d'exécution immédiate vs logique de formule, les deux acceptées. La calculatrice de Frédéric fait de l'exécution immédiate — conforme.
+
+---
+
+**⚠️ Mes erreurs** :
+
+1. **Trois messages consécutifs incompréhensibles** sur `formateResultat` — j'ai demandé de remplir des trous dans une fonction dont je n'avais pas énoncé le but, avec une union non enseignée dedans. « Je ne comprends rien à ce que tu veux faire !! ». Le cours devait précéder l'exercice, pas le suivre. **Récurrence directe du §9.**
+2. **Consigne d'arrondi mal cadrée** : j'avais dit « on arrondit à l'affichage », puis validé implicitement un arrondi dans `operation`. Il a fallu revenir en arrière.
+3. **Liste des items restants donnée de mémoire, sur-inclusive** (débordement d'affichage, signe +/− — absents des deux énoncés). Corrigée après vérification. Il a demandé la vérification lui-même.
+
+---
+
+**Niveaux** : placement Grid `col-span`/`row-span` 🟢 (diagnostic du conflit de taille trouvé seul) · `auto-rows` vs `grid-template-rows` 🟡 (deux explications nécessaires) · `stretch` par défaut d'un enfant de grille 🟢 · point décimal / parsing d'entrée 🟢 · flottants IEEE 754 🟡 (neuf, conceptuel) · `toFixed`/`Number`/`String` 🟡 · formater un résultat ≠ une saisie 🟢 · `switch` sans `default` 🟢 (ancré par 3 erreurs TS) · union + `typeof` 🔴 (donné, non enseigné) · `flex-col` sans `flex` 🔴 · `position: fixed` 🔴.
+
+**🆕 Dettes ouvertes ce jour** :
+- **Union de types (`number | string`)** — utilisée, non enseignée. Rejoint la file `type`/generics.
+- **`e.code` vs `e.key`** — mentionné, non pratiqué.
+
+**📌 Ressenti sur TypeScript** : agacement exprimé franchement. À surveiller — le format actuel (fichier unique, écrit seul, récent) est structurellement celui où TS coûte le plus et rapporte le moins.
+
+**⏭️ Prochaine étape**
+
+1. **Opérateurs consécutifs** (fCC #13) — bug réel, seul mécanisme canonique manquant.
+2. **Backspace** — `slice(0, -1)`, pratique en contexte plutôt qu'en révision à froid.
+3. **Habillage de l'accueil** — reporté deux fois, créneau basse énergie.
+4. Puis : **page blanche calculatrice à distance** = la vraie mesure, toujours pas programmée.
+5. Toujours en attente : `children` · `useParams` sur vrai cas API · generics · `useRef` · `<table>`.

@@ -3,11 +3,16 @@ import { useEffect, useState } from "react";
 interface ToucheProps {
   label: string;
   onClick: () => void;
+  className?: string;
 }
 
-function Touche({ onClick, label }: ToucheProps) {
+function Touche({ onClick, label, className }: ToucheProps) {
   return (
-    <button className="size-16 rounded-md border p-1 hover:bg-blue-400" type="button" onClick={onClick}>
+    <button
+      className={`rounded-md border p-1 hover:bg-blue-300 ${className} text-white`}
+      type="button"
+      onClick={onClick}
+    >
       {label}
     </button>
   );
@@ -23,7 +28,14 @@ function operation(a: number, b: number, op: string) {
       return a * b;
     case "/":
       return b === 0 ? "Erreur ça marche pas en divisant avec 0 !" : a / b;
+    default:
+      return 0;
   }
+}
+
+function formateResultat(resultat: number | string) {
+  if (typeof resultat === "string") return resultat;
+  return String(Number(resultat.toFixed(10)));
 }
 
 function Calculatrice() {
@@ -43,11 +55,21 @@ function Calculatrice() {
     }
   }
 
+  function tapeDecimal(dot: string) {
+    if (affichage.includes(".")) return;
+    if (nouveauNombre) {
+      setAffichage("0" + dot);
+      setNouveauNombre(false);
+      return;
+    }
+    setAffichage(affichage + dot);
+  }
+
   function tapeOperateur(op: string) {
     if (operateur !== "") {
       const resultat = operation(Number(memoire), Number(affichage), operateur);
-      setAffichage(String(resultat));
-      setMemoire(String(resultat));
+      setAffichage(formateResultat(resultat));
+      setMemoire(formateResultat(resultat));
     } else {
       setMemoire(affichage);
       setHistorique("");
@@ -62,8 +84,7 @@ function Calculatrice() {
     const b = Number(affichage);
 
     setHistorique(`${memoire} ${operateur} ${affichage}`);
-    const resultat = String(operation(a, b, operateur));
-    setAffichage(resultat);
+    setAffichage(formateResultat(operation(a, b, operateur)));
     setMemoire("");
     setOperateur("");
     setNouveauNombre(true);
@@ -80,22 +101,23 @@ function Calculatrice() {
   const saisie = `${memoire} ${operateur} ${nouveauNombre ? "" : affichage}`;
 
   const touches: ToucheProps[] = [
+    { label: "C", className: "col-span-2", onClick: efface },
+    { label: "/", onClick: () => tapeOperateur("/") },
+    { label: "*", onClick: () => tapeOperateur("*") },
     { label: "7", onClick: () => tapeChiffre("7") },
     { label: "8", onClick: () => tapeChiffre("8") },
     { label: "9", onClick: () => tapeChiffre("9") },
-    { label: "/", onClick: () => tapeOperateur("/") },
+    { label: "-", onClick: () => tapeOperateur("-") },
     { label: "4", onClick: () => tapeChiffre("4") },
     { label: "5", onClick: () => tapeChiffre("5") },
     { label: "6", onClick: () => tapeChiffre("6") },
-    { label: "*", onClick: () => tapeOperateur("*") },
+    { label: "+", className: "row-span-2", onClick: () => tapeOperateur("+") },
     { label: "1", onClick: () => tapeChiffre("1") },
     { label: "2", onClick: () => tapeChiffre("2") },
     { label: "3", onClick: () => tapeChiffre("3") },
-    { label: "-", onClick: () => tapeOperateur("-") },
-    { label: "C", onClick: efface },
     { label: "0", onClick: () => tapeChiffre("0") },
-    { label: "=", onClick: calcul },
-    { label: "+", onClick: () => tapeOperateur("+") },
+    { label: ".", onClick: () => tapeDecimal(".") },
+    { label: "=", className: "col-span-2", onClick: calcul },
   ];
 
   useEffect(() => {
@@ -104,6 +126,7 @@ function Calculatrice() {
       if (touche) {
         touche.onClick();
       }
+      if (e.key === ",") tapeDecimal(".");
       if (e.key === "Enter") calcul();
       if (e.key === "Escape" || e.key === "c") efface();
     };
@@ -114,13 +137,14 @@ function Calculatrice() {
   // useCallback et useMemo pas encore étudié à ce moment précis donc normal.
 
   return (
-    <div className="m-auto w-fit rounded-lg border-2">
-      <div>
-        <p className="text-gray-500">{historique || saisie}</p>
-        <p className="font-semibold">{affichage}</p>
+    <div className="m-auto w-72 rounded-lg border-2">
+      <h1 className="px-4 py-1 text-xl font-semibold">💻 Calculatrice</h1>
+      <div className="bg-gray-300 px-4 py-1 text-end">
+        <p className="text-gray-600">{historique || saisie}</p>
+        <p className="text-4xl font-semibold">{affichage}</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 p-4">
+      <div className="grid auto-rows-16 grid-cols-4 gap-2 bg-gray-500 p-4">
         {touches.map((t) => (
           <Touche key={t.label} {...t} />
         ))}
