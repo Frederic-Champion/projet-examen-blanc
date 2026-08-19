@@ -534,3 +534,102 @@ Sources fetchées : les 15 user stories freeCodeCamp et l'énoncé Odin (essenti
 3. **Habillage de l'accueil** — reporté deux fois, créneau basse énergie.
 4. Puis : **page blanche calculatrice à distance** = la vraie mesure, toujours pas programmée.
 5. Toujours en attente : `children` · `useParams` sur vrai cas API · generics · `useRef` · `<table>`.
+
+## Session 75 — Calculatrice terminée (énoncés canoniques couverts) + structure de l'accueil
+
+**Durée** : ~2h (mercredi, semaine 3 de vacances). Énergie bonne. Reprise dans la même conversation.
+
+**Révision éclair (`Object.entries`)** 🟡 : `.map()` complet écrit juste — `Object.entries` correctement nommé, déstructuration par position `([marque, quantite])`, `key` posée sans rappel. **Mais ~5 min d'effort**, et la forme produite (tableau de tableaux `[["Rayban", 12], ...]`) pas énoncée spontanément. Le signal est l'effort → **reste en rotation**. Détail corrigé : `<li>` sans `<ul>` parent.
+
+**🎹 Raccourci** : `F2` reconduit, non vérifié cette séance.
+
+---
+
+### 1. Centrage vertical de la calculatrice
+
+**Question posée par Frédéric** après avoir constaté que `m-auto` ne centre qu'horizontalement. Point de fond : en flux normal, `margin: auto` vertical est **calculé à zéro par la spécification** — pas un bug, une règle. Il ne devient actif sur les deux axes qu'en contexte Flexbox ou Grid.
+
+Solution : `<div className="grid h-full place-items-center">` en enveloppe de la page. `h-full` indispensable — sans hauteur à remplir, pas d'espace libre à répartir.
+
+**⚠️ Ma consigne partait dans tous les sens** — arrêt net de Frédéric (« tu pars déjà dans tout les sens, je veux la réponse avec l'explication »). Justifié : je posais un exercice sur une notion qu'il venait de découvrir bloquante, au lieu de répondre. Réponse donnée directement ensuite.
+
+**Deux questions de fond posées derrière, toutes deux pertinentes** :
+
+- *Pourquoi une div parent dans `Calculatrice.tsx` plutôt que dans `App.tsx` ?* → le layout ne sait pas ce qu'il affiche ; centrer là centrerait **toutes** les pages. Critère : contrainte transversale → layout · contrainte propre à une page → la page.
+- *Pourquoi Grid pour un enfant unique ?* → ce n'est pas Grid contre Flex, c'est **un contexte de mise en page contre le flux normal**. `flex items-center justify-center` fait le même travail ; `place-items-center` s'écrit plus court. Repère posé : Flexbox organise **une** direction, Grid **deux**.
+
+**`place-items` vs `place-content`** (repéré dans l'autocomplétion VS Code) : *items* = le contenu **dans** les cases · *content* = les cases **dans** le conteneur. Différence invisible quand la grille remplit son conteneur — d'où l'impossibilité de tester chez lui.
+
+**🔴 Faute de frappe coûteuse** : `place-item-center` (sans `s`). **Tailwind ne génère rien pour un nom inexistant, sans erreur ni warning.** Le centrage a disparu en entier. Repère à garder : classe sans effet = vérifier l'orthographe avant la logique.
+
+---
+
+### 2. Opérateurs consécutifs (fCC #13) — dernier item logique
+
+**✅ Résolu en deux tentatives.** Première proposition `operateur && !memoire` — bonne forme (deux conditions, `&&`, `!` pour l'absence), mauvais état : `memoire` garde le premier opérande, elle ne dit rien sur ce qui a été saisi depuis. Corrigé seul après indice : `if (operateur !== "" && !nouveauNombre)`.
+
+**Point de fond posé** : la condition initiale demandait *« y a-t-il un opérateur en attente ? »*. La bonne question est *« un opérateur en attente **et** un nouvel opérande saisi depuis ? »*. `nouveauNombre` porte maintenant deux usages cohérents.
+
+**🎓 Auto-diagnostic de Frédéric, juste** : « ce n'est pas le code qui est compliqué, c'est la logique derrière. Ça s'entraîne. » Nommé en retour : **modéliser un état** — décider ce que le système retient et quelle question chaque fonction pose au state. C'est ce que la famille logique pure entraîne, et c'est la seule compétence du parcours qui n'est jamais fournie par l'énoncé.
+
+---
+
+### 3. Backspace (Odin, extra credit)
+
+**Erreur de départ** : `affichage.length.slice(0, -1)` → `.length` est un **nombre**. Vient d'une confusion avec mon propre message, qui mentionnait `.length` pour le cas limite et non pour la coupe.
+
+**🌟 Cas limite anticipé sans consigne** : ne rien effacer quand un opérateur vient d'être pressé (l'afficheur montre l'ancien nombre, il n'y a rien de personnel à retirer). Non signalé par moi.
+
+**🔴 Structure à corriger** : trois `if` imbriqués dont **deux branches identiques mot pour mot**. Repère posé : *quand deux branches d'un `if/else` contiennent le même code, la condition ne sert à rien telle qu'écrite* — la reformuler ou la retourner en early return. Version finale en 2 lignes :
+
+```ts
+if (memoire && nouveauNombre) return;
+setAffichage(affichage.length === 1 ? "0" : affichage.slice(0, -1));
+```
+
+---
+
+### 4. Finitions
+
+**`className = ""` en valeur par défaut** dans `Touche` — sans lui, les 15 touches sans span portaient une classe littérale `undefined` dans le DOM. Sans effet visible, mais visible à l'inspecteur.
+
+**Ajouts autonomes** : `Backspace` et `,` traités hors du `find` (le `e.key` ne correspond à aucun label) · 18 touches, grille remplie sans trou · dépendances de l'effet vérifiées.
+
+---
+
+### 5. ✅ Calculatrice terminée — les deux énoncés canoniques sont couverts
+
+**freeCodeCamp** : les 9 user stories fonctionnelles (#7 à #15) ✅.
+**Odin** : essentiel (clear, division par zéro, une paire à la fois) ✅ · extra credit complet (flottants, un seul point, CSS, backspace, clavier) ✅.
+
+**Seul écart assumé** : le `-` unaire de fCC #13 (`5 * - 5` = −25). Exige de distinguer un `-` opérateur d'un `-` signe. **Décision : ne pas le traiter** — rapport apprentissage/temps mauvais, mécanisme central déjà acquis, et une calculette de bureau se comporte comme la sienne.
+
+---
+
+### 6. `Accueil.tsx` — structure corrigée, habillage reporté
+
+**Sémantique** : `<nav>` retirée au profit de `<ul>`/`<li>`. Ces liens sont le **contenu principal** de la page, pas un menu autour d'autre chose. Le `<nav>` de `App.tsx` reste justifié (barre persistante à côté du contenu).
+
+**⚠️ Mon explication a opposé `<nav>`/`<Link>` à `<ul>`/`<li>`** comme si c'était un choix — « je n'ai pas compris, c'est nav et Link ou alors ul li ??? ». Ce sont **quatre rôles cumulables** : `<nav>` = bloc de navigation · `<ul>`/`<li>` = liste · `<Link>` = cliquable. Reformulé, compris immédiatement.
+
+**Structure écrite juste** : `key` sur le `<li>` (élément produit par le `.map()`), `<Link>` enveloppant tout le contenu de la carte.
+
+**Posé pour demain** : `<Link>` produit un `<a>`, **inline par défaut** — ignore les paddings verticaux, ne s'étend pas en largeur. Doit passer en `block` avant tout habillage de carte.
+
+---
+
+**Niveaux** : `Object.entries` 🟡 (juste mais laborieux) · `margin: auto` vertical en flux normal 🟢 · Grid vs Flex comme contextes de mise en page 🟢 · `place-items` vs `place-content` 🟡 · condition sur le bon état (machine à états) 🟢 · early return sur branches identiques 🟡 · `slice(0, -1)` sur chaîne 🟢 (**sort de la rotation**, pratiqué en contexte réel) · `.length` = nombre 🟢 · valeur par défaut de prop 🟢 · `<nav>` vs `<ul>` 🟡 · `<a>` inline 🔴 (posé, non appliqué).
+
+**⚠️ Mes erreurs** :
+
+1. **Exercice posé au lieu de la réponse** sur le centrage vertical, alors que la notion venait d'être découverte comme bloquante. Arrêt net justifié.
+2. **Deux options sémantiques présentées comme exclusives** (`nav`/`Link` vs `ul`/`li`) alors qu'elles sont cumulables.
+3. `.length` mentionné pour le cas limite, repris par lui dans l'opération — ambiguïté de ma formulation.
+
+**⏭️ Prochaine étape**
+
+1. **Habillage de `Accueil.tsx`** — cartes cliquables : `block` sur le `<Link>`, surface (fond/bordure/arrondi), padding, état de survol, hiérarchie titre/description. Habillage du lien home dans `App.tsx`.
+2. Puis : **page blanche calculatrice à distance** — la vraie mesure, jamais programmée. Délai suffisant à partir de la semaine prochaine.
+3. **Fin de semaine 3 / reprise** : décision sur les notions neuves. Candidats posés : `useParams` sur Pokédex liste→détail (reco n°1 de l'audit), approfondissement React Router Declarative.
+4. **Famille logique pure — prochain exercice** : quiz/QCM recommandé (tableau d'objets typé, thème optique présentable).
+5. Toujours en attente : projet CSS Grid · `children` · generics · `useRef` · `<table>` · union de types.

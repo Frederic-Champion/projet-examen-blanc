@@ -6,7 +6,7 @@ interface ToucheProps {
   className?: string;
 }
 
-function Touche({ onClick, label, className }: ToucheProps) {
+function Touche({ onClick, label, className = "" }: ToucheProps) {
   return (
     <button
       className={`rounded-md border p-1 hover:bg-blue-300 ${className} text-white`}
@@ -66,7 +66,7 @@ function Calculatrice() {
   }
 
   function tapeOperateur(op: string) {
-    if (operateur !== "") {
+    if (operateur !== "" && !nouveauNombre) {
       const resultat = operation(Number(memoire), Number(affichage), operateur);
       setAffichage(formateResultat(resultat));
       setMemoire(formateResultat(resultat));
@@ -98,10 +98,16 @@ function Calculatrice() {
     setHistorique("");
   }
 
+  function supprime() {
+    if (memoire && nouveauNombre) return;
+    setAffichage(affichage.length === 1 ? "0" : affichage.slice(0, -1));
+  }
+
   const saisie = `${memoire} ${operateur} ${nouveauNombre ? "" : affichage}`;
 
   const touches: ToucheProps[] = [
-    { label: "C", className: "col-span-2", onClick: efface },
+    { label: "C", onClick: efface },
+    { label: "⌫", onClick: supprime },
     { label: "/", onClick: () => tapeOperateur("/") },
     { label: "*", onClick: () => tapeOperateur("*") },
     { label: "7", onClick: () => tapeChiffre("7") },
@@ -127,6 +133,7 @@ function Calculatrice() {
         touche.onClick();
       }
       if (e.key === ",") tapeDecimal(".");
+      if (e.key === "Backspace") supprime();
       if (e.key === "Enter") calcul();
       if (e.key === "Escape" || e.key === "c") efface();
     };
@@ -137,17 +144,19 @@ function Calculatrice() {
   // useCallback et useMemo pas encore étudié à ce moment précis donc normal.
 
   return (
-    <div className="m-auto w-72 rounded-lg border-2">
-      <h1 className="px-4 py-1 text-xl font-semibold">💻 Calculatrice</h1>
-      <div className="bg-gray-300 px-4 py-1 text-end">
-        <p className="text-gray-600">{historique || saisie}</p>
-        <p className="text-4xl font-semibold">{affichage}</p>
-      </div>
+    <div className="grid h-full place-items-center">
+      <div className="w-72 rounded-lg border-2">
+        <h1 className="px-4 py-1 text-xl font-semibold">💻 Calculatrice</h1>
+        <div className="bg-gray-300 px-4 py-1 text-end">
+          <p className="text-gray-600">{historique || saisie}</p>
+          <p className="text-4xl font-semibold">{affichage}</p>
+        </div>
 
-      <div className="grid auto-rows-16 grid-cols-4 gap-2 bg-gray-500 p-4">
-        {touches.map((t) => (
-          <Touche key={t.label} {...t} />
-        ))}
+        <div className="grid auto-rows-16 grid-cols-4 gap-2 bg-gray-500 p-4">
+          {touches.map((t) => (
+            <Touche key={t.label} {...t} />
+          ))}
+        </div>
       </div>
     </div>
   );
