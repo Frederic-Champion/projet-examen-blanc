@@ -633,3 +633,78 @@ setAffichage(affichage.length === 1 ? "0" : affichage.slice(0, -1));
 3. **Fin de semaine 3 / reprise** : décision sur les notions neuves. Candidats posés : `useParams` sur Pokédex liste→détail (reco n°1 de l'audit), approfondissement React Router Declarative.
 4. **Famille logique pure — prochain exercice** : quiz/QCM recommandé (tableau d'objets typé, thème optique présentable).
 5. Toujours en attente : projet CSS Grid · `children` · generics · `useRef` · `<table>` · union de types.
+
+## Sessions 76-77 — Habillage complet + démarrage de la page blanche calculatrice
+
+**Durée** : ~1h30 (mercredi soir, séance écourtée) + ~1h45 (jeudi). Semaine 3 de vacances, consolidation stricte.
+
+**Révision éclair (interface imbriquée + rendu conditionnel)** 🟢 : les deux interfaces sorties de mémoire sans hésitation — imbrication, `?`, types, PascalCase. Le cap fermé en S64 tient à froid. Deux remarques : `{cond ? <p/> : null}` → `{cond && <p/>}` (critère S62) · `key` posée sur un élément hors `.map()`.
+**⚠️ Ma consigne était trop floue** — arrêt immédiat de Frédéric (« pas assez de consigne claire pour établir ce que tu veux »). Reformulée avec la donnée concrète, résolue aussitôt.
+
+**🎹 Raccourci** : `F2` reconduit. Confusion de ma part corrigée par lui — il parlait de `F12`, acté en S63.
+
+---
+
+### 1. Positionnement — le vrai contenu des deux séances
+
+**`margin: auto` vertical** : calculé à zéro en flux normal par la spécification. N'absorbe l'espace sur les deux axes qu'en contexte Flexbox ou Grid.
+
+**🔴 `place-item-center`** (sans `s`) — centrage disparu en entier. **Tailwind ne génère rien pour une classe inexistante, sans erreur ni warning.** Même famille : `shadow-[0px 5px 10px...]` avec des espaces (une valeur arbitraire ne peut pas en contenir). **Repère : classe sans effet → vérifier l'orthographe avant la logique.**
+
+**`place-items` vs `place-content`** : *items* = le contenu dans les cases · *content* = les cases dans le conteneur. Différence invisible quand la grille remplit son conteneur.
+
+**🎓 `fixed` — le blocage central, résolu par étapes.** Icône passée en `fixed` → la barre perd sa hauteur et le fond disparaît. Point posé : **un élément `fixed` est extrait du flux**, ses parents cessent de le compter dans leur taille. Ce n'est pas que les classes cessent de marcher, c'est qu'il n'y a plus de contenu à habiller.
+
+Trois formulations successives de son besoin ont été nécessaires avant que je comprenne : il voulait une **barre flottante au-dessus du contenu**, chaque page portant son propre fond. Structure finale : grille à une rangée, `<nav fixed top-0 left-0 z-10>`, et `pt-16` **dans la page** (pas sur le `<main>` — sinon le fond de la page commence sous la barre).
+
+**Coût de `fixed` explicité** : deux valeurs à garder cohérentes dans deux fichiers. `sticky` donné comme alternative (reste dans le flux, se fige au passage) mais écarté car ne répondait pas au besoin.
+
+**Point de vigilance déplié à sa demande** : `transform`, `filter`, `backdrop-filter`, `perspective`, `will-change`, `contain` sur un ancêtre créent un bloc conteneur qui capture les descendants `fixed` **et** `sticky`. Solutions par ordre : déplacer l'effet · sortir la barre de l'arbre. Diagnostic : remonter les parents dans les DevTools, rien dans le CSS de l'élément fixe ne trahit le problème.
+**C'est la notion de sa rotation, échouée 3× en révision éclair — cette fois rencontrée en vrai.**
+
+**`h-full` vs `min-h-screen`** : relative au parent vs absolue au viewport · `height` fixe vs `min-height` plancher.
+
+---
+
+### 2. Icônes, a11y
+
+**`lucide-react`** installé — standard de facto React/Tailwind (embarqué par shadcn/ui, tree-shaking, hérite de `currentColor`). Question posée : « ça ne fonctionne pas pareil que MDI ? » → même principe, API différente (MDI sépare moteur et tracés, Lucide livre un composant par icône).
+
+**`aria-label`** 🟡 — **premier attribut ARIA du parcours**, lacune ❌ de l'audit croisé. Question posée : « c'est importé depuis lucide ou natif React ? » → ni l'un ni l'autre, c'est du HTML. Règle : sert quand aucun texte visible ne porte l'information. Noté : `aria-*` et `data-*` gardent leurs tirets, exception au camelCase de React.
+
+---
+
+### 3. `Accueil.tsx` habillé
+
+**Sémantique** `<ul>`/`<li>`/`<Link>` en place. Classes de carte déplacées du `<li>` vers le `<Link>` + `block` — sans quoi la zone cliquable se limite au texte (critère S70 : la zone de clic doit correspondre à ce que l'œil perçoit).
+
+**`::after`** — demandé explicitement pour pratiquer. Trois manques : `content-['']` (**c'est la déclaration qui crée la boîte** — point S65), `block` (un pseudo-élément est inline), et le centrage. Signalé : 6 classes pour une ligne, un `<hr>` ferait mieux ici. `::before`/`::after` sert quand on veut du décor **sans polluer le HTML**, sur du répété.
+
+**⚠️ Source périmée de ma part** : j'ai affirmé que `taupe` n'existe pas dans Tailwind. Faux — `taupe`, `mauve`, `mist`, `olive` sont dans la v4.3, capture de la doc à l'appui. **Ma mémoire de la palette date de la v3. La page Colors fait foi.**
+
+**Détail utile** : le color picker de VS Code ne s'ouvre que sur une valeur CSS, jamais sur une classe Tailwind (du texte). Le nuancier vit dans l'autocomplétion IntelliSense et sur la page Colors.
+
+---
+
+### 4. 🎯 Page blanche calculatrice — DÉMARRÉE (mesure réelle en cours)
+
+**~55 min de travail autonome**, structure entière posée sans aide : les 5 states, `ToucheProps` + composant `Bouton`, le tableau des 16 touches avec leurs handlers, `afficher` avec son ternaire du zéro, `calcul` en `switch`, le JSX complet.
+
+**🔴 Un blocage, ~20 min : `NaN` sur `egal`.** Cause — `setAffichage(affichage + ope)` dans `operation` : `affichage` se retrouvait à porter `"5+3"`, que `Number()` ne peut pas lire. **Régression de « une variable = un rôle = un type » (S61)** : l'opérateur avait déjà `setOperateur`, l'expression complète relevait de `historique`.
+
+**Consigne respectée** : aide limitée au `NaN`, rien d'autre signalé (il l'a demandé explicitement). Reste donc à corriger par lui-même, non mentionné : `useState("false")` en chaîne, `key` absente du `.map()`, `nouveau` jamais lu, `,` branché sur `operation`.
+
+**⏳ Exercice non terminé** — constat de Frédéric : « c'est en réalité bien plus long qu'une heure, même sans trop bloquer ». Juste. Reprise demain.
+
+---
+
+**Niveaux** : `margin: auto` vertical 🟢 · `fixed` = extrait du flux 🟢 (ancré par un vrai blocage) · bloc conteneur / capture des `fixed` 🟡 (compris en contexte, à retester à froid) · `h-full` vs `min-h-screen` 🟢 · `place-items`/`place-content` 🟡 · zone cliquable sur le `<Link>` 🟢 · `::after` + `content-['']` 🟡 · `aria-label` 🟡 · interface imbriquée 🟢 · **page blanche calculatrice : structure 🟢, en cours**.
+
+**⚠️ Mes erreurs** : consigne de révision éclair trop floue · trois reformulations nécessaires avant de comprendre le besoin sur la barre · palette Tailwind donnée de mémoire, périmée.
+
+**⏭️ Prochaine étape**
+
+1. **Terminer la page blanche calculatrice** — c'est la mesure, elle n'a pas encore livré son verdict.
+2. Puis : **quiz/QCM**, prochain de la famille logique pure (index courant, score, tableau d'objets typé, thème optique).
+3. **Fin de semaine 3** : décision sur la reprise des notions neuves — `useParams` sur Pokédex liste→détail en tête.
+4. Toujours en attente : projet CSS Grid · `children` · generics · `useRef` · `<table>` · union de types.

@@ -144,7 +144,7 @@ function Calculatrice() {
   // useCallback et useMemo pas encore étudié à ce moment précis donc normal.
 
   return (
-    <div className="grid h-full place-items-center">
+    <div className="grid min-h-screen place-items-center bg-indigo-50" >
       <div className="w-72 rounded-lg border-2">
         <h1 className="px-4 py-1 text-xl font-semibold">💻 Calculatrice</h1>
         <div className="bg-gray-300 px-4 py-1 text-end">
