@@ -15,6 +15,11 @@ export const EXERCICES: Exercice[] = [
     titre: "Calculatrice",
     description: "Machine à états, cas limites, parsing d'entrée.",
   },
+    {
+    path: "/calculatrice-pageblanche",
+    titre: "Calculatrice Page Blanche",
+    description: "Exercice calculatrice refait seul",
+  },
 ];
 
 /* Maquette à remplir pour copier coller à la suite :

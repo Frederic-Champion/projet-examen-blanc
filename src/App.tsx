@@ -3,6 +3,7 @@ import { House } from "lucide-react";
 import Brouillon from "./pages/Brouillon";
 import Accueil from "./pages/Accueil";
 import Calculatrice from "./pages/Calculatrice";
+import CalculatricePageBlanche from "./pages/Calculatrice-pageBlanche";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Accueil />} />
           <Route path="/brouillon" element={<Brouillon />} />
           <Route path="/calculatrice" element={<Calculatrice />} />
+          <Route path="/calculatrice-pageblanche" element={<CalculatricePageBlanche />} />
         </Routes>
       </main>
     </div>

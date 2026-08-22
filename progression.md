@@ -708,3 +708,37 @@ Trois formulations successives de son besoin ont été nécessaires avant que je
 2. Puis : **quiz/QCM**, prochain de la famille logique pure (index courant, score, tableau d'objets typé, thème optique).
 3. **Fin de semaine 3** : décision sur la reprise des notions neuves — `useParams` sur Pokédex liste→détail en tête.
 4. Toujours en attente : projet CSS Grid · `children` · generics · `useRef` · `<table>` · union de types.
+
+## Session 78 — ✅ Page blanche calculatrice : la mesure est faite
+
+**Durée** : ~2h50 (jeudi), après ~55 min en S77. **Total 3h45 pour reconstruire ce qui avait pris 4 séances** (S70-73), avec en plus l'habillage, le clavier, les spans Grid et la prop optionnelle.
+
+Séance quasi autonome — trois interventions de ma part en tout.
+
+---
+
+### Verdict de la mesure
+
+**Sorti seul, sans référence** : les 5 états et leurs rôles · `ToucheProps` + composant `Bouton` avec `className = ""` optionnelle · les 18 touches, `row-span-2` / `col-span-2` · `auto-rows-16` · le spread `{...l}` · la **`key` posée d'emblée** · `afficher` et ses deux branches · `supprime` et ses gardes · `arrondir` avec son test `typeof` · **l'enchaînement des opérateurs**, qui avait demandé une séance entière en S73 · `useEffect` clavier avec référence unique add/remove et dépendances correctes.
+
+**Un seul vrai blocage (~20 min, S77)** : `setAffichage(affichage + ope)` dans `operation` → `"5+3"` illisible par `Number()`, d'où `NaN`. Régression de « une variable = un rôle = un type ». Aide limitée au diagnostic à sa demande explicite.
+
+**Corrigés par lui après signalement** : `return` nu dans `arrondir` (renvoyait `undefined` au lieu du message) · `egal` sans opérateur (→ `default` dans le `switch`) · gardes de `decimal` · `e.key === "Space"` (l'espace produit `" "`, `Space` appartient à `e.code` — **récurrence du piège `e.key`/`e.code` de la S74**) · `arrondir` non appelée dans `operation`.
+
+**🌟 A testé plutôt que de me croire** sur `supprime` / `memoire === affichage`. Son test ne révélait rien, il a maintenu son choix. Le cas limite existe (`12 + 12` puis deux backspaces) mais reste marginal — **décision assumée, correcte**.
+
+---
+
+**Niveaux** : **modéliser un état 🟢 — acquis, plus seulement compris** · machine à états complète en page blanche 🟢 · prop optionnelle + spread 🟢 · Grid `row-span`/`col-span`/`auto-rows` 🟢 · `key` 🟢 · `useEffect` + nettoyage d'écouteur 🟢 · `e.key` vs `e.code` 🟡 (2ᵉ occurrence).
+
+**Point de méthode confirmé** : la difficulté ressentie en S71 ne mesurait pas le niveau — c'était le premier exercice sans motif à reconnaître. Le recadrage donné alors était juste.
+
+**🎹 Raccourci** : `F2` — non vérifié depuis 3 séances. **Demander en ouverture avant d'en poser un nouveau.**
+
+---
+
+**⏭️ Prochaine étape — fin des vacances**
+
+1. **Quiz / QCM** — décidé ensemble. Prochain de la famille logique pure : index courant, score, un bouton qui fait deux choses selon l'état. À trancher en ouverture : thème optique, et qui écrit le tableau de questions.
+2. **Décision sur la reprise des notions neuves** — les vacances se terminent. `useParams` sur Pokédex liste→détail en tête (reco n°1 de l'audit), approfondissement React Router Declarative demandé explicitement en S69.
+3. Toujours en attente : projet CSS Grid · `children` · generics · `useRef` · `<table>` · union de types · types fonction au-delà de `() => void`.
