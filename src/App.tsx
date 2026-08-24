@@ -4,6 +4,7 @@ import Brouillon from "./pages/Brouillon";
 import Accueil from "./pages/Accueil";
 import Calculatrice from "./pages/Calculatrice";
 import CalculatricePageBlanche from "./pages/Calculatrice-pageBlanche";
+import CvApplication from "./pages/CvApplication";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/brouillon" element={<Brouillon />} />
           <Route path="/calculatrice" element={<Calculatrice />} />
           <Route path="/calculatrice-pageblanche" element={<CalculatricePageBlanche />} />
+          <Route path="/CV-application" element={<CvApplication />} />
         </Routes>
       </main>
     </div>

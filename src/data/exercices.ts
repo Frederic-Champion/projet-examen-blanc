@@ -20,6 +20,11 @@ export const EXERCICES: Exercice[] = [
     titre: "Calculatrice Page Blanche",
     description: "Exercice calculatrice refait seul",
   },
+    {
+    path: "/CV-application",
+    titre: "Odin - CV Application",
+    description: "Premier Exercice du projet Odin React",
+  },
 ];
 
 /* Maquette à remplir pour copier coller à la suite :
