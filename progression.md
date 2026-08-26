@@ -288,7 +288,6 @@ Exercices partageant le même mécanisme (un état invisible qui décide du comp
 
 **Ordre retenu** : consolider la calculatrice (refactor puis page blanche) **avant** d'ouvrir un nouvel exercice de la famille.
 
-
 ## Session 72 — Refactor DRY calculatrice + raccordement clavier
 
 **Durée** : ~3h (dimanche, semaine 2 de vacances). Énergie bonne, séance tenue en entier.
@@ -305,7 +304,7 @@ Exercices partageant le même mécanisme (un état invisible qui décide du comp
 
 **✅ Sorti seul** : interface `ToucheProps` complète du premier coup, **y compris `onClick: () => void`** · composant `Touche` correct · les 16 entrées du tableau · le `.map()` avec **`key` posée dès la première écriture** (dette 🔴 depuis S64, pas de rappel nécessaire) · `ToucheProps[]` comme type du tableau, choix pertinent · `onClick={() => tapeChiffre("7")}` sans confusion `fn`/`fn()`.
 
-**🔴 Blocage sur le vocabulaire, pas sur le mécanisme.** Demande explicite de redéfinir *prop*, *type*, *contrat* — le code était juste, les mots ne l'étaient pas. Cours complet redonné (une prop = une information parent→enfant ; React les rassemble en un objet ; l'interface = le contrat). **Le piège des deux `=>` n'était pas compris** malgré son application correcte : redonné avec le repère de position — à droite d'un `:` dans une interface = description ; ailleurs = fabrication.
+**🔴 Blocage sur le vocabulaire, pas sur le mécanisme.** Demande explicite de redéfinir _prop_, _type_, _contrat_ — le code était juste, les mots ne l'étaient pas. Cours complet redonné (une prop = une information parent→enfant ; React les rassemble en un objet ; l'interface = le contrat). **Le piège des deux `=>` n'était pas compris** malgré son application correcte : redonné avec le repère de position — à droite d'un `:` dans une interface = description ; ailleurs = fabrication.
 
 **`void` non compris non plus** : redonné (TS exige que toute fonction annonce son retour ; `void` = ne compte sur aucune valeur en sortie ; conséquence pratique = le résultat sort par un setter, pas par un `return`).
 
@@ -504,6 +503,7 @@ Sources fetchées : les 15 user stories freeCodeCamp et l'énoncé Odin (essenti
 **Couvert** : clear, saisie visible, chaîne d'opérations, pas de zéros multiples en tête, un seul point, opérations sur décimaux, opérateur après `=`, précision ≥ 4 décimales, division par zéro, une paire à la fois, clavier, CSS.
 
 **Restant — 2 items seulement** :
+
 - **Opérateurs consécutifs** (fCC #13) : le dernier opérateur doit écraser, sans calculer. Bug réel — `tapeOperateur` calcule dès que `operateur` n'est pas vide.
 - **Backspace** (Odin, extra credit).
 
@@ -522,6 +522,7 @@ Sources fetchées : les 15 user stories freeCodeCamp et l'énoncé Odin (essenti
 **Niveaux** : placement Grid `col-span`/`row-span` 🟢 (diagnostic du conflit de taille trouvé seul) · `auto-rows` vs `grid-template-rows` 🟡 (deux explications nécessaires) · `stretch` par défaut d'un enfant de grille 🟢 · point décimal / parsing d'entrée 🟢 · flottants IEEE 754 🟡 (neuf, conceptuel) · `toFixed`/`Number`/`String` 🟡 · formater un résultat ≠ une saisie 🟢 · `switch` sans `default` 🟢 (ancré par 3 erreurs TS) · union + `typeof` 🔴 (donné, non enseigné) · `flex-col` sans `flex` 🔴 · `position: fixed` 🔴.
 
 **🆕 Dettes ouvertes ce jour** :
+
 - **Union de types (`number | string`)** — utilisée, non enseignée. Rejoint la file `type`/generics.
 - **`e.code` vs `e.key`** — mentionné, non pratiqué.
 
@@ -555,10 +556,10 @@ Solution : `<div className="grid h-full place-items-center">` en enveloppe de la
 
 **Deux questions de fond posées derrière, toutes deux pertinentes** :
 
-- *Pourquoi une div parent dans `Calculatrice.tsx` plutôt que dans `App.tsx` ?* → le layout ne sait pas ce qu'il affiche ; centrer là centrerait **toutes** les pages. Critère : contrainte transversale → layout · contrainte propre à une page → la page.
-- *Pourquoi Grid pour un enfant unique ?* → ce n'est pas Grid contre Flex, c'est **un contexte de mise en page contre le flux normal**. `flex items-center justify-center` fait le même travail ; `place-items-center` s'écrit plus court. Repère posé : Flexbox organise **une** direction, Grid **deux**.
+- _Pourquoi une div parent dans `Calculatrice.tsx` plutôt que dans `App.tsx` ?_ → le layout ne sait pas ce qu'il affiche ; centrer là centrerait **toutes** les pages. Critère : contrainte transversale → layout · contrainte propre à une page → la page.
+- _Pourquoi Grid pour un enfant unique ?_ → ce n'est pas Grid contre Flex, c'est **un contexte de mise en page contre le flux normal**. `flex items-center justify-center` fait le même travail ; `place-items-center` s'écrit plus court. Repère posé : Flexbox organise **une** direction, Grid **deux**.
 
-**`place-items` vs `place-content`** (repéré dans l'autocomplétion VS Code) : *items* = le contenu **dans** les cases · *content* = les cases **dans** le conteneur. Différence invisible quand la grille remplit son conteneur — d'où l'impossibilité de tester chez lui.
+**`place-items` vs `place-content`** (repéré dans l'autocomplétion VS Code) : _items_ = le contenu **dans** les cases · _content_ = les cases **dans** le conteneur. Différence invisible quand la grille remplit son conteneur — d'où l'impossibilité de tester chez lui.
 
 **🔴 Faute de frappe coûteuse** : `place-item-center` (sans `s`). **Tailwind ne génère rien pour un nom inexistant, sans erreur ni warning.** Le centrage a disparu en entier. Repère à garder : classe sans effet = vérifier l'orthographe avant la logique.
 
@@ -568,7 +569,7 @@ Solution : `<div className="grid h-full place-items-center">` en enveloppe de la
 
 **✅ Résolu en deux tentatives.** Première proposition `operateur && !memoire` — bonne forme (deux conditions, `&&`, `!` pour l'absence), mauvais état : `memoire` garde le premier opérande, elle ne dit rien sur ce qui a été saisi depuis. Corrigé seul après indice : `if (operateur !== "" && !nouveauNombre)`.
 
-**Point de fond posé** : la condition initiale demandait *« y a-t-il un opérateur en attente ? »*. La bonne question est *« un opérateur en attente **et** un nouvel opérande saisi depuis ? »*. `nouveauNombre` porte maintenant deux usages cohérents.
+**Point de fond posé** : la condition initiale demandait _« y a-t-il un opérateur en attente ? »_. La bonne question est _« un opérateur en attente **et** un nouvel opérande saisi depuis ? »_. `nouveauNombre` porte maintenant deux usages cohérents.
 
 **🎓 Auto-diagnostic de Frédéric, juste** : « ce n'est pas le code qui est compliqué, c'est la logique derrière. Ça s'entraîne. » Nommé en retour : **modéliser un état** — décider ce que le système retient et quelle question chaque fonction pose au state. C'est ce que la famille logique pure entraîne, et c'est la seule compétence du parcours qui n'est jamais fournie par l'énoncé.
 
@@ -580,7 +581,7 @@ Solution : `<div className="grid h-full place-items-center">` en enveloppe de la
 
 **🌟 Cas limite anticipé sans consigne** : ne rien effacer quand un opérateur vient d'être pressé (l'afficheur montre l'ancien nombre, il n'y a rien de personnel à retirer). Non signalé par moi.
 
-**🔴 Structure à corriger** : trois `if` imbriqués dont **deux branches identiques mot pour mot**. Repère posé : *quand deux branches d'un `if/else` contiennent le même code, la condition ne sert à rien telle qu'écrite* — la reformuler ou la retourner en early return. Version finale en 2 lignes :
+**🔴 Structure à corriger** : trois `if` imbriqués dont **deux branches identiques mot pour mot**. Repère posé : _quand deux branches d'un `if/else` contiennent le même code, la condition ne sert à rien telle qu'écrite_ — la reformuler ou la retourner en early return. Version finale en 2 lignes :
 
 ```ts
 if (memoire && nouveauNombre) return;
@@ -651,7 +652,7 @@ setAffichage(affichage.length === 1 ? "0" : affichage.slice(0, -1));
 
 **🔴 `place-item-center`** (sans `s`) — centrage disparu en entier. **Tailwind ne génère rien pour une classe inexistante, sans erreur ni warning.** Même famille : `shadow-[0px 5px 10px...]` avec des espaces (une valeur arbitraire ne peut pas en contenir). **Repère : classe sans effet → vérifier l'orthographe avant la logique.**
 
-**`place-items` vs `place-content`** : *items* = le contenu dans les cases · *content* = les cases dans le conteneur. Différence invisible quand la grille remplit son conteneur.
+**`place-items` vs `place-content`** : _items_ = le contenu dans les cases · _content_ = les cases dans le conteneur. Différence invisible quand la grille remplit son conteneur.
 
 **🎓 `fixed` — le blocage central, résolu par étapes.** Icône passée en `fixed` → la barre perd sa hauteur et le fond disparaît. Point posé : **un élément `fixed` est extrait du flux**, ses parents cessent de le compter dans leur taille. Ce n'est pas que les classes cessent de marcher, c'est qu'il n'y a plus de contenu à habiller.
 
@@ -742,3 +743,241 @@ Séance quasi autonome — trois interventions de ma part en tout.
 1. **Quiz / QCM** — décidé ensemble. Prochain de la famille logique pure : index courant, score, un bouton qui fait deux choses selon l'état. À trancher en ouverture : thème optique, et qui écrit le tableau de questions.
 2. **Décision sur la reprise des notions neuves** — les vacances se terminent. `useParams` sur Pokédex liste→détail en tête (reco n°1 de l'audit), approfondissement React Router Declarative demandé explicitement en S69.
 3. Toujours en attente : projet CSS Grid · `children` · generics · `useRef` · `<table>` · union de types · types fonction au-delà de `() => void`.
+
+## Session 79 — CV Application (Odin) : formulaire contrôlé + ouverture du lifting state up
+
+**Durée** : ~4h45 (lundi). Énergie bonne au départ, séance dégradée par mes erreurs de calibrage.
+
+**Révision éclair (`position: fixed` + contexte parent)** 🟢 : **règle produite juste au 4ᵉ passage** — `fixed` vise le viewport, et `transform`/`filter`/`backdrop-filter`/`will-change`/`contain` sur un ancêtre créent un bloc conteneur qui capture l'élément. Solution énoncée seule (déplacer l'effet ou sortir l'élément de la branche). La rencontre réelle en S76-77 a fait ce que 3 révisions à froid n'avaient pas fait. **Sort de rotation.**
+
+**🎹 Raccourci** : `F2` acté 🟢, sorti de rotation. Nouveau : `Ctrl+Espace` (forcer l'autocomplétion) — **non joué cette séance.**
+
+---
+
+### 1. Vérification des exercices canoniques (demande de Frédéric)
+
+Question posée : le quiz/QCM est-il canonique ? **Vérifié, non.**
+
+- **Odin** : aucun quiz. Les 3 projets React sont CV Application, Memory Card, Shopping Cart.
+- **fCC** : « Build a Quiz Webpage » = HTML/CSS guidé, sans JS · « Build a Quiz Game » = JS pur sans interface (3 fonctions, `console.log`, l'ordinateur répond au hasard). Ni l'un ni l'autre n'est une machine à états.
+- **Projets React canoniques fCC** (ancien cursus) : Random Quote Machine, Markdown Previewer, Drum Machine, JavaScript Calculator, 25+5 Clock. **Deux déjà faits** (calculatrice S70-78, pomodoro S50-53), les trois autres sans apport.
+
+**⚠️ Origine du quiz** : ma propre reconstruction dans `audit-exercices-types.md`, dont le document qualifie lui-même la source comme non fetchée. Frédéric a demandé la vérification, elle a invalidé ma recommandation.
+
+**🗺️ Programme arrêté avec lui, dans l'ordre** : CV Application (zéro neuf) → Quiz (zéro neuf, énoncé maison assumé) → Memory Card (1 neuf : mélange de tableau) → jeu de mémoire paires (2 neufs : mélange + délai avec verrouillage d'interaction).
+
+---
+
+### 2. Design de l'exercice — décision qui a structuré la séance
+
+Deux designs possibles, l'énoncé Odin n'en impose aucun :
+
+- **A** : une colonne, chaque section bascule sur place formulaire ↔ texte.
+- **B** : deux colonnes, formulaire à gauche, aperçu du CV à droite.
+
+J'ai recommandé A. **Frédéric a tranché pour B** après avoir vu des rendus d'élèves — « comme un vrai résultat de développeur ». Décision maintenue même après que le coût en notions neuves lui a été exposé.
+
+---
+
+### 3. `InfosGenerales` — formulaire contrôlé complet, page blanche
+
+**✅ Sorti seul** : 4 controlled inputs (`value` + `onChange`), labels appariés, `type="email"`/`type="tel"`, `required`, `onSubmit` avec `preventDefault`, rendu conditionnel en `&&`. 0 problems.
+
+**Corrigés après signalement** : `<input>` avec contenu textuel au lieu de `placeholder` (page blanche) · `id` dupliqué sur deux champs · `;` orphelin dans le JSX · `e.preventDefault` sans parenthèses dans des `onChange` (où il n'a rien à annuler).
+
+**🎓 Six questions de fond posées, toutes traitées** — c'est le vrai contenu de ce bloc :
+
+1. Peut-on mettre un handler sur un élément interne ? → attribut sur balise minuscule = contrainte DOM (seul `<form>` émet `submit`, échec **silencieux** ailleurs) vs balise majuscule = prop inventée librement.
+2. Que veut-on annuler avec `preventDefault` ? → la navigation native ; en SPA, rechargement = tous les `useState` réinitialisés.
+3. Le bouton fonctionne-t-il toujours ? → l'événement a lieu, seul le **comportement par défaut** est bloqué.
+4. Le submit ne récupère-t-il pas tout seul les champs ? → il les **envoie**, il ne les donne pas. `onChange` maintient le state et rend le champ modifiable.
+5. `name` sert-il encore ? → uniquement pour ce qui part au serveur (`FormData`, soumission native, autocomplétion). Ici l'`id` seul est fonctionnel.
+6. Pourquoi `e.target` ? → aucun accès implicite à l'élément depuis le corps du handler ; distinction `target`/`currentTarget` posée en passant.
+
+**🌟 Réflexe `FormData`** : a commencé par `new FormData()` de mémoire — outil correct, mauvais contexte. **A trouvé seul pourquoi il ne convient pas** : il faut une mémoire pour rééditer, or le DOM est démonté au passage en mode texte. Distinction contrôlé / non contrôlé posée (`value`+`onChange` vs `defaultValue`).
+
+**Choix 4 états séparés vs 1 état objet** : a défendu l'objet (« un seul bouton donc un seul state »). Argument recadré — le critère est _les valeurs changent-elles ensemble ou séparément_, pas qui déclenche. Objet retenu pour la **donnée publiée**, états séparés pour le **brouillon**.
+
+---
+
+### 4. 🔴 Rupture de séance — mes erreurs
+
+**Trois notions non enseignées balancées dans un exercice page blanche** : lifting state up avec objet, `useState<Infos | null>(null)` (**generics + union, ❌ au §7, 3ᵉ récurrence après S67 et S74**), typage d'une prop fonction à paramètre objet.
+
+**Aggravant** : j'avais annoncé l'exercice comme « zéro concept neuf » **avant** de le donner. Quand ça a bloqué, ma qualification est devenue le problème. Frédéric : _« ce sont tes mots pour décrire l'exercice, sache que c'est faux car je n'y arrive pas »_, puis _« tu trouves le moyen de me faire douter »_, puis _« je ne te fais plus confiance »_.
+
+**Deuxième reproche, fondé** : indices empilant trois renvois aux sessions passées dans un message censé débloquer. **Règle du §9 bis violée après 5 rappels.**
+
+**Correctif retenu** : ne jamais qualifier la difficulté d'un exercice avant de le donner. Vérifier chaque notion contre le §7 **avant** d'écrire un squelette, pas après l'arrêt.
+
+**Décision de Frédéric** : mise en pause du CV, apprentissage des notions manquantes d'abord. Position juste, à respecter.
+
+---
+
+### 5. Bloc 1 enseigné — lifting state up avec objet
+
+**Cours donné** : rien ne remonte en React ; le parent écrit une fonction, la fait descendre, l'enfant l'appelle. Ce qui change avec un objet : il faut le **décrire** (interface de donnée) et le **construire** au moment de l'envoi. Forme longue (`props.x`, fonction `recevoir` nommée, objet en variable) avant version compressée (`{ nom, dossier }`, setter passé directement).
+
+**Demande de Frédéric, acceptée** : faire l'exercice **en `.jsx` d'abord**, TypeScript ensuite. Sa méthode habituelle, appliquée à bon escient.
+
+**Notions déployées à sa demande** :
+
+- **Déstructuration des props** — `({ onEnvoyer })` : d'où sort le nom, pourquoi des accolades, correspondance exacte avec l'attribut JSX du parent.
+- **`(adresse: Adresse) => void`** : décomposition complète. Le contrat porte sur le nombre et le type des paramètres, **jamais sur leur nom**.
+- **Paramètre `e` non déclaré ailleurs** : c'est React qui appelle et fournit l'argument ; un paramètre **est** une déclaration.
+- Terme officiel **lifting state up** donné (il ne l'avait jamais entendu).
+- `interface` = TS pur, React fonctionne sans.
+
+**Exercice `SaisieClient` / `PageClient` (JSX)** : squelette à 4 trous, **non rempli** — « je ne sais pas ». Code donné en entier, puis recopié et adapté par lui. **Structure juste** : prop fonction, objet construit dans l'enfant, `recevoir` dans le parent, paramètre renommé `data` (montre que le point du nom libre est passé).
+**🔴 Bug unique** : `envoyer;` sans parenthèses dans le `onSubmit` — alors que `onEnvoyer(infoClients)` était correct 15 lignes plus haut. Position piégeante, pas la règle.
+
+---
+
+**Niveaux** : formulaire contrôlé complet 🟢 (page blanche) · `onSubmit` + `preventDefault` en React 🟢 · contrôlé vs non contrôlé 🟢 · `e.target` 🟢 · handler sur balise minuscule vs majuscule 🟡 · **lifting state up avec objet 🔴 — enseigné ce jour, code donné, non reproduit** · déstructuration de props 🟡 (revue à sa demande) · type de fonction à paramètre 🟡 · `fn` vs `fn()` 🟡 (rechute en position inhabituelle) · `position: fixed` 🟢.
+
+**🆕 Dettes ouvertes / confirmées** :
+
+- **Generics `useState<T>()`** — dues depuis S67 et S70, **3ᵉ fois servies sans être enseignées**. À traiter en bloc 3.
+- **Union de types (`A | null`)** — nécessaire pour l'état parent vide. Bloc 2.
+- Propagation des événements (`target`/`currentTarget`) — mentionnée, non enseignée.
+- `defaultValue` / formulaires non contrôlés — posé en explication, non pratiqué.
+
+**⏭️ Prochaine étape — arrêtée par Frédéric**
+
+1. **Refaire `SaisieClient`/`PageClient` de mémoire, en `.jsx`.** C'est la mesure du bloc 1.
+2. **Puis la même chose en `.tsx`** — introduction des deux interfaces sur un code déjà fonctionnel.
+3. **Bloc 2** : état qui peut être absent (union de types).
+4. **Bloc 3** : generics, au moins `useState<T>()`.
+5. **Reprise du CV en design B** seulement après ces trois blocs.
+
+## Session 80 — Lifting state up : mesure + TypeScript + état absent
+
+**Durée** : ~2h (2 × 1h, coupées d'une pause). Énergie bonne, séance tenue sans accroc.
+
+**Révision éclair (`IntersectionObserver`)** 🟢 : squelette restitué juste de mémoire — constructeur avec callback + objet d'options, itération sur les entrées, test `isIntersecting`, appel à `observe`. Deux corrections : paramètre `entries` absent de la signature (même famille que le `(e)` d'un handler — c'est l'appelant qui fournit l'argument, mais il faut déclarer le tiroir) · `observe` prend **un** élément, donc boucle nécessaire sur une liste. **Sort de rotation.**
+
+**🎹 Raccourci** : `Ctrl+Espace` — non joué. À reconduire.
+
+---
+
+### 1. Lifting state up en `.jsx` — page blanche ✅
+
+Reproduit de mémoire 24h après le cours, **structure entièrement juste** : prop fonction, objet construit dans l'enfant, `recuperer` dans le parent, paramètre renommé librement (`info`). Le `envoyer;` sans parenthèses de la veille n'est pas revenu, et `preventDefault` a été placé dans la fonction plutôt qu'en flèche inline — plus propre que la version d'hier.
+
+**Une correction** : `useState("")` pour un état qui portera un objet. Le code tourne (`"".nom` = `undefined`) mais deux formes cohabitent dans une variable. Règle « une variable = un rôle = un type » réappliquée.
+
+**Questions posées** : `onInput` vs `onChange` (React aligne `onChange` sur le natif `input` — se déclenche à chaque frappe ; la distinction ne réapparaît que sur `select`/`checkbox`/`file`) · **convention `onXxx` vs `handleXxx`** (la prop décrit un moment, la fonction décrit une action).
+
+---
+
+### 2. Passage en `.tsx` ✅
+
+Les deux interfaces écrites seules, correctement distinguées (`Client` = la donnée / `SaisieClientProps` = le contrat du composant) après correction d'un premier nommage d'après la prop (`onEnvoyerProps`).
+
+**Trois erreurs TS, deux causes** — diagnostiquées et corrigées par lui :
+1. `const data: string = { ... }` → annotation contradictoire avec la valeur, propagée en cascade sur l'appel à `onEnvoyer`.
+2. `type="number"` sur le champ dossier vs `dossier: string` dans l'interface → a tranché seul pour la chaîne (un identifiant contenant une lettre n'est pas un nombre).
+
+**`React.SubmitEvent`** trouvé par le **geste outillé** (écrire inline, survoler, extraire) — pas par mémorisation. ⚠️ J'attendais `React.FormEvent` ; le nom qu'il a obtenu ne produit aucune erreur, **ma mémoire était incomplète, VS Code fait foi**.
+
+**Point posé** : l'inférence suffit tant que la valeur initiale décrit tous les états possibles. Cas du champ numérique déplié (`e.target.value` est **toujours** une chaîne quel que soit le `type` ; `Number()` à la frontière ; pièges `NaN` et `1e5`).
+
+---
+
+### 3. État qui peut être absent — union de types 🟡 (neuf)
+
+**Cours donné** : `{ nom: "", dossier: "" }` en valeur initiale est un mensonge utile — impossible de distinguer « pas encore saisi » de « saisi vide ». `null` dit explicitement « rien ». D'où l'union `Client | null`, et la contrepartie : TS **oblige** à tester avant d'accéder (`client is possibly null`), ce qui rend le `&&` obligatoire au lieu d'optionnel. Narrowing rappelé.
+
+Union sur des **valeurs** montrée au passage (`"vert" | "orange" | "rouge"`) : rend l'état illégal impossible à écrire.
+
+**Chevrons `useState<Client | null>(null)`** donnés comme règle pratique uniquement, avec consigne explicite de ne pas chercher à les comprendre aujourd'hui — **generics = bloc suivant, toujours dû.**
+
+**Exercice réussi du premier coup** : union, `null` initial, `&&` servant à la fois de garde et de narrowing.
+
+**🎓 Question de fond : « qu'est-ce qu'une machine à états ? »** — terme employé depuis plusieurs séances sans jamais avoir été défini. Cours donné : états / transitions / déclencheurs ; l'intérêt = rendre les combinaisons illégales non représentables (contre-exemple des trois booléens indépendants) ; sa calculatrice relue sous cet angle (`nouveauNombre` = état invisible qui change le comportement du visible) ; son exercice du jour identifié comme la plus petite machine à états possible.
+
+---
+
+### 4. Page blanche sur terrain neuf — `SaisieMonture` / `AjoutMonture` ✅
+
+**Demandé par lui** : exercice différent pour mobiliser la connaissance et non la mémoire de frappe. Excellent réflexe.
+
+**Sorti seul** : les deux interfaces, la prop fonction typée, la signature avec annotation, le handler et son type d'événement, l'état `Monture | null`, le rendu conditionnel. Trois champs au lieu de deux.
+**🌟 Le prix traité correctement sans consigne** : état en **chaîne** pendant la saisie, `Number()` à la validation — la solution de production, sur un cas seulement évoqué en discussion.
+
+**🔴 Bug unique** : `onSubmit` posé sur le `<div>` intérieur au lieu du `<form>`. Aucune erreur, aucun warning — exactement le piège qu'il avait lui-même identifié la veille (attribut sur balise minuscule = contrainte DOM, échec silencieux).
+
+**Nommage** — question posée par lui (« j'en fais trop ? ») : oui, d'un cran. `onEnvoyerMonture` répète ce que le contexte dit déjà · `handleSendMonture`/`handleGetMonture` mélangent français et anglais et `Get` suggère une récupération là où la fonction reçoit. Principe posé : un nom dit ce qu'on ne devine pas du contexte, et **une seule langue par projet**. `on` sur les props et `handle` sur les fonctions étaient corrects.
+
+---
+
+**Niveaux** : **lifting state up avec objet 🟢 — reproduit en page blanche deux fois, dont une sur terrain neuf** · interfaces donnée vs props 🟢 · annotation de handler + geste outillé 🟢 · union de types 🟡 (neuf, juste du premier coup) · narrowing par `&&` 🟢 · conversion aux frontières (`Number()` à la validation) 🟢 · machine à états — définition 🟢 · handler sur balise minuscule 🟡 (compris hier, rechute aujourd'hui) · `IntersectionObserver` 🟢.
+
+**🆕 Dette confirmée** : **generics `useState<T>()`** — servis une fois de plus comme règle pratique, toujours pas enseignés. Due depuis S67. **C'est le prochain bloc.**
+
+**⏭️ Prochaine étape**
+
+1. **Bloc generics** — `useState<T>()` au minimum. Dernier prérequis avant la reprise du CV.
+2. **Reprise de CV Application en design B** : aperçu à droite, trois sections qui remontent leurs données. `InfosGenerales` est déjà écrit et fonctionnel, il ne manque que le branchement.
+3. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · propagation des événements (`target`/`currentTarget`).
+
+## Session 81 — Bloc generics soldé + branchement du CV (design B)
+
+**Durée** : ~3h (mercredi, reprise après vacances). Énergie bonne, séance tenue sans accroc.
+
+**Révision éclair (top 3 des moins chères)** 🟡 : `filter` proposé d'abord (sélection par critère) au lieu d'un tri + coupe — la distinction critère/rang n'était pas faite. Comparateur ensuite **juste et sans hésitation** (2ᵉ passage à froid propre). Deux corrections après indice : `sort` mute l'original (oublié, `[...tab]` ajouté ensuite) · `splice` écrit à la place de `slice` alors qu'il avait annoncé `slice` à l'oral. Restitution finale correcte, y compris l'explication `const` / référence constante.
+
+**🎹 Raccourci** : `Ctrl+Espace` — jamais connu, expliqué (forcer l'autocomplétion : catalogue de méthodes, liste refermée, positions où VS Code ne propose rien spontanément — notamment `className` Tailwind). **Non joué, à reconduire.**
+
+---
+
+### 1. ✅ Bloc generics — dette S67 soldée
+
+Enseigné après 3 récurrences de generics servis sans cours (S67, S74, S79).
+
+**Chemin qui a fonctionné** : le problème (fonctions identiques dont seul un mot change) → la fausse solution (`any`) → le tiroir à types. **La formulation « un tiroir vide qui contient un type au lieu d'une valeur » est celle qui a débloqué**, après un premier passage entièrement incompris.
+
+**Questions posées, toutes traitées** :
+- **`: T` après les parenthèses** — n'avait jamais identifié l'annotation de retour comme distincte de l'annotation de paramètre. Cours donné (entre / sort, indépendants, facultative quand TS déduit, obligatoire dans une interface faute de corps à inspecter).
+- **Puis, seul** : « TS ne le devine pas ? » — oui. A identifié de lui-même que `: T` est redondant. Confirmé, avec la nuance du contrat volontaire sur une fonction exportée.
+- **`useState(0)` et l'absence de « vide » pour un nombre** — cours donné : tous les nombres sont des valeurs légitimes, `0` entre en collision avec une vraie donnée. D'où `number | null` et le test `!== null` (piège du falsy, S62).
+
+**Exercice `auHasard`** : signature écrite **de mémoire et juste**, avant de comprendre ce qu'il écrivait (dit explicitement). Bug unique : `* (length + 1)` — borne de `Math.random()` exclue, le `+1` fait sortir du tableau. Même famille que le `+1` du `slice`, en miroir.
+
+**Exercice `useState` (4 cas)** — ⚠️ **ma consigne empilait les 4 d'un coup, incomprise**. Repris un par un, résolu. Les deux formes retenues :
+`useState<Monture[]>([])` (plusieurs, vide) vs `useState<Monture | null>(null)` (une seule, absente).
+
+**Question posée** : « faut-il connaître contraintes / `<T, U>` / generics d'interface / utility types pour être recrutable junior ? » Réponse cadrée : utility types et generics d'interface **en lecture** avant candidature ; contraintes et paramètres multiples relèvent de l'écriture d'abstractions, hors périmètre junior.
+
+---
+
+### 2. CV Application (Odin, design B) — branchement fait
+
+**Écrit seul avant toute aide** : les deux interfaces `Infos` / `InfosGeneralesProps`, la prop fonction typée, l'objet construit dans l'enfant, `useState<Infos | null>(null)` dans le parent avec ses chevrons, le handler parent, le passage de la prop dans les deux sens. Le motif de la S80 reproduit sur un terrain plus gros, sans modèle.
+
+**Trois points signalés sans réponse, deux corrigés seul** :
+1. `handleEnvoyerInfos;` sans parenthèses dans le `onSubmit` — corrigé immédiatement.
+2. `valide` faisant doublon avec `infos !== null` — supprimé, ainsi que l'aperçu local devenu échafaudage.
+3. **🔴 `PagePresentation({ infos }: Infos)`** — interface de donnée utilisée comme interface de contrat. **Non résolu, réponse donnée.** Le concept « React ne passe qu'un objet » est connu et correctement appliqué juste au-dessus (`InfosGeneralesProps`) ; l'obstacle était la collision `infos: Infos` (clé vs type, même mot). **Repère donné : une interface de props liste les attributs JSX, un par ligne.**
+
+**Décisions prises** :
+- **Un seul fichier** pour tout le CV, conforme à la convention d'apprentissage. Découpage plus tard, sur code fonctionnel.
+- **`PagePresentation` conservée** malgré la possibilité d'écrire l'aperçu dans `CvApplication` : orchestrer ≠ afficher. Distinction séparation des responsabilités / DRY posée — deux principes différents.
+
+**Nommage** — validé comme conforme aux usages pro. Convention complétée : une prop qui transporte une **donnée** ne porte ni `on` ni `handle`, juste le nom de la chose, généralement identique à la variable du parent. Booléen = affirmation (`estValide`). **Shorthand d'objet** (`{ nom, email }`) donné et appliqué.
+
+---
+
+**Niveaux** : generics — mécanisme du tiroir 🟢 · `useState<T>()` règle pratique 🟢 · annotation de retour 🟢 · `any` vs generic 🟢 · écriture d'une fonction générique 🟡 (une seule, avec bug de borne) · lifting state up sur terrain plus gros 🟢 · interface de props vs interface de donnée 🟡 — **appliquée juste sur un cas, cassée sur l'autre dans le même fichier** · `sort` mutant 🟡 · `slice`/`splice` 🟢 · `fn` vs `fn()` 🟡 (rechute en position `onSubmit`, corrigée seule).
+
+**🆕 Dette différée (pas un trou)** : utility types `Partial` / `Pick` / `Omit` / `Record` + generics sur interface — **en lecture uniquement, avant la phase de candidature**.
+
+**⚠️ Mes erreurs** : premier cours generics entièrement incompris (parti sur la syntaxe avant d'avoir posé « un tiroir qui contient un type ») · consigne des 4 `useState` empilée en un message · lui avoir fait corriger `useState<Monture | null>(null)` sans dire que la ligne resservirait au besoin suivant, ce qui a brouillé la suite.
+
+**📌 Roadmap — point ouvert, à trancher en fin de Phase 2** (soulevé par lui, reporté d'un commun accord) : cible « recrutable junior++ au mois 7 ». Points posés — le mois 7 doit être une date de **dépôt**, production finie fin de mois 6 · un SaaS optique crédible vaut mieux que trois projets moyens · GitHub public + LinkedIn à activer **avant** le dépôt, pas pendant · **Git branches + Pull Request** (❌ depuis le début) non négociable avant candidature.
+
+**⏭️ Prochaine étape**
+
+1. **Suite du CV** : `Formations` et `Experiences` — même motif, mais **listes** (plusieurs entrées) → `useState<Formation[]>([])`, terrain direct pour les chevrons du jour.
+2. Puis habillage design B.
+3. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · propagation des événements.
