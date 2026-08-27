@@ -9,8 +9,24 @@ interface Infos {
 interface InfosGeneralesProps {
   onEnvoyerInfos: (infos: Infos) => void;
 }
+interface Formation {
+  diplome: string;
+  ecole: string;
+  ville: string;
+  debut: string;
+  fin: string;
+  id: string;
+}
+
+interface FormationsProps {
+  onEnvoyerFormation: (formation: Formation) => void;
+  onSupprimerDiplome: (id: string) => void;
+  formations: Formation[];
+}
+
 interface PagePresentationProps {
   infos: Infos | null;
+  formations: Formation[];
 }
 
 function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
@@ -80,43 +96,142 @@ function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
   );
 }
 
-function Formations() {
-  return <form></form>;
+function AfficherFormations({
+  onEnvoyerFormation,
+  onSupprimerDiplome: onSupprimerFormation,
+  formations,
+}: FormationsProps) {
+  const [diplome, setDiplome] = useState("");
+  const [ecole, setEcole] = useState("");
+  const [ville, setVille] = useState("");
+  const [debut, setDebut] = useState("");
+  const [fin, setFin] = useState("");
+
+  function ajouterDiplome(e: React.SubmitEvent) {
+    e.preventDefault();
+    const formation = { diplome, ecole, ville, debut, fin, id: crypto.randomUUID() };
+    onEnvoyerFormation(formation);
+    setDiplome("");
+    setEcole("");
+    setVille("");
+    setDebut("");
+    setFin("");
+  }
+
+  return (
+    <div>
+      <form onSubmit={ajouterDiplome}>
+        <div>
+          <label htmlFor="diplome">Quels sont tes diplomes ?</label>
+          <input
+            required
+            value={diplome}
+            onChange={(e) => setDiplome(e.target.value)}
+            type="text"
+            id="diplome"
+            placeholder="Diplome"
+          />
+        </div>
+        <div>
+          <label htmlFor="ecole">Dans quel établissement ?</label>
+          <input
+            required
+            value={ecole}
+            onChange={(e) => setEcole(e.target.value)}
+            type="text"
+            id="ecole"
+            placeholder="École"
+          />
+        </div>
+        <div>
+          <label htmlFor="ville">Dans quelle ville ?</label>
+          <input
+            required
+            value={ville}
+            onChange={(e) => setVille(e.target.value)}
+            type="text"
+            id="ville"
+            placeholder="Ville"
+          />
+        </div>
+        <div>
+          <label htmlFor="debut">Date de début</label>
+          <input required value={debut} onChange={(e) => setDebut(e.target.value)} type="month" id="debut" />
+        </div>
+        <div>
+          <label htmlFor="fin">Date de Fin</label>
+          <input required value={fin} onChange={(e) => setFin(e.target.value)} type="month" id="fin" />
+        </div>
+        <button type="submit">Ajouter</button>
+      </form>
+      <div>
+        {formations.map(({ diplome, ecole, ville, debut, fin, id }) => (
+          <div key={id}>
+            <p>
+              {diplome}: {ecole}-{ville}//{debut}-{fin}
+            </p>
+            <button type="button" onClick={() => onSupprimerFormation(id)}>
+              Supprimer
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function Experiences() {
   return <form></form>;
 }
 
-function PagePresentation({ infos }: PagePresentationProps) {
+function PagePresentation({ infos, formations }: PagePresentationProps) {
   return (
     <>
       <p>page blanche de test</p>
-      {infos !== null && (
-        <div>
-          {infos.nom}-{infos.email}-{infos.tel}-{infos.ville}
+      <div>
+        {infos !== null && (
+          <div>
+            {infos.nom}-{infos.email}-{infos.tel}-{infos.ville}
+          </div>
+        )}
+      </div>
+      {formations.map(({ diplome, ecole, ville, debut, fin, id }) => (
+        <div key={id}>
+          {diplome} :{ecole}-{ville}
+          {debut}/{fin}
         </div>
-      )}
+      ))}
     </>
   );
 }
 
 function CvApplication() {
   const [infos, setInfos] = useState<Infos | null>(null);
+  const [formations, setFormations] = useState<Formation[]>([]);
 
   function handleRecupInfos(infos: Infos) {
     setInfos(infos);
+  }
+  function handleRecupFormations(formation: Formation) {
+    setFormations((prev) => [...prev, formation]);
+  }
+  function handleSupprimerFormation(id: string) {
+    setFormations(formations.filter((f) => f.id !== id));
   }
 
   return (
     <main className="mt-16 grid grid-cols-2">
       <div>
         <InfosGenerales onEnvoyerInfos={handleRecupInfos} />
-        <Formations />
+        <AfficherFormations
+          formations={formations}
+          onEnvoyerFormation={handleRecupFormations}
+          onSupprimerDiplome={handleSupprimerFormation}
+        />
         <Experiences />
       </div>
       <div>
-        <PagePresentation infos={infos} />
+        <PagePresentation infos={infos} formations={formations} />
       </div>
     </main>
   );

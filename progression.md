@@ -981,3 +981,54 @@ Enseigné après 3 récurrences de generics servis sans cours (S67, S74, S79).
 1. **Suite du CV** : `Formations` et `Experiences` — même motif, mais **listes** (plusieurs entrées) → `useState<Formation[]>([])`, terrain direct pour les chevrons du jour.
 2. Puis habillage design B.
 3. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · propagation des événements.
+
+## Session 82 — CV Application : section Formations (liste + lifting state up)
+
+**Durée** : ~3h (jeudi). Énergie bonne.
+
+**Révision éclair (inline vs block)** 🟡 : distinction `span`/`a` inline vs `div` block **juste et sans hésitation**, comportement du block correctement décrit. **Cassé sur les conséquences pratiques** : a annoncé qu'un inline avec `width` et `padding` « prendrait davantage » — or un inline **ignore `width`** et n'applique le `padding` vertical qu'en peinture (peint, ne pousse pas, le texte se chevauche). Tableau des 3 comportements donné, `inline-block` rattaché à son lien home. **C'est exactement le blocage `<Link>`/`block` de la S75-77, dont la règle n'était pas généralisée. Entre en rotation.**
+
+**🎹 Raccourci** : `Ctrl+Espace` — testé mais pas utilisé en contexte. Reconduit.
+
+---
+
+### Section Formations — livrée et fonctionnelle
+
+**✅ Sorti seul, sans modèle** : le formulaire complet à 5 champs contrôlés (dont `type="month"`, choisi seul) · `ajouterDiplome` construisant l'objet et le remontant · `setFormations((prev) => [...prev, formation])` — **updater fonctionnel écrit spontanément après une seule mention** · le `.map()` avec déstructuration dans le callback et `key` posée d'emblée, **dans les deux composants** · le circuit de suppression complet (fonction parent, 2ᵉ prop fonction typée, branchement du bouton, passage dans le JSX) écrit en une fois sans erreur · `crypto.randomUUID()` et le champ `id` ajoutés à l'interface après signalement du problème d'unicité.
+
+**🔴 Le blocage central — donnée détenue à deux endroits.** Avait écrit `liste` dans `AfficherFormations` **et** `formations` dans `CvApplication`. Conséquence directe : `onEnvoyerFormations(liste)` juste après son setter → le parent recevait systématiquement la liste d'avant l'ajout (photo figée du rendu).
+
+**Désaccord exprimé et traité** : « pas d'accord, la liste est aux deux endroits, synthétique à gauche et propre à droite ». **Sa lecture du besoin était juste** — ce sont bien deux affichages. Ce qui manquait : deux *affichages* ≠ deux *propriétaires*. Une fois posé « le parent détient, les deux enfants reçoivent », la refonte a été faite proprement.
+
+**⚠️ Ma faute sur ce point** : j'ai demandé « qui doit détenir la liste ? » sans expliquer d'abord que les deux affichages restaient possibles. Il a entendu qu'il fallait choisir entre les deux vues. **Réponse donnée directement à sa demande explicite, puis découpage en 6 étapes numérotées — c'est ce format qui a débloqué.**
+
+**🔴 Récurrence tableau vs élément unique, 3 occurrences dans le même fichier** : `useState<Formation>([])` · `formations: Formation | null` dans les props de `PagePresentation` · `formations.diplome` sur un tableau. La distinction `useState<T[]>([])` vs `useState<T | null>(null)` est comprise à l'oral mais **ne se déclenche pas encore à l'écriture**. Repère redonné : une liste n'est jamais absente, elle est vide.
+
+**Trois bugs de branchement d'`id`** (filtre sur `f.diplome`, `key={diplome}`, `{id}` affiché à l'écran) : le champ avait été ajouté partout mais pas branché. Corrigés après signalement.
+
+**Nommage** : convention complétée — `handleXxx` côté parent uniformément (`handleSupprimerFormation`), une seule dénomination par concept (`Formation`, pas `Diplome`). Collision `interface Formations` / `function Formations` corrigée : **type au singulier, composant renommé** `AfficherFormations`.
+
+**Réinitialisation des champs** — question posée : 5 × `setX("")` est bien le standard avec des states séparés. Alternative « un state objet » montrée et **écartée avec justification** (gain sur une ligne, coût sur cinq `onChange`). `useReducer` et `form.reset()` mentionnés comme hors périmètre.
+
+---
+
+### DRY — trois niveaux posés, décision prise
+
+1. **Composant `Champ`** (label + input) — zéro neuf, motif `Touche` de la calculatrice.
+2. **Formulaire piloté par un tableau** + `.map()` — motif `touches`. **Reconnu seul comme identique à la calculatrice.**
+3. **Composant de section générique** servant Formations et Expériences.
+
+**Distinction posée** : 1 et 2 factorisent *dans* un composant (DRY mécanique) · 3 factorise *entre* composants, ce qui affirme que deux choses sont la même — un pari sur l'avenir. Règle donnée : **on factorise ce qui changera ensemble, pas ce qui se ressemble** ; attendre la 3ᵉ occurrence.
+
+**Décision** : `Experiences` sera écrit **en dur** d'abord. Le niveau 3 ne sera évalué qu'ensuite, sur du code réel.
+
+---
+
+**Niveaux** : lifting state up sur une **liste** 🟢 (circuit ajout + suppression complet) · updater fonctionnel `(prev) => [...prev, x]` 🟢 · deux props fonction sur un même composant 🟢 · `key` 🟢 (posée d'emblée, 2 composants) · identifiant stable vs champ de saisie 🟢 (compris immédiatement) · **un seul propriétaire par donnée 🟡 — enseigné ce jour, refonte guidée en 6 étapes** · `T[]` vs `T | null` à l'écriture 🔴 — **3 erreurs dans un fichier, la règle est sue mais ne se déclenche pas** · inline vs block 🟡 · state non à jour après son setter 🟡 (piège retombé, sur le même motif qu'en S71).
+
+**⏭️ Prochaine étape**
+
+1. **`Experiences`** — même motif que Formations, écrit en dur. Terrain de mesure directe pour `T[]` vs `T | null` et pour le circuit complet.
+2. Puis **DRY niveaux 1 et 2** : composant `Champ`, puis formulaire piloté par tableau.
+3. Puis habillage design B (deux colonnes, aperçu de CV présentable).
+4. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · utility types (lecture, avant candidature).
