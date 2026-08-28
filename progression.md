@@ -1032,3 +1032,57 @@ Enseigné après 3 récurrences de generics servis sans cours (S67, S74, S79).
 2. Puis **DRY niveaux 1 et 2** : composant `Champ`, puis formulaire piloté par tableau.
 3. Puis habillage design B (deux colonnes, aperçu de CV présentable).
 4. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · utility types (lecture, avant candidature).
+
+## Session 83 — CV Application : composant `Champ` + section Expériences
+
+**Durée** : ~2h (vendredi). Énergie bonne, séance sans accroc.
+
+**Révision éclair (`Object.entries`)** 🟡 : squelette JSX juste — outil identifié, `.map()`, `key` posée d'emblée. **Cassé sur la forme produite, 3ᵉ fois** : déstructuration par accolades `({marque, quantite})` au lieu de crochets. `Object.entries` renvoie un tableau **de paires**, donc déstructuration par **position**. Repère redonné : entries = paires = position = crochets. **Reste en rotation.**
+
+**🎹 Raccourci** : `Ctrl+Espace` acté (connu, peu utile dans son usage) et sorti de rotation. Nouveau : `Alt+↑/↓` (déplacer une ligne/sélection). Redonnés à sa demande : `Ctrl+Maj+O` (symboles du fichier, `:` pour grouper par catégorie) et `Ctrl+T` (symboles du projet) — utiles sur un fichier CV devenu long.
+
+---
+
+### 1. Composant `Champ` — écrit seul avant la séance
+
+**✅ Sorti seul** : les 6 props, la déstructuration, `htmlFor`/`id` appariés, `value`/`onChange` branchés.
+
+**Trois corrections** :
+1. **`onChange: () => void`** — le contrat décrit ce que l'**appelant** fournit ; ici c'est l'`<input>`, qui passe toujours l'événement. Type obtenu par geste outillé puis complété : `React.ChangeEvent<HTMLInputElement>` — **sans le chevron, TS retombe sur `Element` qui n'a pas de `.value`**.
+2. **`value` disparue de l'interface**, remplacée par `value={id}` sur l'`<input>` → champ contrôlé impossible à remplir. Distinction posée : `id` = chaîne en dur pour apparier le label · `value` = le state.
+3. Valeur par défaut déplacée du JSX (`type ? type : "text"`) vers la déstructuration (`type = "text"`), motif `className = ""` de `Touche`.
+
+**🎓 Question de conception posée par lui** : `<Champ />` à la main ou tableau + `.map()` comme la calculatrice ? **A tranché juste, seul** — le tableau ne convient pas ici. Critère posé : le `.map()` se justifie quand les éléments ne diffèrent que par des **données** ; dès que chaque champ traîne son propre `useState` et son propre setter, le tableau ne fait que déplacer le problème (décompte identique + une indirection). Le gain réel de `Champ` est ailleurs : la structure et la future chaîne Tailwind vivent à un seul endroit.
+
+**Migration effectuée** : 9 blocs `div/label/input` remplacés par `<Champ />` dans `InfosGenerales` et `AfficherFormations`. `<textarea>` laissé en dur — balise différente, attributs différents, un seul cas.
+
+---
+
+### 2. Section Expériences — circuit complet, page blanche
+
+**✅ Écrit sans aide et sans erreur** : interface `Experience` avec `id` · `AfficherExperiencesProps` avec ses trois props · handler qui construit, remonte et vide les 5 champs · `.map()` d'affichage avec `key` et bouton supprimer · côté parent, state + deux handlers + branchement dans les deux sens.
+
+**🎯 Mesure de la dette S82 — `T[]` vs `T | null` : soldée 🟢.** Les 3 erreurs de la veille ne sont pas revenues. `useState<Experience[]>([])`, `experiences: Experience[]` dans les props, `.map()` sur un tableau : la distinction s'est déclenchée à l'écriture, sans rappel.
+
+**Corrections de nommage** (résidus de la veille) : `experience` portant une liste → pluriel partout · `AfficherExperienceProps` → nom exact du composant + `Props` · `onSupprimerDiplome` renommé `onSupprimerFormation`, ce qui a supprimé l'alias de déstructuration · `ajouterDiplome` → `ajouterFormation` · `xp` → `experience`.
+
+**Point ancré sur `F2`** : après un renommage global, relire la ligne d'origine — `onSupprimerFormation: onSupprimerFormation` était devenu un renommage vers lui-même.
+
+**Nettoyage** : `<div>` racines sans style remplacés par des fragments · `htmlFor` du `<textarea>` sans `id` correspondant · `type="button"` sur le bouton supprimer.
+
+---
+
+**⚠️ Mon erreur — `React.SubmitEvent`** : j'ai affirmé que ce type n'existait pas et donné `React.FormEvent` à la place. **Faux** — capture VS Code à l'appui, le survol affiche `React.SubmitEvent<HTMLFormElement>`, aucun rouge. Ma mémoire des noms de types React ne fait pas le poids contre les `@types/react` installés. **2ᵉ fois sur ce type précis, dans le sens inverse de la S80 : je l'ai fait corriger dans un sens puis dans l'autre. Le geste outillé fait foi.**
+
+**Recadrage juste de sa part** : ma remarque sémantique (`<section>` + titres) présentée comme du structurel alors qu'il applique « d'abord ça marche, ensuite c'est beau » — règle que j'avais donnée moi-même. Reporté à la phase design.
+
+---
+
+**Niveaux** : composant `Champ` + prop optionnelle avec défaut 🟢 · typage d'événement avec chevron 🟡 (obtenu par geste outillé, pas de mémoire) · `id` vs `value` sur un champ contrôlé 🟢 · critère « composant vs tableau + map » 🟢 (tranché seul) · circuit lifting state up complet ajout+suppression 🟢 (2ᵉ section, en une fois) · **`T[]` vs `T | null` à l'écriture 🟢 (dette S82 soldée)** · nommage des interfaces et des handlers 🟢 · `Object.entries` 🟡.
+
+**⏭️ Prochaine étape — cap posé, cherché par lui demain**
+
+1. **Bouton Modifier** — manquant, et explicitement demandé par l'énoncé Odin (edit mode / submit mode). Zéro syntaxe neuve, c'est une **machine à états** : le même formulaire et le même bouton font deux choses selon l'état. Deux questions posées en fin de séance, laissées ouvertes : où va la donnée au clic sur Modifier (les champs ont chacun leur `useState` local) · comment le submit sait s'il ajoute ou remplace.
+2. À traiter aussi : `InfosGenerales` n'a ni suppression ni édition — une faute de frappe est irrattrapable une fois validée.
+3. **Puis habillage design B** (deux colonnes, aperçu présentable) — après l'édition, pour ne pas habiller une structure qui bouge encore.
+4. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · utility types (lecture, avant candidature).
