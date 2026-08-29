@@ -1086,3 +1086,72 @@ Enseigné après 3 récurrences de generics servis sans cours (S67, S74, S79).
 2. À traiter aussi : `InfosGenerales` n'a ni suppression ni édition — une faute de frappe est irrattrapable une fois validée.
 3. **Puis habillage design B** (deux colonnes, aperçu présentable) — après l'édition, pour ne pas habiller une structure qui bouge encore.
 4. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · utility types (lecture, avant candidature).
+
+## Session 84 — CV Application : mode édition (machine à états) + upsert
+
+**Durée** : ~2h30 (samedi). Énergie bonne.
+
+**Pas de révision éclair** — séance ouverte directement sur le blocage en cours (20 min de recherche autonome avant contact).
+
+---
+
+### Mode édition des formations — livré et fonctionnel
+
+**✅ Modélisation trouvée seule** : a identifié qu'il fallait un état supplémentaire pour « une entrée est en cours d'édition », et l'a typé `Formation | null` d'emblée. La bonne intuition, sur la bonne notion.
+
+**🔴 Premier blocage — setters dans le corps du composant.** Bloc `if (modification !== null) { setDiplome(...) ... }` écrit hors de toute fonction événementielle → boucle infinie de rendu. **Famille du contrat `void` / setter mal placé, 5ᵉ occurrence (S64, S67, S71, S74).** Cette fois la cause était différente : pas un `return` de trop, mais l'absence de déclencheur. Point redonné : un setter est toujours appelé par un événement.
+
+**✅ Débloqué seul après une seule question** (« la donnée a-t-elle besoin de monter au parent pour redescendre ? ») : a compris que le clic, la liste et les cinq `useState` vivent dans le même composant, et a branché `onClick={() => modifierFormation(f)}` en local. **Aucune prop supplémentaire pour le remplissage.**
+
+**Fonctions internes superflues** : première version enveloppait les cinq setters dans une fonction déclarée puis appelée immédiatement une seule fois, plus un test `!== null` sur un paramètre typé non-null. Supprimés après signalement.
+
+**Première solution proposée — supprimer puis réajouter.** Fonctionne, et n'est pas absurde. Écartée après exposition des trois conséquences : disparition de la ligne dans l'aperçu pendant l'édition · perte de la donnée si l'utilisateur abandonne · changement d'ordre dans la liste.
+
+**🔴 Blocage de compréhension, arrêt demandé** (« je ne comprends pas correctement, sois plus clair ») : cherchait une comparaison d'id **dans le formulaire**. Repris à zéro avec un tableau des valeurs successives de l'état, et le point qui débloque : **le formulaire ne pose qu'une question — `null` ou pas ? La comparaison d'id a lieu chez le parent, qui détient la liste.** Compris immédiatement une fois séparé.
+
+**Choix `string | null` plutôt que `Formation | null`** : tranché seul et justifié — les cinq valeurs à jour sont déjà dans les `useState` du formulaire, l'objet complet serait une duplication.
+
+---
+
+### 🌟 Upsert — conception proposée par lui
+
+Plutôt que d'ajouter une 3ᵉ prop fonction `onRemplacerFormation` (ce que j'allais faire écrire), a proposé de faire porter la décision au parent :
+
+```ts
+if (formations.some((f) => f.id === formation.id)) { /* remplace */ } else { /* ajoute */ }
+```
+
+**Meilleur que ma version** : l'enfant envoie une formation et ne sait pas ce qu'il advient d'elle ; le parent, qui détient la liste, en tire les conséquences. Une prop de moins. Terme donné : **upsert**.
+
+---
+
+### `(prev) =>` — cours donné à sa demande
+
+Les deux formes du setter (valeur / fonction), `prev` comme paramètre fourni par React (même famille que le `e` d'un handler, l'`entries` d'un observer), le cas des deux setters successifs lisant la même photo figée.
+
+**Règle retenue** : la nouvelle valeur se calcule à partir de l'ancienne → forme fonction, systématiquement. Sinon forme valeur.
+
+**Question posée derrière** : « pourquoi ne pas l'utiliser tout le temps ? » — oui, c'est la réponse. Forme bloc `(prev) => { ... return x; }` montrée au passage, avec le piège du `return` oublié.
+
+**Montré, non retenu** : version en passe unique avec drapeau (`some` + `map` traverse deux fois). Sans intérêt à cette échelle, signalé pour information seulement.
+
+**`??`** appliqué : `id: idEnEdition ?? crypto.randomUUID()` — supprime le `if/else` et l'UUID généré pour rien.
+
+---
+
+**Autres corrections** : mode édition qui ne se refermait pas (`setIdEnEdition(null)` manquant → la formation suivante aurait écrasé la précédente) · libellé du bouton en ternaire · renommages (`handleEnregistrerFormation`, booléen affirmatif).
+
+---
+
+**Niveaux** : identifier l'état nécessaire à un mode édition 🟢 (trouvé seul) · setter dans le corps du composant 🔴 — **5ᵉ occurrence de la famille, cause nouvelle (absence de déclencheur)** · « le formulaire teste, le parent compare » 🟡 (débloqué après reprise à zéro) · upsert 🟢 (**conçu seul, meilleur que ma proposition**) · `(prev) =>` — mécanisme et règle d'usage 🟢 · `??` 🟢 · machine à états mode ajout/édition 🟢 · fonctions internes superflues 🟡.
+
+**📌 Reste sur le fichier** :
+- Les deux `handleSupprimer` lisent encore le state directement → à passer en `prev`.
+- **`AfficherExperiences` n'a pas de bouton Modifier.** Réplication pure du motif formations, aucune décision à reprendre. **Décidé : le refaire de mémoire en prochaine séance, sans regarder `AfficherFormations`** — devient une mesure du motif plutôt qu'un copier-adapter.
+- `InfosGenerales` n'a ni suppression ni édition.
+
+**⏭️ Prochaine étape**
+
+1. **Mode édition des expériences, de mémoire** — mesure du motif du jour.
+2. Puis **habillage design B** (deux colonnes, aperçu de CV présentable).
+3. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · utility types (lecture, avant candidature).

@@ -52,9 +52,19 @@ interface ChampProps {
 
 function Champ({ onChange, value, placeholder, id, type = "text", description }: ChampProps) {
   return (
-    <div>
-      <label htmlFor={id}>{description}</label>
-      <input id={id} value={value} onChange={onChange} placeholder={placeholder} type={type} required />
+    <div className="flex flex-col py-2">
+      <label className="font-semibold" htmlFor={id}>
+        {description}
+      </label>
+      <input
+        className="bg-stone-300"
+        id={id}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        type={type}
+        required
+      />
     </div>
   );
 }
@@ -72,6 +82,7 @@ function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
 
   return (
     <form
+      className="rounded-md bg-stone-200 p-4 shadow my-8"
       onSubmit={(e) => {
         e.preventDefault();
         handleEnvoyerInfos();
@@ -111,7 +122,9 @@ function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
         description="Votre Code postal et Ville"
       />
 
-      <button type="submit">Ajouter</button>
+      <button className="rounded-2xl border bg-white px-4 py-1 font-semibold" type="submit">
+        Ajouter
+      </button>
     </form>
   );
 }
@@ -122,21 +135,33 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
   const [ville, setVille] = useState("");
   const [debut, setDebut] = useState("");
   const [fin, setFin] = useState("");
+  const [idEnEdition, setIdEnEdition] = useState<string | null>(null);
 
-  function ajouterFormation(e: React.SubmitEvent) {
+  function enregistrerFormation(e: React.SubmitEvent) {
     e.preventDefault();
-    const formation = { diplome, ecole, ville, debut, fin, id: crypto.randomUUID() };
+    const formation = { diplome, ecole, ville, debut, fin, id: idEnEdition ?? crypto.randomUUID() };
     onEnvoyerFormation(formation);
     setDiplome("");
     setEcole("");
     setVille("");
     setDebut("");
     setFin("");
+    setIdEnEdition(null);
+  }
+
+  function modifierFormation(modification: Formation) {
+    const { diplome, ecole, ville, debut, fin, id } = modification;
+    setDiplome(diplome);
+    setEcole(ecole);
+    setVille(ville);
+    setDebut(debut);
+    setFin(fin);
+    setIdEnEdition(id);
   }
 
   return (
     <>
-      <form onSubmit={ajouterFormation}>
+      <form onSubmit={enregistrerFormation} className="rounded-md bg-stone-200 p-4 shadow my-8">
         <Champ
           value={diplome}
           onChange={(e) => setDiplome(e.target.value)}
@@ -170,15 +195,18 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
         />
 
         <Champ value={fin} onChange={(e) => setFin(e.target.value)} id="fin" type="month" description="Date de fin" />
-        <button type="submit">Ajouter</button>
+        <button type="submit">{idEnEdition ? "Modifier" : "Ajouter"}</button>
       </form>
       <div>
-        {formations.map(({ diplome, ecole, ville, debut, fin, id }) => (
-          <div key={id}>
+        {formations.map((f) => (
+          <div key={f.id}>
             <p>
-              {diplome}: {ecole}-{ville}//{debut}-{fin}
+              {f.diplome}: {f.ecole}-{f.ville}//{f.debut}-{f.fin}
             </p>
-            <button type="button" onClick={() => onSupprimerFormation(id)}>
+            <button type="button" onClick={() => modifierFormation(f)}>
+              Modifier
+            </button>
+            <button type="button" onClick={() => onSupprimerFormation(f.id)}>
               Supprimer
             </button>
           </div>
@@ -215,7 +243,7 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
 
   return (
     <>
-      <form onSubmit={ajouterExperience}>
+      <form onSubmit={ajouterExperience} className="rounded-md bg-stone-200 p-4 shadow my-8">
         <Champ
           description="Nom du travail"
           id="job"
@@ -302,31 +330,34 @@ function CvApplication() {
   function handleRecupInfos(infos: Infos) {
     setInfos(infos);
   }
-  function handleRecupFormations(formation: Formation) {
-    setFormations((prev) => [...prev, formation]);
+  function handleEnregistrerFormation(formation: Formation) {
+    setFormations((prev) => {
+      const formationExiste = prev.some((f) => f.id === formation.id);
+      return formationExiste ? prev.map((f) => (f.id === formation.id ? formation : f)) : [...prev, formation];
+    });
   }
   function handleSupprimerFormation(id: string) {
-    setFormations(formations.filter((f) => f.id !== id));
+    setFormations((prev) => prev.filter((f) => f.id !== id));
   }
-  function handleRecupExperience(experience: Experience) {
+  function handleEnregistrerExperience(experience: Experience) {
     setExperiences((prev) => [...prev, experience]);
   }
   function handleSupprimerExperience(id: string) {
-    setExperiences(experiences.filter((e) => e.id !== id));
+    setExperiences((prev) => prev.filter((e) => e.id !== id));
   }
 
   return (
-    <main className="mt-16 grid grid-cols-2">
-      <div>
+    <main className="mt-16 grid grid-cols-2 gap-4 bg-stone-50">
+      <div className="mx-auto min-w-2/3 gap-4">
         <InfosGenerales onEnvoyerInfos={handleRecupInfos} />
         <AfficherFormations
           formations={formations}
-          onEnvoyerFormation={handleRecupFormations}
+          onEnvoyerFormation={handleEnregistrerFormation}
           onSupprimerFormation={handleSupprimerFormation}
         />
         <AfficherExperiences
-          onEnvoyerExperience={handleRecupExperience}
           experiences={experiences}
+          onEnvoyerExperience={handleEnregistrerExperience}
           onSupprimerExperience={handleSupprimerExperience}
         />
       </div>
