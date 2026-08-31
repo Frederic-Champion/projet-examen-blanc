@@ -48,15 +48,17 @@ interface ChampProps {
   type?: string;
   id: string;
   description: string;
+  name?: string;
 }
 
-function Champ({ onChange, value, placeholder, id, type = "text", description }: ChampProps) {
+function Champ({ onChange, value, placeholder, id, type = "text", description, name }: ChampProps) {
   return (
     <div className="flex flex-col py-2">
       <label className="font-semibold" htmlFor={id}>
         {description}
       </label>
       <input
+        name={name}
         className="bg-stone-300"
         id={id}
         value={value}
@@ -69,36 +71,42 @@ function Champ({ onChange, value, placeholder, id, type = "text", description }:
   );
 }
 
+const INFOS_VIDES: Infos = { nom: "", email: "", tel: "", ville: "" };
+type SaisieFormation = Omit<Formation, "id">;
+const FORMATION_VIDE: SaisieFormation = { diplome: "", ecole: "", ville: "", debut: "", fin: ""};
+
 function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
-  const [nom, setNom] = useState("");
-  const [email, setEmail] = useState("");
-  const [tel, setTel] = useState("");
-  const [ville, setVille] = useState("");
+  const [saisie, setSaisie] = useState(INFOS_VIDES);
 
   function handleEnvoyerInfos() {
-    const infos: Infos = { nom, email, tel, ville };
-    onEnvoyerInfos(infos);
+    onEnvoyerInfos(saisie);
+  }
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSaisie((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
   return (
     <form
-      className="rounded-md bg-stone-200 p-4 shadow my-8"
+      className="my-8 rounded-md bg-stone-200 p-4 shadow-md"
       onSubmit={(e) => {
         e.preventDefault();
         handleEnvoyerInfos();
       }}
     >
+      <h2 className="pb-2 text-xl font-bold">Information Générales</h2>
       <Champ
-        value={nom}
-        onChange={(e) => setNom(e.target.value)}
+        name="nom"
+        value={saisie.nom}
+        onChange={handleChange}
         id="nom"
         placeholder="Taper Votre nom Complet"
         description="Nom Complet"
       />
 
       <Champ
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        name="email"
+        value={saisie.email}
+        onChange={handleChange}
         id="email"
         type="email"
         placeholder="Email"
@@ -106,8 +114,9 @@ function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
       />
 
       <Champ
-        value={tel}
-        onChange={(e) => setTel(e.target.value)}
+        name="tel"
+        value={saisie.tel}
+        onChange={handleChange}
         id="tel"
         type="tel"
         placeholder="Téléphone"
@@ -115,87 +124,100 @@ function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
       />
 
       <Champ
-        value={ville}
-        onChange={(e) => setVille(e.target.value)}
+        name="ville"
+        value={saisie.ville}
+        onChange={handleChange}
         id="ville"
         placeholder="Code postal, Ville"
         description="Votre Code postal et Ville"
       />
 
-      <button className="rounded-2xl border bg-white px-4 py-1 font-semibold" type="submit">
-        Ajouter
+      <button
+        className="mt-2 rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+        type="submit"
+      >
+        Enregistrer
       </button>
     </form>
   );
 }
 
 function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formations }: AfficherFormationsProps) {
-  const [diplome, setDiplome] = useState("");
-  const [ecole, setEcole] = useState("");
-  const [ville, setVille] = useState("");
-  const [debut, setDebut] = useState("");
-  const [fin, setFin] = useState("");
+  const [saisie, setSaisie] = useState(FORMATION_VIDE);
   const [idEnEdition, setIdEnEdition] = useState<string | null>(null);
 
   function enregistrerFormation(e: React.SubmitEvent) {
     e.preventDefault();
-    const formation = { diplome, ecole, ville, debut, fin, id: idEnEdition ?? crypto.randomUUID() };
+    const formation = { ...saisie, id: idEnEdition ?? crypto.randomUUID() };
     onEnvoyerFormation(formation);
-    setDiplome("");
-    setEcole("");
-    setVille("");
-    setDebut("");
-    setFin("");
+    setSaisie(FORMATION_VIDE)
     setIdEnEdition(null);
   }
 
   function modifierFormation(modification: Formation) {
-    const { diplome, ecole, ville, debut, fin, id } = modification;
-    setDiplome(diplome);
-    setEcole(ecole);
-    setVille(ville);
-    setDebut(debut);
-    setFin(fin);
+    const {id, ...resteSaisie} = modification
+    setSaisie(resteSaisie)
     setIdEnEdition(id);
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSaisie((prev) => ({...prev, [e.target.name]: e.target.value}))
   }
 
   return (
     <>
-      <form onSubmit={enregistrerFormation} className="rounded-md bg-stone-200 p-4 shadow my-8">
+      <form onSubmit={enregistrerFormation} className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
+        <h2 className="pb-2 text-xl font-bold">Formations</h2>
         <Champ
-          value={diplome}
-          onChange={(e) => setDiplome(e.target.value)}
+          name="diplome"
+          value={saisie.diplome}
+          onChange={handleChange}
           id="diplome"
           placeholder="Diplome"
           description="Quel Diplome ?"
         />
 
         <Champ
-          value={ecole}
-          onChange={(e) => setEcole(e.target.value)}
+          name="ecole"
+          value={saisie.ecole}
+          onChange={handleChange}
           id="ecole"
           placeholder="École"
           description="Dans quelle Etablissement ?"
         />
 
         <Champ
-          value={ville}
-          onChange={(e) => setVille(e.target.value)}
-          id="ville"
+          name="ville"
+          value={saisie.ville}
+          onChange={handleChange}
+          id="formation-ville"
           placeholder="Ville"
           description="Dans quelle ville ?"
         />
 
         <Champ
-          value={debut}
-          onChange={(e) => setDebut(e.target.value)}
-          id="debut"
+          name="debut"
+          value={saisie.debut}
+          onChange={handleChange}
+          id="formation-debut"
           type="month"
           description="Date de début"
         />
 
-        <Champ value={fin} onChange={(e) => setFin(e.target.value)} id="fin" type="month" description="Date de fin" />
-        <button type="submit">{idEnEdition ? "Modifier" : "Ajouter"}</button>
+        <Champ
+          name="fin"
+          value={saisie.fin}
+          onChange={handleChange}
+          id="formation-fin"
+          type="month"
+          description="Date de fin"
+        />
+        <button
+          className="mt-2 rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+          type="submit"
+        >
+          {idEnEdition ? "Modifier" : "Ajouter"}
+        </button>
       </form>
       <div>
         {formations.map((f) => (
@@ -222,6 +244,7 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
   const [debut, setDebut] = useState("");
   const [fin, setFin] = useState("");
   const [description, setDescription] = useState("");
+  const [idSelect, setIdSelect] = useState<string | null>(null);
 
   function ajouterExperience(e: React.SubmitEvent) {
     e.preventDefault();
@@ -231,7 +254,7 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
       debut,
       fin,
       description,
-      id: crypto.randomUUID(),
+      id: idSelect ?? crypto.randomUUID(),
     };
     onEnvoyerExperience(experience);
     setJob("");
@@ -239,11 +262,23 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
     setDebut("");
     setFin("");
     setDescription("");
+    setIdSelect(null);
+  }
+
+  function modifierExperience(experience: Experience) {
+    const { job, entreprise, debut, fin, description, id } = experience;
+    setJob(job);
+    setEntreprise(entreprise);
+    setDebut(debut);
+    setFin(fin);
+    setDescription(description);
+    setIdSelect(id);
   }
 
   return (
     <>
-      <form onSubmit={ajouterExperience} className="rounded-md bg-stone-200 p-4 shadow my-8">
+      <form onSubmit={ajouterExperience} className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
+        <h2 className="pb-2 text-xl font-bold">Expériences professionnelles</h2>
         <Champ
           description="Nom du travail"
           id="job"
@@ -266,24 +301,35 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
           type="month"
         />
         <Champ description="Date de fin" id="fin" value={fin} onChange={(e) => setFin(e.target.value)} type="month" />
-        <div>
-          <label htmlFor="description">Description</label>
+        <div className="flex flex-col py-2">
+          <label className="font-semibold" htmlFor="description">
+            Description
+          </label>
           <textarea
+            className="bg-stone-300"
             id="description"
-            rows={3}
+            rows={4}
             placeholder="Décrivez ce que vous avez fait."
             required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
-        <button type="submit">Ajouter</button>
+        <button
+          className="mt-2 rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+          type="submit"
+        >
+          {idSelect !== null ? "Modifier" : "Ajouter"}
+        </button>
       </form>
       {experiences.map(({ job, entreprise, debut, fin, description, id }) => (
         <div key={id}>
           <p>
             {job}-{entreprise}-{debut}/{fin}-{description}
           </p>
+          <button type="button" onClick={() => modifierExperience({ job, entreprise, debut, fin, description, id })}>
+            Modifier
+          </button>
           <button type="button" onClick={() => onSupprimerExperience(id)}>
             Supprimer
           </button>
@@ -295,8 +341,7 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
 
 function PagePresentation({ infos, formations, experiences }: PagePresentationProps) {
   return (
-    <>
-      <p>page blanche de test</p>
+    <div className="mx-auto my-8 min-h-[297mm] w-[210mm] bg-white p-[15mm] shadow-lg">
       <div>
         {infos !== null && (
           <div>
@@ -318,7 +363,7 @@ function PagePresentation({ infos, formations, experiences }: PagePresentationPr
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -340,29 +385,35 @@ function CvApplication() {
     setFormations((prev) => prev.filter((f) => f.id !== id));
   }
   function handleEnregistrerExperience(experience: Experience) {
-    setExperiences((prev) => [...prev, experience]);
+    setExperiences((prev) => {
+      const experienceExiste = prev.some((e) => e.id === experience.id);
+      return experienceExiste ? prev.map((e) => (e.id === experience.id ? experience : e)) : [...prev, experience];
+    });
   }
   function handleSupprimerExperience(id: string) {
     setExperiences((prev) => prev.filter((e) => e.id !== id));
   }
 
   return (
-    <main className="mt-16 grid grid-cols-2 gap-4 bg-stone-50">
-      <div className="mx-auto min-w-2/3 gap-4">
-        <InfosGenerales onEnvoyerInfos={handleRecupInfos} />
-        <AfficherFormations
-          formations={formations}
-          onEnvoyerFormation={handleEnregistrerFormation}
-          onSupprimerFormation={handleSupprimerFormation}
-        />
-        <AfficherExperiences
-          experiences={experiences}
-          onEnvoyerExperience={handleEnregistrerExperience}
-          onSupprimerExperience={handleSupprimerExperience}
-        />
-      </div>
-      <div>
-        <PagePresentation infos={infos} formations={formations} experiences={experiences} />
+    <main className="bg-stone-50">
+      <h1 className="pt-16 text-center text-4xl font-bold">CV Application - Odin Project</h1>
+      <div className="mt-16 grid grid-cols-2 gap-4">
+        <div className="mx-auto min-w-2/3 gap-4">
+          <InfosGenerales onEnvoyerInfos={handleRecupInfos} />
+          <AfficherFormations
+            formations={formations}
+            onEnvoyerFormation={handleEnregistrerFormation}
+            onSupprimerFormation={handleSupprimerFormation}
+          />
+          <AfficherExperiences
+            experiences={experiences}
+            onEnvoyerExperience={handleEnregistrerExperience}
+            onSupprimerExperience={handleSupprimerExperience}
+          />
+        </div>
+        <div>
+          <PagePresentation infos={infos} formations={formations} experiences={experiences} />
+        </div>
       </div>
     </main>
   );

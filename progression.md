@@ -1155,3 +1155,84 @@ Les deux formes du setter (valeur / fonction), `prev` comme paramètre fourni pa
 1. **Mode édition des expériences, de mémoire** — mesure du motif du jour.
 2. Puis **habillage design B** (deux colonnes, aperçu de CV présentable).
 3. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` · `<table>` · types fonction avancés · hoisting · utility types (lecture, avant candidature).
+
+## Session 85 — State objet unique + fin du mode édition
+
+**Durée** : ~4h30 (dimanche, 2h + 2h30 coupées d'une pause). Énergie bonne sur toute la séance.
+
+**Révision éclair (`IntersectionObserver` monté dans un `useEffect`)** 🔴 : squelette sorti de mémoire (constructeur + objet d'options, `forEach` sur les entrées, test `isIntersecting`, `observe`), **mais quatre points cassés** — aucune variable déclarée (le paramètre `entries` du callback manquant, 2ᵉ occurrence), sélection DOM absente, `observe` sur une liste au lieu d'un élément, **aucune fonction de nettoyage**. Diagnostic posé par lui : les deux notions séparément passent, la combinaison casse. **Reste en rotation.**
+
+Correction complète donnée. `disconnect()` découvert (méthode du navigateur, pas de React : `observe` / `unobserve` / `disconnect`) — sans elle, l'observer garde des références vers des nœuds démontés = fuite mémoire. Pendant exact de `removeEventListener`.
+
+**Point posé — DOM vanilla dans React** : possible, mais c'est modifier le DOM dans le dos de React, qui peut l'écraser au rendu suivant. La version React passe par un state pour la classe et `useRef` pour la référence. **`useRef` + observer version React = bon candidat pour une séance dédiée.**
+
+**🎹 Raccourci** : `Alt+↑/↓` acté 🟢, sorti de rotation. Nouveau : `Ctrl+Maj+K`.
+
+---
+
+### 1. `findIndex` — exploré puis écarté (30 min autonomes en ouverture)
+
+Cherchait à remplacer `some` + `map` par une version en un seul parcours. Cours complet donné sur `findIndex` (position vs élément, retour `-1`, **piège : `-1` est truthy**, tableau comparatif `find`/`findIndex`/`some`).
+
+**🎓 Question posée après avoir vu le code : « je ne vois pas comment ça peut me servir mieux qu'un map avec un ternaire. »** Juste. Version `findIndex` écrite (correcte : test explicite du `-1`, early return, copie avant mutation), puis comparée — 5 lignes contre 3, une mutation à surveiller, un `-1` à décoder, et le `[...prev]` reparcourt de toute façon.
+
+**Conclusion actée : `some` + `map` était la bonne réponse**, l'optimisation ne se paie pas à cette échelle. `findIndex` reste acquis pour les cas où la **position** sert (insérer avant, déplacer, premier/dernier).
+
+**⚠️ Correction de ma part** : j'avais laissé passer l'idée que `findIndex` faisait un seul parcours. Faux — le spread en fait un second. La vraie différence est que `findIndex` s'arrête au premier match.
+
+---
+
+### 2. Mode édition des expériences — reproduit de mémoire ✅
+
+Motif complet sorti sans regarder `AfficherFormations` : state `idSelect`, fonction de remplissage, `?? crypto.randomUUID()`, bouton Modifier dans le `.map()`, ternaire du libellé, remise à `null`. **La mesure du motif de la S84 est concluante.**
+
+---
+
+### 3. 🎯 State objet unique — le cap de la séance
+
+**Question posée par lui** : « certains sites ont 15 champs, faut-il 15 states ? Il n'existe pas une méthode plus pro ? » Excellente question, arrivée d'elle-même.
+
+**Trois niveaux donnés** : state objet + `name` + crochets dynamiques (à sa portée) · `useReducer` (nommé, hors périmètre) · React Hook Form + Zod (standard au-delà de ~10 champs, Phase 2).
+
+**Cours donné** : forme longue → clé dynamique → `name`. Points d'appui explicites sur ce qu'il connaît déjà — `[e.target.name]` = le même mécanisme que `acc[v.marque]` du `reduce` objet · l'attribut `name` retrouve un usage après la S79 · ⚠️ **parenthèses obligatoires autour de l'accolade** dans `(prev) => ({...})`, sinon lu comme un corps de fonction.
+
+**✅ `InfosGenerales` converti du premier coup** : constante hors composant, state objet, handler générique, `name` ajouté à `ChampProps`. Deux simplifications signalées ensuite (ligne intermédiaire devenue inutile, second argument de type superflu).
+
+**Deux questions de fond posées, toutes deux traitées** :
+- *Pourquoi la constante hors du composant ?* → le corps se réexécute à chaque rendu, l'objet serait recréé (nouvelle référence à contenu identique). Sans conséquence ici, mais deviendrait un bug s'il servait de dépendance à un `useEffect`. Même arbitrage que `EXERCICES` vs `touches`.
+- *Pourquoi les crochets, peut-on faire autrement ?* → à gauche d'un `:` dans un littéral, le mot est du texte, jamais une variable. Forme longue en deux temps montrée. Aucune autre syntaxe n'existe.
+- *Peut-on demander à `useState` « toutes les clés de `Infos` à `""` » ?* → non, une interface ne crée aucune valeur (règle S60). D'où la constante réutilisable.
+
+**✅ `AfficherFormations` converti** — 5 champs. `modifierFormation` réduite à deux lignes, **rest en déstructuration sorti seul** pour exclure l'`id`.
+
+**🎓 Choix de conception tranché (réponse donnée après une première question mal comprise)** : le formulaire ne porte **pas** l'`id`. Il collecte ce que l'utilisateur tape ; l'`id` est déjà dans `idEnEdition`. Question posée par lui : « pourquoi pas `id?: string` ? » → parce que dans la liste, toute formation a un id ; affaiblir le contrat de la donnée principale pour arranger un cas de saisie produit une **interface fausse** (règle S61), et force à tester une absence qui n'arrive jamais.
+
+**🆕 `Omit<Formation, "id">` donné comme outil**, sans cours. **Frédéric a explicitement demandé que le cours complet sur les utility types soit dû** — accepté, c'est une dette nommée, pas une ligne d'attente.
+
+---
+
+### 4. `InfosGenerales` — bouton Modifier tranché sans code
+
+Point posé : ce n'est **pas** le même motif que les listes. Une seule donnée, rien à sélectionner. Comportement des vrais générateurs de CV : les champs restent remplis, libellé fixe « Enregistrer », pas de ternaire (il n'annonce rien puisque le comportement ne change pas). Deux lignes modifiées, zéro state ajouté.
+
+---
+
+**Habillage** : formulaires (fond, arrondi, ombre), titres de section, boutons avec `transition-colors` (convention rappelée : fond/bordure/élévation plutôt que taille de texte — **une boîte se calcule d'après son contenu, agrandir le texte agrandit le bouton**). Feuille A4 posée : `min-h-[297mm] w-[210mm] p-[15mm]`, ratio et unités physiques expliqués.
+
+---
+
+**Niveaux** : state objet + `[e.target.name]` + `name` 🟢 (converti sur deux formulaires le jour même) · constante hors composant 🟢 · parenthèses autour de l'objet en flèche 🟢 · rest pour exclure une clé 🟢 (sorti seul) · type de saisie vs type de donnée 🟡 (tranché après explication) · `Omit` — **utilisé, non enseigné, cours dû** · `findIndex` 🟡 (appris puis écarté à raison) · mode édition reproduit de mémoire 🟢 · `IntersectionObserver` dans `useEffect` 🔴 · `disconnect()` 🟡.
+
+**📌 Reste sur le fichier** :
+- **`AfficherExperiences` non converti** en state objet — dernier des trois. Difficulté supplémentaire : le `<textarea>` n'est pas un `<Champ>` et son événement n'est pas un `HTMLInputElement`.
+- `name` passera en obligatoire une fois les trois formulaires convertis.
+- Feuille A4 : `w-[210mm]` déborde en demi-colonne. **Test `scale` + `<nav>` fixe** à faire (bloc conteneur, S76).
+
+**⏭️ Prochaine étape**
+
+1. Convertir `AfficherExperiences` en state objet (+ le cas `<textarea>`).
+2. Passer `name` en obligatoire.
+3. Habillage design B : feuille A4 et son adaptation à la largeur.
+4. **Cours dû, demandé explicitement : utility types** (`Omit`, `Pick`, `Partial`, `Record`) — cours complet + exercices.
+5. Candidat séance dédiée : `useRef` + `IntersectionObserver` en version React.
+6. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `<table>` · `useReducer` · types fonction avancés · hoisting.
