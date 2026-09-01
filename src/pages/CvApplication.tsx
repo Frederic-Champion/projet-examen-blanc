@@ -48,7 +48,7 @@ interface ChampProps {
   type?: string;
   id: string;
   description: string;
-  name?: string;
+  name: string;
 }
 
 function Champ({ onChange, value, placeholder, id, type = "text", description, name }: ChampProps) {
@@ -73,7 +73,9 @@ function Champ({ onChange, value, placeholder, id, type = "text", description, n
 
 const INFOS_VIDES: Infos = { nom: "", email: "", tel: "", ville: "" };
 type SaisieFormation = Omit<Formation, "id">;
-const FORMATION_VIDE: SaisieFormation = { diplome: "", ecole: "", ville: "", debut: "", fin: ""};
+const FORMATION_VIDE: SaisieFormation = { diplome: "", ecole: "", ville: "", debut: "", fin: "" };
+type SaisieExperience = Omit<Experience, "id">;
+const EXP_VIDE: SaisieExperience = { job: "", entreprise: "", debut: "", fin: "", description: "" };
 
 function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
   const [saisie, setSaisie] = useState(INFOS_VIDES);
@@ -150,18 +152,18 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
     e.preventDefault();
     const formation = { ...saisie, id: idEnEdition ?? crypto.randomUUID() };
     onEnvoyerFormation(formation);
-    setSaisie(FORMATION_VIDE)
+    setSaisie(FORMATION_VIDE);
     setIdEnEdition(null);
   }
 
   function modifierFormation(modification: Formation) {
-    const {id, ...resteSaisie} = modification
-    setSaisie(resteSaisie)
+    const { id, ...resteSaisie } = modification;
+    setSaisie(resteSaisie);
     setIdEnEdition(id);
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSaisie((prev) => ({...prev, [e.target.name]: e.target.value}))
+    setSaisie((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
   return (
@@ -239,39 +241,25 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
 }
 
 function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExperience }: AfficherExperiencesProps) {
-  const [job, setJob] = useState("");
-  const [entreprise, setEntreprise] = useState("");
-  const [debut, setDebut] = useState("");
-  const [fin, setFin] = useState("");
-  const [description, setDescription] = useState("");
+  const [saisie, setSaisie] = useState(EXP_VIDE);
   const [idSelect, setIdSelect] = useState<string | null>(null);
 
   function ajouterExperience(e: React.SubmitEvent) {
     e.preventDefault();
-    const experience = {
-      job,
-      entreprise,
-      debut,
-      fin,
-      description,
-      id: idSelect ?? crypto.randomUUID(),
-    };
+    const experience = { ...saisie, id: idSelect ?? crypto.randomUUID() };
     onEnvoyerExperience(experience);
-    setJob("");
-    setEntreprise("");
-    setDebut("");
-    setFin("");
-    setDescription("");
+    setSaisie(EXP_VIDE);
     setIdSelect(null);
   }
 
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const { name, value } = e.target;
+    setSaisie((prev) => ({ ...prev, [name]: value }));
+  }
+
   function modifierExperience(experience: Experience) {
-    const { job, entreprise, debut, fin, description, id } = experience;
-    setJob(job);
-    setEntreprise(entreprise);
-    setDebut(debut);
-    setFin(fin);
-    setDescription(description);
+    const {id, ...exp} = experience
+    setSaisie(exp);
     setIdSelect(id);
   }
 
@@ -280,39 +268,43 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
       <form onSubmit={ajouterExperience} className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
         <h2 className="pb-2 text-xl font-bold">Expériences professionnelles</h2>
         <Champ
+          name="job"
           description="Nom du travail"
           id="job"
-          value={job}
-          onChange={(e) => setJob(e.target.value)}
+          value={saisie.job}
+          onChange={handleChange}
           placeholder="Travail"
         />
         <Champ
+          name="entreprise"
           description="Dans quelle entreprise"
           id="entreprise"
-          value={entreprise}
-          onChange={(e) => setEntreprise(e.target.value)}
+          value={saisie.entreprise}
+          onChange={handleChange}
           placeholder="Entreprise"
         />
         <Champ
+          name="debut"
           description="Date de début"
           id="debut"
-          value={debut}
-          onChange={(e) => setDebut(e.target.value)}
+          value={saisie.debut}
+          onChange={handleChange}
           type="month"
         />
-        <Champ description="Date de fin" id="fin" value={fin} onChange={(e) => setFin(e.target.value)} type="month" />
+        <Champ name="fin" description="Date de fin" id="fin" value={saisie.fin} onChange={handleChange} type="month" />
         <div className="flex flex-col py-2">
           <label className="font-semibold" htmlFor="description">
             Description
           </label>
           <textarea
+            name="description"
             className="bg-stone-300"
             id="description"
             rows={4}
             placeholder="Décrivez ce que vous avez fait."
             required
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={saisie.description}
+            onChange={handleChange}
           />
         </div>
         <button
