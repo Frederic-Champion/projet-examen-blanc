@@ -1311,3 +1311,76 @@ Partial<Omit<Formation, "id" | "diplome">> & Pick<Formation, "id" | "diplome">
 2. **Habillage design B** — deux colonnes, aperçu de CV présentable.
 3. Exercices de typage réguliers (demande du jour), sur terrain varié.
 4. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` (+ `IntersectionObserver` version React) · `<table>` · `useReducer` · types fonction avancés · hoisting.
+
+## Session 87 — Feuille A4 responsive + `<details>` natif + habillage des listes
+
+**Durée** : ~2h (mercredi). Énergie bonne.
+
+**Révision éclair (top 3 des moins chères)** 🟡 : comparateur `(a, b) => a.prix - b.prix` et `slice(0, 3)` justes et sans hésitation. **Cassé sur la mutation de `sort`, 2ᵉ fois** (S81 déjà, après indice) — `montures` réordonné sans que rien ne le demande, et `monturesTrie` qui n'est pas une copie mais le même tableau. `[...tab].sort()` redonné, avec le contraste : spread indispensable devant `sort`, superflu devant `map`/`filter`. **Reste en rotation.**
+
+**🎹 Raccourci** : `Ctrl+Maj+K` jamais adopté (« je n'y pense pas ») → **abandonné**. Remplacé par **Emmet Wrap with Abbreviation**, demandé par lui en cours de séance (« comment envelopper une sélection sans couper/coller la balise fermante ? »). Assigné à `Alt+M` immédiatement et utilisé dans la foulée. Besoin réel exprimé par lui = bon terrain d'ancrage.
+
+---
+
+### 1. Feuille A4 — dette S85 soldée
+
+**`scale` testé et écarté.** Point posé : un `transform` s'applique **après** le calcul de la mise en page — l'élément est peint plus petit mais réserve toujours sa place. Ne résout pas un débordement.
+
+**`aspect-ratio` — notion neuve** 🟢 : impose un **rapport**, jamais une taille ; la hauteur devient une conséquence de la largeur. `aspect-[210/297]`.
+
+**🎓 Question posée : « aspect peut-il être limité dans sa taille ? »** — oui, il se combine avec toutes les contraintes. Point de fond donné : le ratio est appliqué **après** résolution de la largeur, et une contrainte de taille explicite gagne toujours contre lui.
+
+Version retenue : `aspect-[210/297] w-full max-w-[210mm] p-[5%]`. Format A4 réel quand la place existe, rétrécissement proportionnel sinon. Arbitrage tranché par lui en connaissance de cause : le contenu long sortira du cadre au lieu d'allonger la feuille. Padding en `%` retenu, avec la particularité CSS signalée (un padding en pourcentage se calcule sur la **largeur**, y compris verticalement).
+
+---
+
+### 2. `<details>` / `<summary>` — notion neuve
+
+**Besoin exprimé par lui** (capture d'un CV generator à l'appui) : replier la liste des formations enregistrées.
+
+Deux implémentations comparées, **native retenue** : `<details>` gère le clic, le clavier, l'état et l'accessibilité sans une ligne de JS. Le state React ne se justifierait que pour piloter l'ouverture depuis le code (fermer après ajout, une seule section ouverte). Règle « solution native avant contournement » appliquée.
+
+Points posés : attribut `open` = état **initial** uniquement · `<summary>` est en `display: list-item`, il faut lui remettre `flex` explicitement (même famille que `flex-col` sans `flex`) · `cursor-pointer` non fourni par défaut.
+
+**`group` / `group-open`** 🟡 — deux mécanismes distincts, empilés par moi puis dépliés à sa demande. `open:` cible l'élément lui-même · `group` marque un parent pour permettre à un enfant de réagir à son état, ce que le CSS ne sait pas faire seul. Second exemple donné (`group-hover` sur une carte entière). `peer` mentionné pour les voisins, non enseigné.
+
+**✅ Implémenté seul sur les deux sections**, avec `<article>`, hiérarchie `h3`/`p`, `justify-between` contenu/actions, icônes Lucide et `aria-label` sur le chevron seul (réflexe correct — aucun texte visible ne porte l'information).
+
+---
+
+### 3. Structure sémantique de l'aperçu
+
+**Question posée par moi, répondue juste avant tout code** : `<article>` pour chaque entrée (test S61 « détaché, garde-t-il son sens ? »), `<section>` pour le bloc thématique. Précision ajoutée : les deux sont **imbriqués**, pas alternatifs. Nuance `<h3>` (sens, navigable au lecteur d'écran) vs `font-bold` (apparence).
+
+`<section>` posées sur les trois composants dans la foulée.
+
+---
+
+### 4. Retour à la ligne — diagnostic
+
+Description sur une seule ligne interminable. **Cause : chaîne sans espaces** — le navigateur cherche un espace pour couper, n'en trouve aucun, laisse déborder. `whitespace-pre-line` ne traite pas ce cas.
+
+Donné : `break-words` (coupe dans un mot seulement s'il ne rentre pas) + `whitespace-pre-line` (conserve les retours tapés) · `break-all` déconseillé · `min-w-0` sur l'enfant flex si le débordement persiste (`min-width: auto` par défaut empêche un enfant flex de rétrécir sous son contenu). **Non encore appliqué, à vérifier en ouverture.**
+
+---
+
+**⚠️ Mes erreurs** :
+
+1. **Deux affirmations fausses sur son propre code** : `<nav>` inexistante dans `App.tsx` (elle y est), et diagnostic de débordement construit sur deux captures que j'ai lues comme un avant/après alors qu'il s'agissait du même code dans deux fenêtres de tailles différentes. Recadré par lui. **Même famille que S69 — ne pas trancher sur une capture, demander.**
+2. **`marker:content-none` donné de mémoire — n'existe pas.** Il a cherché la doc et n'a rien trouvé. La classe correcte est `list-none`. **Récurrence de « qualifier la source » (§9 bis).**
+3. **`split` et `new Date` servis dans une fonction de formatage sans cours**, tous deux ❌ au §7 (dates jamais abordées). Signalé par lui. **Récurrence §9 vigilance n°1**, en fin de séance de surcroît.
+
+---
+
+**Niveaux** : `aspect-ratio` + `max-w` 🟢 · padding en `%` 🟡 · `scale` = peinture, pas layout 🟢 · `<details>`/`<summary>` 🟢 (implémenté seul sur 2 sections) · `group` / `group-open` 🟡 (neuf, expliqué en deux temps) · `<article>` dans `<section>` 🟢 · `break-words` vs `whitespace-pre-line` 🟡 (posé, non appliqué) · mutation de `sort` 🔴 (2ᵉ échec).
+
+**🆕 Dettes ouvertes ce jour** :
+- **`split()`** — utilisé, non enseigné. Rapide.
+- **`new Date` / objet Date** — utilisé, non enseigné. Les dates sont ❌ au §7. Nécessaire pour formater `type="month"` (`"2008-09"` → « septembre 2008 »), et le piège des mois indexés à 0 va avec.
+- `peer` — mentionné, non enseigné.
+
+**⏭️ Prochaine étape**
+
+1. **`split` et `new Date`** si le créneau le permet — sinon reporté.
+2. **Habillage de `PagePresentation`** : c'est le dernier bloc non traité du design B. La colonne de gauche est habillée, l'aperçu affiche encore des données brutes séparées par des tirets.
+3. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` (+ `IntersectionObserver` version React) · `<table>` · `useReducer` · types fonction avancés · hoisting · exercices de typage réguliers (demande S86).
