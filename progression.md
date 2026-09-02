@@ -1236,3 +1236,78 @@ Point posé : ce n'est **pas** le même motif que les listes. Une seule donnée,
 4. **Cours dû, demandé explicitement : utility types** (`Omit`, `Pick`, `Partial`, `Record`) — cours complet + exercices.
 5. Candidat séance dédiée : `useRef` + `IntersectionObserver` en version React.
 6. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `<table>` · `useReducer` · types fonction avancés · hoisting.
+
+## Session 86 — Utility types : cours complet + `AfficherExperiences` converti
+
+**Durée** : ~2h (mardi soir). Énergie bonne, séance tenue jusqu'à minuit.
+
+**Révision éclair (inline vs block)** 🟢 : `w-full` identifiée comme ignorée, `inline-block` donné en solution. Une imprécision corrigée sur le padding vertical (il est **peint** mais ne pousse pas les voisins — d'où le chevauchement). Le point cassé en S82 est ressorti juste. **Sort de rotation.**
+
+**🎹 Raccourci** : `Ctrl+Maj+K` — peu utilisé, réflexes souris encore dominants. Reconduit.
+
+---
+
+### 1. `AfficherExperiences` — converti au state objet ✅
+
+**Écrit seul avant la séance**, complet et fonctionnel : state objet, `handleChange` générique avec déstructuration de `e.target`, `EXP_VIDE` typé `Omit<Experience, "id">`, mode édition avec rest en déstructuration.
+
+**Question posée : pourquoi `{ ...saisie, id }` et non `{ saisie, id }`** → un littéral ne contient que des paires ; `{ saisie, id }` produit un objet à deux clés dont l'une imbrique la saisie. Forme longue donnée (les 5 recopies à la main) avant la version spread.
+
+**Union sur un type d'élément** : `React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>` — le nom de l'outil n'était plus en tête, la notion oui. `handleChange` mutualisé, `onChange` inline du `<textarea>` supprimé (il refaisait le même travail avec la clé en dur), annotation fautive à deux paramètres de type retirée.
+
+**🌟 A tranché seul** de ne pas élargir `ChampProps` : `Champ` ne rend qu'un `<input>`, son contrat doit rester exact. Point complété : un fournisseur peut accepter plus large que le contrat, jamais plus étroit.
+
+**Points de la todo S85 vérifiés et déjà soldés** : `name` obligatoire dans `ChampProps` ✅ · préfixes d'`id` sans collision ✅ (j'avais reconduit ce point sans vérifier — récurrence de §9 bis).
+
+---
+
+### 2. Utility types — cours dû livré
+
+**`Omit`** posé par le problème qu'il résout : deux interfaces décrivant la même donnée à un champ près se désynchronisent silencieusement. `Omit` rend la dérivation explicite et automatique. Rattaché aux generics (S81) : un outil livré avec TS, qui tourne dans le canal des types.
+
+**🎓 Question de fond : « à quel moment on met `<>` ? »** — cours donné, point qui structurait tout le reste. **`: Type` = annoter** (attacher un type à une chose qui existe) · **`<Type>` = remplir un tiroir** (fournir un type comme argument à un outil générique). Repère décisif : ce n'est pas toi qui décides, c'est l'outil qui impose. Test au survol VS Code — `type Omit<T, K>` a des tiroirs, `interface Formation` n'en a pas.
+
+**🎓 Question : `interface` vs `type`** — `interface` ne sait décrire qu'une forme d'objet ; `type` nomme n'importe quel type (union, alias, résultat d'utility type). Convention actée pour le projet : `interface` pour les formes d'objet, `type` pour le reste. C'est déjà ce qu'il fait.
+
+**🔴 Blocage sur `|` dans un contexte de clés** : lu comme une alternative (« soit id, soit description ») dans `Omit<Experience, "id" | "description">`. **Ma faute** — j'ai d'abord expliqué que le `|` s'y lisait « comme une liste », ce qui est faux et a brouillé la notion d'union. Repris : `|` = « ou », toujours ; ce qui change est l'usage du type obtenu.
+
+**Question posée derrière : pourquoi pas `&` ?** Excellente. Réponse : `&` existe, il produit une **intersection**. Sur des littéraux, `"id" & "description"` = `never`. Sur des objets, `&` fusionne deux formes — c'est l'usage réel, réactivé plus tard dans la séance.
+
+**🔴 `Record` — deux explications échouées avant la bonne.** Mes deux premiers passages partaient de l'exemple à clés fermées, hors besoin. Débloqué en partant de son `reduce` objet : `{ Rayban: 2, Persol: 1 }` ne peut pas être typé par une interface puisque les clés viennent des données. `Record<string, number>` écrit la **règle** au lieu de la liste.
+
+**Question posée : « il en existe beaucoup plus dans la doc, pourquoi ces 4 ? »** — cadrage donné : ces quatre couvrent les manipulations CRUD courantes ; le reste se range en trois familles (chaînes, types de fonctions type `ReturnType`/`Awaited` — utiles avec Prisma —, filtrage d'unions). Tous fonctionnent pareil, donc lisibles sans cours. Position S81 réaffirmée : utility types **en lecture** avant candidature.
+
+---
+
+### 3. Exercices
+
+**🔴 Mon premier exercice était infaisable** : il demandait de combiner `Partial` + `Omit` + `Pick` + `&` alors que les trois outils venaient d'être vus et que `&` avait été explicitement écarté (« pas aujourd'hui »). Consigne également trop vague — aucun contexte d'appel fourni. Recadré par lui : « ta consigne n'était pas claire, il faut que tu travailles ça ». **Correctif retenu : un exercice = un outil, la combinaison seulement quand chaque brique est sortie seule ; et toujours donner le code appelant avec des valeurs concrètes avant de demander un type.**
+
+**Repris en 4 micro-exercices, un outil chacun — 4/4 justes** : `Pick<Formation, "ville">` · `Partial<Formation>` · `Omit<Formation, "fin">` · `Record<string, number>`. Syntaxe, PascalCase et choix `type` corrects.
+
+**`Record` à clés fermées** ensuite, compris et vérifié (`Record<Statut, number>` restitué juste).
+
+**✅ Combinaison réussie en fin de séance**, avec contexte d'appel fourni cette fois (appels qui doivent passer / être refusés) :
+```ts
+Partial<Omit<Formation, "id" | "diplome">> & Pick<Formation, "id" | "diplome">
+```
+Écrit seul, du premier coup — soit exactement ce qui avait bloqué 20 min plus tôt. La variante courte `Partial<Formation> & Pick<...>` donnée en complément (la contrainte la plus stricte gagne dans une intersection). Seule remarque : nom du type non descriptif.
+
+---
+
+**Niveaux** : state objet sur les 3 formulaires 🟢 (converti seul) · union sur type d'élément d'événement 🟢 · contrat exact vs fournisseur plus large 🟢 · **`: Type` vs `<Type>` 🟢 — c'était le chaînon manquant** · `interface` vs `type` 🟢 · `Omit` 🟢 · `Pick` 🟢 · `Partial` 🟢 · `Record<string, T>` 🟡 (3 explications nécessaires) · `Record<Union, T>` 🟡 · `&` sur objets 🟡 · combinaison d'utility types 🟡 (réussie une fois, guidée par un énoncé très cadré) · `|` sur littéraux 🟡 · inline vs block 🟢.
+
+**🆕 Demande explicite de Frédéric** : **pratiquer et développer les types TS pour perfectionner son usage.** Ce n'est pas une dette à solder mais un axe de travail continu — prévoir des exercices de typage réguliers, y compris hors CV.
+
+**⚠️ Mes erreurs** :
+1. Exercice combinant 3 outils neufs + un opérateur annoncé comme hors périmètre. Récurrence §9.
+2. Consignes d'exercice sans contexte d'appel — « je ne comprends pas, il faut que je type quoi ? ».
+3. `Record` expliqué deux fois par le cas particulier avant le cas général.
+4. Point des préfixes `id` reconduit depuis la todo S85 sans vérifier qu'il était déjà réglé.
+
+**⏭️ Prochaine étape**
+
+1. **Test `scale` de la feuille A4 avec la `<nav>` fixe** — en attente depuis S85 (`w-[210mm]` déborde en demi-colonne ; `transform` sur un ancêtre capture les `fixed`, S76).
+2. **Habillage design B** — deux colonnes, aperçu de CV présentable.
+3. Exercices de typage réguliers (demande du jour), sur terrain varié.
+4. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` (+ `IntersectionObserver` version React) · `<table>` · `useReducer` · types fonction avancés · hoisting.

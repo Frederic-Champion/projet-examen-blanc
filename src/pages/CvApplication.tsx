@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { SquarePen } from "lucide-react";
+import { SquareChevronDown } from 'lucide-react';
 
 interface Infos {
   nom: string;
@@ -88,59 +91,61 @@ function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
   }
 
   return (
-    <form
-      className="my-8 rounded-md bg-stone-200 p-4 shadow-md"
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleEnvoyerInfos();
-      }}
-    >
-      <h2 className="pb-2 text-xl font-bold">Information Générales</h2>
-      <Champ
-        name="nom"
-        value={saisie.nom}
-        onChange={handleChange}
-        id="nom"
-        placeholder="Taper Votre nom Complet"
-        description="Nom Complet"
-      />
-
-      <Champ
-        name="email"
-        value={saisie.email}
-        onChange={handleChange}
-        id="email"
-        type="email"
-        placeholder="Email"
-        description="Adresse Mail"
-      />
-
-      <Champ
-        name="tel"
-        value={saisie.tel}
-        onChange={handleChange}
-        id="tel"
-        type="tel"
-        placeholder="Téléphone"
-        description="Numéro de téléphone"
-      />
-
-      <Champ
-        name="ville"
-        value={saisie.ville}
-        onChange={handleChange}
-        id="ville"
-        placeholder="Code postal, Ville"
-        description="Votre Code postal et Ville"
-      />
-
-      <button
-        className="mt-2 rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
-        type="submit"
+    <section>
+      <form
+        className="my-8 rounded-md bg-stone-200 p-4 shadow-md"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleEnvoyerInfos();
+        }}
       >
-        Enregistrer
-      </button>
-    </form>
+        <h2 className="pb-2 text-xl font-bold">Information Générales</h2>
+        <Champ
+          name="nom"
+          value={saisie.nom}
+          onChange={handleChange}
+          id="nom"
+          placeholder="Taper Votre nom Complet"
+          description="Nom Complet"
+        />
+
+        <Champ
+          name="email"
+          value={saisie.email}
+          onChange={handleChange}
+          id="email"
+          type="email"
+          placeholder="Email"
+          description="Adresse Mail"
+        />
+
+        <Champ
+          name="tel"
+          value={saisie.tel}
+          onChange={handleChange}
+          id="tel"
+          type="tel"
+          placeholder="Téléphone"
+          description="Numéro de téléphone"
+        />
+
+        <Champ
+          name="ville"
+          value={saisie.ville}
+          onChange={handleChange}
+          id="ville"
+          placeholder="Code postal, Ville"
+          description="Votre Code postal et Ville"
+        />
+
+        <button
+          className="mt-2 rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+          type="submit"
+        >
+          Enregistrer
+        </button>
+      </form>
+    </section>
   );
 }
 
@@ -167,8 +172,8 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
   }
 
   return (
-    <>
-      <form onSubmit={enregistrerFormation} className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
+    <section className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
+      <form onSubmit={enregistrerFormation} className="">
         <h2 className="pb-2 text-xl font-bold">Formations</h2>
         <Champ
           name="diplome"
@@ -221,22 +226,39 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
           {idEnEdition ? "Modifier" : "Ajouter"}
         </button>
       </form>
-      <div>
+      <details className="bg-blue-400 mt-2 rounded-lg">
+        <summary><SquareChevronDown /></summary>
         {formations.map((f) => (
-          <div key={f.id}>
-            <p>
-              {f.diplome}: {f.ecole}-{f.ville}//{f.debut}-{f.fin}
-            </p>
-            <button type="button" onClick={() => modifierFormation(f)}>
-              Modifier
-            </button>
-            <button type="button" onClick={() => onSupprimerFormation(f.id)}>
-              Supprimer
-            </button>
-          </div>
+          <article key={f.id} className="flex justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">{f.diplome}</h3>
+              <p>
+                {f.ecole}-{f.ville}
+              </p>
+              <p>
+                {f.debut}-{f.fin}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 mx-2">
+              <button
+                className="mt-2 rounded-full bg-stone-50 p-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+                type="button"
+                onClick={() => modifierFormation(f)}
+              >
+                <SquarePen />
+              </button>
+              <button
+                className="mt-2 rounded-full bg-stone-50 p-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+                type="button"
+                onClick={() => onSupprimerFormation(f.id)}
+              >
+                <Trash2 />
+              </button>
+            </div>
+          </article>
         ))}
-      </div>
-    </>
+      </details>
+    </section>
   );
 }
 
@@ -258,13 +280,13 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
   }
 
   function modifierExperience(experience: Experience) {
-    const {id, ...exp} = experience
+    const { id, ...exp } = experience;
     setSaisie(exp);
     setIdSelect(id);
   }
 
   return (
-    <>
+    <section>
       <form onSubmit={ajouterExperience} className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
         <h2 className="pb-2 text-xl font-bold">Expériences professionnelles</h2>
         <Champ
@@ -327,13 +349,13 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
           </button>
         </div>
       ))}
-    </>
+    </section>
   );
 }
 
 function PagePresentation({ infos, formations, experiences }: PagePresentationProps) {
   return (
-    <div className="mx-auto my-8 min-h-[297mm] w-[210mm] bg-white p-[15mm] shadow-lg">
+    <div className="mx-auto my-8 aspect-210/297 w-full max-w-[210mm] bg-white p-[5%] shadow-lg">
       <div>
         {infos !== null && (
           <div>
