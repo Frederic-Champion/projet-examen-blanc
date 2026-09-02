@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { SquarePen } from "lucide-react";
-import { SquareChevronDown } from 'lucide-react';
+import { SquareChevronDown } from "lucide-react";
+import { formaterMois } from "../utils/format";
 
 interface Infos {
   nom: string;
@@ -139,7 +140,7 @@ function InfosGenerales({ onEnvoyerInfos }: InfosGeneralesProps) {
         />
 
         <button
-          className="mt-2 rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+          className="mt-2 cursor-pointer rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
           type="submit"
         >
           Enregistrer
@@ -173,7 +174,7 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
 
   return (
     <section className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
-      <form onSubmit={enregistrerFormation} className="">
+      <form onSubmit={enregistrerFormation}>
         <h2 className="pb-2 text-xl font-bold">Formations</h2>
         <Champ
           name="diplome"
@@ -220,43 +221,45 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
           description="Date de fin"
         />
         <button
-          className="mt-2 rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+          className="mt-2 cursor-pointer rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
           type="submit"
         >
           {idEnEdition ? "Modifier" : "Ajouter"}
         </button>
       </form>
-      <details className="bg-blue-400 mt-2 rounded-lg">
-        <summary><SquareChevronDown /></summary>
-        {formations.map((f) => (
-          <article key={f.id} className="flex justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">{f.diplome}</h3>
-              <p>
-                {f.ecole}-{f.ville}
-              </p>
-              <p>
-                {f.debut}-{f.fin}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 mx-2">
-              <button
-                className="mt-2 rounded-full bg-stone-50 p-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
-                type="button"
-                onClick={() => modifierFormation(f)}
-              >
-                <SquarePen />
-              </button>
-              <button
-                className="mt-2 rounded-full bg-stone-50 p-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
-                type="button"
-                onClick={() => onSupprimerFormation(f.id)}
-              >
-                <Trash2 />
-              </button>
-            </div>
-          </article>
-        ))}
+      <details open className="group mt-2 rounded-lg">
+        <summary className="flex cursor-pointer justify-end">
+          <SquareChevronDown className="transition-transform group-open:rotate-180" aria-label="Formations Effectués" />
+        </summary>
+        <div className="p-3">
+          {formations.map((f) => (
+            <article key={f.id} className="flex justify-between rounded-lg bg-stone-300 p-2 shadow-md">
+              <div>
+                <h3 className="text-lg font-semibold">{f.diplome}</h3>
+                <p>
+                  {f.ecole}-{f.ville}
+                </p>
+                <p>{f.fin ? `${formaterMois(f.debut)} — ${formaterMois(f.fin)}` : `Depuis ${formaterMois(f.debut)}`}</p>
+              </div>
+              <div className="mx-2 flex items-center gap-2">
+                <button
+                  className="cursor-pointer rounded-full bg-stone-50 p-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+                  type="button"
+                  onClick={() => modifierFormation(f)}
+                >
+                  <SquarePen />
+                </button>
+                <button
+                  className="cursor-pointer rounded-full bg-stone-50 p-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+                  type="button"
+                  onClick={() => onSupprimerFormation(f.id)}
+                >
+                  <Trash2 />
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
       </details>
     </section>
   );
@@ -286,8 +289,8 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
   }
 
   return (
-    <section>
-      <form onSubmit={ajouterExperience} className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
+    <section className="my-8 rounded-md bg-stone-200 p-4 shadow-md">
+      <form onSubmit={ajouterExperience}>
         <h2 className="pb-2 text-xl font-bold">Expériences professionnelles</h2>
         <Champ
           name="job"
@@ -330,25 +333,53 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
           />
         </div>
         <button
-          className="mt-2 rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+          className="mt-2 cursor-pointer rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
           type="submit"
         >
           {idSelect !== null ? "Modifier" : "Ajouter"}
         </button>
       </form>
-      {experiences.map(({ job, entreprise, debut, fin, description, id }) => (
-        <div key={id}>
-          <p>
-            {job}-{entreprise}-{debut}/{fin}-{description}
-          </p>
-          <button type="button" onClick={() => modifierExperience({ job, entreprise, debut, fin, description, id })}>
-            Modifier
-          </button>
-          <button type="button" onClick={() => onSupprimerExperience(id)}>
-            Supprimer
-          </button>
-        </div>
-      ))}
+      <details open className="group mt-2 rounded-lg">
+        <summary className="flex cursor-pointer justify-end">
+          <SquareChevronDown
+            className="transition-transform group-open:rotate-180"
+            aria-label="Expériences professionnelles"
+          />
+        </summary>
+        <article>
+          <div className="p-3">
+            {experiences.map(({ job, entreprise, debut, fin, description, id }) => (
+              <div key={id} className="flex justify-between rounded-lg bg-stone-300 p-2 shadow-md">
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    {job} — {entreprise}
+                  </h3>
+                  <p>
+                    {fin ? `${formaterMois(debut)} — ${formaterMois(fin)}` : `Depuis ${formaterMois(debut)}`}
+                  </p>
+                  <p className="whitespace-pre-line">{description}</p>
+                </div>
+                <div className="mx-2 flex items-center gap-2">
+                  <button
+                    className="cursor-pointer rounded-full bg-stone-50 p-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+                    type="button"
+                    onClick={() => modifierExperience({ job, entreprise, debut, fin, description, id })}
+                  >
+                    <SquarePen />
+                  </button>
+                  <button
+                    className="cursor-pointer rounded-full bg-stone-50 p-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
+                    type="button"
+                    onClick={() => onSupprimerExperience(id)}
+                  >
+                    <Trash2 />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+      </details>
     </section>
   );
 }
@@ -412,7 +443,7 @@ function CvApplication() {
     <main className="bg-stone-50">
       <h1 className="pt-16 text-center text-4xl font-bold">CV Application - Odin Project</h1>
       <div className="mt-16 grid grid-cols-2 gap-4">
-        <div className="mx-auto min-w-2/3 gap-4">
+        <div className="mx-auto w-2/3 gap-4">
           <InfosGenerales onEnvoyerInfos={handleRecupInfos} />
           <AfficherFormations
             formations={formations}
