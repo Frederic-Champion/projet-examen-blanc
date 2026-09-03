@@ -53,9 +53,10 @@ interface ChampProps {
   id: string;
   description: string;
   name: string;
+  obligatoire?: boolean;
 }
 
-function Champ({ onChange, value, placeholder, id, type = "text", description, name }: ChampProps) {
+function Champ({ onChange, value, placeholder, id, type = "text", obligatoire = true, description, name }: ChampProps) {
   return (
     <div className="flex flex-col py-2">
       <label className="font-semibold" htmlFor={id}>
@@ -69,7 +70,7 @@ function Champ({ onChange, value, placeholder, id, type = "text", description, n
         onChange={onChange}
         placeholder={placeholder}
         type={type}
-        required
+        required={obligatoire}
       />
     </div>
   );
@@ -219,6 +220,7 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
           id="formation-fin"
           type="month"
           description="Date de fin"
+          obligatoire={false}
         />
         <button
           className="mt-2 cursor-pointer rounded-lg border bg-stone-50 px-4 py-1 font-semibold transition-colors hover:border-stone-400 hover:bg-stone-200 hover:shadow-md"
@@ -233,7 +235,7 @@ function AfficherFormations({ onEnvoyerFormation, onSupprimerFormation, formatio
         </summary>
         <div className="p-3">
           {formations.map((f) => (
-            <article key={f.id} className="flex justify-between rounded-lg bg-stone-300 p-2 shadow-md">
+            <article key={f.id} className="mt-2 flex justify-between rounded-lg bg-stone-300 p-2 shadow-md">
               <div>
                 <h3 className="text-lg font-semibold">{f.diplome}</h3>
                 <p>
@@ -316,7 +318,15 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
           onChange={handleChange}
           type="month"
         />
-        <Champ name="fin" description="Date de fin" id="fin" value={saisie.fin} onChange={handleChange} type="month" />
+        <Champ
+          name="fin"
+          obligatoire={false}
+          description="Date de fin"
+          id="fin"
+          value={saisie.fin}
+          onChange={handleChange}
+          type="month"
+        />
         <div className="flex flex-col py-2">
           <label className="font-semibold" htmlFor="description">
             Description
@@ -349,14 +359,12 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
         <article>
           <div className="p-3">
             {experiences.map(({ job, entreprise, debut, fin, description, id }) => (
-              <div key={id} className="flex justify-between rounded-lg bg-stone-300 p-2 shadow-md">
+              <div key={id} className="mt-2 flex justify-between rounded-lg bg-stone-300 p-2 shadow-md">
                 <div>
                   <h3 className="text-lg font-semibold">
                     {job} — {entreprise}
                   </h3>
-                  <p>
-                    {fin ? `${formaterMois(debut)} — ${formaterMois(fin)}` : `Depuis ${formaterMois(debut)}`}
-                  </p>
+                  <p>{fin ? `${formaterMois(debut)} — ${formaterMois(fin)}` : `Depuis ${formaterMois(debut)}`}</p>
                   <p className="whitespace-pre-line">{description}</p>
                 </div>
                 <div className="mx-2 flex items-center gap-2">
@@ -387,27 +395,64 @@ function AfficherExperiences({ onEnvoyerExperience, experiences, onSupprimerExpe
 function PagePresentation({ infos, formations, experiences }: PagePresentationProps) {
   return (
     <div className="mx-auto my-8 aspect-210/297 w-full max-w-[210mm] bg-white p-[5%] shadow-lg">
-      <div>
+      <section>
         {infos !== null && (
-          <div>
-            {infos.nom}-{infos.email}-{infos.tel}-{infos.ville}
-          </div>
+          <article className="mb-8">
+            <h1 className="mb-8 text-center text-3xl font-bold">{infos.nom}</h1>
+            <h2 className="mb-2 border-b-2 border-emerald-800 pb-1 text-lg font-bold text-emerald-800">
+              Informations Générales
+            </h2>
+            <p className="font-semibold">{infos.ville}</p>
+            <p>{infos.tel}</p>
+            <p>{infos.email}</p>
+          </article>
         )}
-      </div>
-      {formations.map(({ diplome, ecole, ville, debut, fin, id }) => (
-        <div key={id}>
-          {diplome} :{ecole}-{ville}
-          {debut}/{fin}
-        </div>
-      ))}
-      <div>
-        {experiences.map(({ job, entreprise, debut, fin, description, id }) => (
-          <div key={id}>
-            {job} : {entreprise} - {debut}/{fin}
-            {description}{" "}
-          </div>
+      </section>
+      <section className="mb-8">
+        {formations.length !== 0 && (
+          <h2 className="mb-2 border-b-2 border-emerald-800 pb-1 text-lg font-bold text-emerald-800">
+            Formations et Diplomes
+          </h2>
+        )}
+        {formations.map(({ diplome, ecole, ville, debut, fin, id }, index) => (
+          <article key={id}>
+            <div className="flex items-baseline justify-between">
+              <h3 className="text-lg font-semibold">{diplome}</h3>
+              <span className="text-sm text-stone-500">
+                {fin ? `${formaterMois(debut)} — ${formaterMois(fin)}` : `Depuis ${formaterMois(debut)}`}
+              </span>
+            </div>
+            <p>
+              {ecole} — {ville}
+            </p>
+
+            {formations.length - 1 > index && <hr className="my-2 border-stone-300" />}
+          </article>
         ))}
-      </div>
+      </section>
+      <section className="mb-8">
+        {experiences.length !== 0 && (
+          <h2 className="mb-2 border-b-2 border-emerald-800 pb-1 text-lg font-bold text-emerald-800">
+            Expériences Professionnelles
+          </h2>
+        )}
+        {experiences.map(({ job, entreprise, debut, fin, description, id }, index) => (
+          <article key={id}>
+            <div className="flex items-baseline justify-between">
+              <h3 className="text-lg font-semibold">{job}</h3>
+              <span className="text-sm text-stone-500">
+                {fin ? `${formaterMois(debut)} — ${formaterMois(fin)}` : `Depuis ${formaterMois(debut)}`}
+              </span>
+            </div>
+            <p>{entreprise}</p>
+
+            <p className="font-semibold text-slate-700">Descriptif de ma mission :</p>
+
+            <p>{description}</p>
+            {experiences.length - 1 > index && <hr className="my-2 border-stone-300" />}
+          </article>
+        ))}
+      </section>
     </div>
   );
 }

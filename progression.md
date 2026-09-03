@@ -1384,3 +1384,69 @@ Donné : `break-words` (coupe dans un mot seulement s'il ne rentre pas) + `white
 1. **`split` et `new Date`** si le créneau le permet — sinon reporté.
 2. **Habillage de `PagePresentation`** : c'est le dernier bloc non traité du design B. La colonne de gauche est habillée, l'aperçu affiche encore des données brutes séparées par des tirets.
 3. Toujours en attente : projet CSS Grid · `children` · `useParams` sur vrai cas API · `useRef` (+ `IntersectionObserver` version React) · `<table>` · `useReducer` · types fonction avancés · hoisting · exercices de typage réguliers (demande S86).
+
+## Session 88 — `split` / `new Date` + habillage de l'aperçu CV
+
+**Durée** : ~2h (jeudi midi). Énergie bonne.
+
+**Révision éclair (le plus cher, sans muter la source)** 🟢 : `[...montures].sort((a, b) => b.prix - a.prix)[0]` écrit sans hésitation, **spread posé d'emblée sans rappel**. Le point cassé en S81 et en S87 est ressorti seul. **Sort de rotation.** Corrections de nommage seulement : PascalCase sur une variable ordinaire · nom décrivant le contenu (`monturesTriees`) plutôt que la nouveauté.
+
+**🎹 Raccourci** : Emmet Wrap (`Alt+M`) — utilisé, jugé très pratique, **reconduit à sa demande** avant rotation.
+
+**Vérification d'ouverture** : `break-words` + `whitespace-pre-line` appliqués, débordement résolu ✅.
+
+---
+
+### 1. Dettes S87 soldées — `split` et `new Date`
+
+**`split()`** 🟢 : cours donné (le séparateur disparaît, le retour est **toujours** un tableau même sans coupure, `split("")` découpe caractère par caractère, `join()` en inverse). Deux micro-exercices justes.
+
+**Point réactivé au passage — déstructuration de tableau** 🟡 : a écrit deux `split` successifs avec accès par index plutôt que `const [annee, mois] = ...`. La notion est connue (il l'utilise dans chaque `useState`) mais ne s'est pas déclenchée. Repère redonné : accolades = objet, par **nom** · crochets = tableau, par **position**. Rattaché à `useState` et à `Object.entries`.
+
+**`new Date`** 🟡 : cours limité à ce que le CV exige (représentation en millisecondes, trois formes de construction, **mois indexés à 0**, `toLocaleDateString` avec objet d'options). Le piège des mois est présenté comme à retenir, pas à comprendre.
+
+**Écriture de `formaterMois` — 4 points cassés** :
+1. **La fonction lisait la constante globale `date` au lieu de son paramètre `valeur`** — récurrence directe du `CLIENTS.map` de la S63. 🔴
+2. **Aucun `return`** : résultat calculé puis jeté, `alert` de l'objet `Date` brut. ⚠️ **Ma consigne était ambiguë** (« doit ressortir X » sans préciser la forme) — signalé par lui, à raison. Point de fond maintenu : une fonction utilitaire renvoie, elle n'affiche pas ; c'est ce qui la rend réutilisable.
+3. **Pas de `Number()`** aux frontières — `split` renvoie des chaînes, `new Date` attend des nombres. Acquis sur la calculatrice, non transféré. 🔴
+4. Garde manquant sur chaîne vide (`NaN` → « Invalid Date »).
+
+---
+
+### 2. Habillage de `PagePresentation`
+
+**🎓 Deux questions posées avant de coder, toutes deux pertinentes** :
+
+- *Faut-il un bouton télécharger/imprimer, et est-ce dans mes cordes ?* → oui aux deux. `window.print()` ouvre la boîte native qui propose l'export PDF ; le travail réel est le CSS d'impression (`@media print`, variant Tailwind `print:hidden`). Bloc de ~30 min, **écarté par lui pour un autre projet**. Décision assumée.
+- *Un CV sans couleur, juste du gras et de la marge ?* → ma consigne était trop stricte. Reformulée : la couleur **accompagne** la hiérarchie, elle ne la porte pas ; le test est qu'un CV reste lisible en noir et blanc. Règle donnée : une couleur d'accent, trois usages maximum.
+
+**Question posée : quel est le souligné le plus pro ?** → `border-b` (standard, une propriété, aucun élément en plus, suit la largeur du bloc) · `<hr>` réservé aux séparateurs sémantiques entre blocs · `::after` seulement pour ce que `border-b` ne fait pas (trait partiel, couleur indépendante) · **une `<div>` vide pour faire un trait : jamais**.
+
+**Première version — deux erreurs bloquantes** :
+1. **`<p>` imbriqué dans un `<p>`** — interdit en HTML, le navigateur ferme le premier de force.
+2. **Séparateur conditionné sur `length > 1`** — condition identique pour toutes les entrées, donc un trait après la dernière. Corrigé avec l'index.
+
+**Deuxième paramètre de `.map()`** 🟢 — expliqué à sa demande (« je le connais mais jamais utilisé seul »). Trois arguments fournis, on ne déclare que ce qu'on veut ; même famille que le `e` d'un handler. `length - 1` = index du dernier, conséquence de l'indexation à 0.
+
+**✅ Prop `obligatoire?: boolean` avec défaut `true`** — motif de la prop optionnelle sorti sans aide, **3ᵉ fois** après `type` et `className`. Appliqué aux deux champs « date de fin ».
+
+**Corrections appliquées** : `<section>`/`<article>` à la place des `<div>` · `justify-between` + `items-baseline` pour les dates alignées à droite · ternaire `fin` propagé dans l'aperçu · formulations de CV allégées.
+
+**Décision de Frédéric, juste** : l'habillage s'arrête là. L'énoncé Odin porte sur la mécanique (lifting state up, mode édition), pas sur la maquette.
+
+---
+
+**Niveaux** : `split` 🟢 · déstructuration de tableau 🟡 (connue, non déclenchée) · `new Date` + mois indexés à 0 🟡 · conversions aux frontières 🔴 (acquises ailleurs, non transférées) · lire le paramètre et non la globale 🔴 (récurrence S63) · fonction utilitaire qui renvoie 🟡 · 2ᵉ paramètre de `.map()` 🟢 · `border-b` vs `<hr>` vs `::after` 🟢 · prop optionnelle avec défaut 🟢 · `<p>` non imbricable 🟢 · `sort` non mutant 🟢.
+
+**📌 Reste sur le fichier** (mineur, non bloquant) : `break-words` / `whitespace-pre-line` absents de la description dans l'aperçu · le bloc d'en-tête serait plutôt un `<header>`.
+
+**✅ CV Application terminé** côté énoncé Odin. `InfosGenerales` sans bouton Modifier : conforme à la décision S85 (une seule donnée, champs qui restent remplis, libellé fixe).
+
+**⏭️ Prochaine étape — décision à prendre en ouverture**
+
+Le CV est fini, et la consolidation dure depuis la S70 alors que les vacances sont terminées depuis deux semaines. Deux directions :
+
+1. **Reprendre l'axe Phase 2** (recommandé) : approfondissement **React Router Declarative**, demandé explicitement en S69 et jamais ouvert · **`useParams` sur un vrai cas API** liste → fiche, en attente depuis S68 — c'est le motif central des apps de gestion, donc du futur SaaS optique.
+2. **Poursuivre la famille logique pure** : Quiz (zéro neuf), puis Memory Card (mélange de tableau), puis jeu de paires.
+
+Toujours en attente : projet CSS Grid · `children` · `useRef` (+ `IntersectionObserver` version React) · `<table>` · `useReducer` · types fonction avancés · hoisting · `peer` · exercices de typage réguliers (demande S86).
