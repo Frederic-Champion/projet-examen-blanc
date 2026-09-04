@@ -1450,3 +1450,66 @@ Le CV est fini, et la consolidation dure depuis la S70 alors que les vacances so
 2. **Poursuivre la famille logique pure** : Quiz (zéro neuf), puis Memory Card (mélange de tableau), puis jeu de paires.
 
 Toujours en attente : projet CSS Grid · `children` · `useRef` (+ `IntersectionObserver` version React) · `<table>` · `useReducer` · types fonction avancés · hoisting · `peer` · exercices de typage réguliers (demande S86).
+
+## Session 89 — `useParams` et route paramétrée
+
+**Durée** : ~2h (vendredi). Énergie bonne. Reprise de l'axe Phase 2 après la consolidation ouverte en S70.
+
+**Révision éclair (`Object.entries`)** 🟢 : `.map()` complet écrit sans hésitation, déstructuration par **crochets** posée d'emblée — le point cassé trois fois (jusqu'en S83) est ressorti seul. **Sort de rotation.** Seule remarque : `<p>` répétés là où le résultat attendu était une liste (`<ul>`/`<li>`).
+
+**🎹 Raccourci** : Emmet Wrap (`Alt+M`) acté 🟢, très utilisé, sorti de rotation. Nouveau : `Ctrl+Maj+F` (recherche projet) — **non joué cette séance.**
+
+---
+
+### 1. Organisation des dépôts — tranchée par Frédéric
+
+J'avais recommandé de tout regrouper dans `projet-examen-blanc`. **Il a maintenu une autre répartition, meilleure, à retenir** :
+
+- **`projet-examen-blanc`** = exercices canoniques / projets aboutis, dépôt vitrine.
+- **`projet-vite-local`** = atelier d'apprentissage, petits exercices, noms de fichiers descriptifs pour la relecture.
+
+Accueil de `projet-vite-local` refait sur le modèle de l'autre projet — remplace définitivement le système commenter/décommenter.
+
+---
+
+### 2. Cours `useParams` + segment paramétré
+
+Segment `:id` comme joker, nom inventé librement, correspondance stricte du nombre de segments. `useParams()` renvoie **un objet** dont les clés sont les noms écrits après les `:` → déstructuration par accolades, par nom.
+
+**Point de fond posé** : un composant monté par une route n'a **pas de parent qui lui passe des props** — c'est le routeur qui l'affiche en lisant l'URL. D'où la nécessité d'un hook pour aller chercher la donnée. Deux conséquences : la valeur est **toujours une chaîne**, et son type est `string | undefined` (l'assertion `!` est illégitime ici, la valeur vient de l'utilisateur).
+
+**🔴 Premier exercice (`Catalogue`) non produit** — « je ne comprends pas ce que je dois faire ». Code donné en entier puis commenté ligne par ligne. Deux causes distinctes : **ma consigne initiale était dispersée** (reformulée ensuite en livrable explicite, ce qui a débloqué la partie liste), et le mécanisme était neuf.
+
+Erreurs corrigées avant le blocage : `<Link>` auto-fermant (lien vide, contenu à côté et non dedans — récurrence du point zone cliquable S75-77) · marque et prix affichés dans la liste, ce qui vidait la fiche de son intérêt · `path="/fiche-monture"` **fixe au lieu de paramétré**, donc aucune correspondance avec les `<Link>` générés et `useParams` renvoyant un objet vide.
+
+**Question posée : export nommé vs `export default`** — cours donné (un seul défaut, autant de nommés ; le défaut n'a pas de nom donc l'importateur le choisit ; accolades = même syntaxe que la déstructuration, renommage possible avec `as`). Convention dominante = nommé partout. Rattaché à `{ createRoot }`.
+**Vocabulaire corrigé** : accolades `{}`, pas crochets.
+
+---
+
+### 3. Exercice `Clients` / `FicheClient` — page blanche ✅
+
+Motif complet reproduit sans modèle 20 min après avoir reçu le code : route paramétrée dans le bon ordre, `to` construit en template literal, `useParams()` déstructuré, `find` + test, deux exports nommés, entrée d'accueil.
+
+**Trois corrections** :
+
+1. **🔴 `if (!client) return;` — `return` nu.** React accepte `undefined` : page **vide** sans message ni erreur sur une URL invalide. Le cas d'erreur n'est pas traité, il est silencieux. **Récurrence directe du `return` nu de `arrondir` (S78)** — une fonction doit produire quelque chose dans toutes ses branches.
+2. Nommage `clientExiste` pour une variable portant un objet — annonce un booléen (sa propre convention, S81). La variable **porte** le client, le test d'existence est une conséquence.
+3. `€` collé à la date, résidu du copier de `Catalogue`.
+
+**Question de fond posée en fin de séance : pourquoi `:id` dans le `path` et pas dans le `to` ?** Réponse : `path` décrit un **motif** écrit une seule fois, il ne peut pas nommer une valeur qu'il ignore · `to` est réévalué dans le `.map()` avec la donnée sous la main et produit une **adresse réelle**. Test réappliqué : « est-ce que ça ressemble à une adresse de site web ? »
+
+---
+
+**Niveaux** : route paramétrée `:id` 🟢 · `useParams` + déstructuration par nom 🟡 — **code donné sur le 1er exercice, reproduit seul sur le 2e ; un seul passage autonome, ne pas surévaluer** · correspondance `to` ↔ `path` 🟢 · `find` + test d'existence 🟢 · `return` nu dans une branche 🔴 (récurrence S78) · export nommé vs défaut 🟢 · `<Link>` enveloppant son contenu 🟡 (rechute) · `Object.entries` 🟢.
+
+**⚠️ Mes erreurs** :
+1. **Consigne du 1er exercice dispersée** — livrable pas énoncé clairement, ce qui a pesé sur un mécanisme déjà neuf. Reformulée en « voici les deux composants à produire, voici le résultat attendu », efficace immédiatement.
+2. **Annonce d'un exercice à deux paramètres** puis retrait — j'allais ajouter du neuf alors que le premier exercice n'avait pas été produit seul.
+3. Recommandation d'organisation des dépôts moins bonne que la sienne.
+
+**⏭️ Prochaine étape — décidée pour demain, séance fraîche**
+
+1. **Liste → fiche sur une vraie API** : deux `fetch` (liste et fiche), avec chargement et erreur **dans le composant monté par la route** — jamais fait. C'est ce que `useParams` sert réellement, et le motif du futur SaaS optique. Bonne révision du socle `useEffect`/`fetch` au passage. ~1h.
+2. Puis : approfondissement React Router Declarative (demandé S69, jamais ouvert).
+3. Toujours en attente : projet CSS Grid · `children` · `useRef` (+ `IntersectionObserver` version React) · `<table>` · `useReducer` · types fonction avancés · hoisting · `peer` · exercices de typage réguliers (demande S86).
