@@ -5,8 +5,7 @@ import Accueil from "./pages/Accueil";
 import Calculatrice from "./pages/Calculatrice";
 import CalculatricePageBlanche from "./pages/Calculatrice-pageBlanche";
 import CvApplication from "./pages/CvApplication";
-import Catalogue from "./pages/catalogue";
-import FicheMonture from "./pages/FicheMonture";
+import Catalogue, { FicheMonture } from "./pages/Catalogue";
 
 function App() {
   return (

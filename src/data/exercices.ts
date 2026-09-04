@@ -30,11 +30,6 @@ export const EXERCICES: Exercice[] = [
     titre: "Catalogue Montures useParams",
     description: "Apprentissage de useParams",
   },
-    {
-    path: "/fiche-monture",
-    titre: "Fiche Monture",
-    description: "Liens vers monture",
-  },
 
 ];
 

@@ -11,6 +11,7 @@ const MONTURES: Monture[] = [
   { id: "1", nom: "Aviator", marque: "Ray-Ban", prix: 159 },
   { id: "2", nom: "Wayfarer", marque: "Ray-Ban", prix: 139 },
   { id: "3", nom: "Steve", marque: "Persol", prix: 289 },
+  {id: "4",nom: "Clubmaster", marque: "Ray-Ban", prix: 185 }
 ];
 
 function Catalogue() {
