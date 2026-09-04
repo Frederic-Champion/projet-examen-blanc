@@ -25,6 +25,17 @@ export const EXERCICES: Exercice[] = [
     titre: "Odin - CV Application",
     description: "Premier Exercice du projet Odin React",
   },
+    {
+    path: "/catalogue",
+    titre: "Catalogue Montures useParams",
+    description: "Apprentissage de useParams",
+  },
+    {
+    path: "/fiche-monture",
+    titre: "Fiche Monture",
+    description: "Liens vers monture",
+  },
+
 ];
 
 /* Maquette à remplir pour copier coller à la suite :

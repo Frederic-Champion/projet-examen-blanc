@@ -5,6 +5,8 @@ import Accueil from "./pages/Accueil";
 import Calculatrice from "./pages/Calculatrice";
 import CalculatricePageBlanche from "./pages/Calculatrice-pageBlanche";
 import CvApplication from "./pages/CvApplication";
+import Catalogue from "./pages/catalogue";
+import FicheMonture from "./pages/FicheMonture";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
           <Route path="/calculatrice" element={<Calculatrice />} />
           <Route path="/calculatrice-pageblanche" element={<CalculatricePageBlanche />} />
           <Route path="/CV-application" element={<CvApplication />} />
+          <Route path="/catalogue" element={<Catalogue />} />
+          <Route path="/catalogue/:id" element={<FicheMonture />} />
         </Routes>
       </main>
     </div>
