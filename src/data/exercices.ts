@@ -10,18 +10,9 @@ export const EXERCICES: Exercice[] = [
     titre: "Brouillon",
     description: "Page d'exercice Bac à Sable",
   },
-  {
-    path: "/calculatrice",
-    titre: "Calculatrice",
-    description: "Machine à états, cas limites, parsing d'entrée.",
-  },
+
     {
-    path: "/calculatrice-pageblanche",
-    titre: "Calculatrice Page Blanche",
-    description: "Exercice calculatrice refait seul",
-  },
-    {
-    path: "/CV-application",
+    path: "/cv-application",
     titre: "Odin - CV Application",
     description: "Premier Exercice du projet Odin React",
   },
@@ -29,6 +20,11 @@ export const EXERCICES: Exercice[] = [
     path: "/catalogue",
     titre: "Catalogue Montures useParams",
     description: "Apprentissage de useParams",
+  },
+    {
+    path: "/page-calculatrice",
+    titre: "Page Calculatrice",
+    description: "Lien vers les exercices de calculatrice",
   },
 
 ];

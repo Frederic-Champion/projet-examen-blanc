@@ -18,4 +18,15 @@ function Accueil() {
   );
 }
 
+export function PageIntrouvable() {
+  return (
+    <div className="text-center mx-auto max-w-fit flex pt-16 flex-col gap-3 p-1 font-semibold">
+      <h1 className="text-3xl">Page Introuvable</h1>
+      <Link className="block rounded-lg bg-stone-300 p-3 shadow-lg hover:bg-stone-200" to="/">
+        Retour ACCUEIL
+      </Link>
+    </div>
+  );
+}
+
 export default Accueil;
