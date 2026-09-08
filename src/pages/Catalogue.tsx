@@ -1,4 +1,5 @@
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
+import { useEffect } from "react";
 
 interface Monture {
   id: string;
@@ -28,9 +29,17 @@ function Catalogue() {
 
 function FicheMonture() {
   const { id } = useParams();
-  const monture = MONTURES.find((m) => m.id === id);
+  const naviguer = useNavigate();
 
+  const monture = MONTURES.find((m) => m.id === id);
   if (!monture) return <p className="mt-16">Monture introuvable</p>;
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      naviguer("/catalogue", {replace: true})
+    }, 2000);
+    return () => clearTimeout(t)
+  }, [])
 
   return (
     <article className="mt-16">
