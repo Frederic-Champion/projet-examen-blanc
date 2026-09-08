@@ -13,7 +13,7 @@ function NavigationCalculatrice() {
           to={"/page-calculatrice"}
           end
         >
-          Retour Accueuil
+          Retour Accueil
         </NavLink>
         <NavLink className={lienClasse} to={"1"}>
           Calculatrice
