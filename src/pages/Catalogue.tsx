@@ -1,5 +1,5 @@
-import { Link, useParams, useNavigate, Navigate, useLocation } from "react-router";
-import { useEffect } from "react";
+import { Link, useParams, useNavigate, useLocation } from "react-router";
+import { useEffect, useState } from "react";
 
 interface Monture {
   id: string;
@@ -17,6 +17,13 @@ const MONTURES: Monture[] = [
 
 function Catalogue() {
   const location = useLocation();
+  const naviguer = useNavigate();
+  const [message] = useState(location.state?.message);
+
+  useEffect(() => {
+    if (!location.state) return;
+    naviguer(location.pathname, { replace: true });
+  }, [naviguer, location.state, location.pathname]);
 
   return (
     <div>
@@ -27,7 +34,9 @@ function Catalogue() {
           </li>
         ))}
       </ul>
-      {location.state?.message && <p className="font-semibold rounded bg-green-100 p-2">{`"Vous venez de consulter : ${location.state.message}"`}</p>}
+      {message && (
+        <p className="rounded bg-green-100 p-2 font-semibold">Vous venez de consulter : {message}</p>
+      )}
     </div>
   );
 }
