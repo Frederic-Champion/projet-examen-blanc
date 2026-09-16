@@ -7,6 +7,7 @@ import Calculatrice from "./pages/Calculatrice";
 import CalculatricePageBlanche from "./pages/Calculatrice-pageBlanche";
 import CvApplication from "./pages/CvApplication";
 import Catalogue, { FicheMonture } from "./pages/Catalogue";
+import { MemoryCard } from "./pages/Memory-Card";
 
 function App() {
   const naviguer = useNavigate();
@@ -31,6 +32,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Accueil />} />
+          <Route path="*" element={<PageIntrouvable />} />
           <Route path="/brouillon" element={<Brouillon />} />
           <Route path="/page-calculatrice" element={<NavigationCalculatrice />}>
             <Route index element={<CalculatriceAccueil />} />
@@ -40,7 +42,7 @@ function App() {
           <Route path="/cv-application" element={<CvApplication />} />
           <Route path="/catalogue" element={<Catalogue />} />
           <Route path="/catalogue/:id" element={<FicheMonture />} />
-          <Route path="*" element={<PageIntrouvable />} />
+          <Route path="/memory-card" element={<MemoryCard />} />
         </Routes>
       </main>
     </div>
