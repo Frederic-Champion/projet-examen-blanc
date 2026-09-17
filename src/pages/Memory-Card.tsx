@@ -19,11 +19,10 @@ function MemoryCard() {
 
   useEffect(() => {
     async function charger() {
-
       try {
         const requete = [
-          fetch("https://dummyjson.com/products/category/mens-watches"),
-          fetch("https://dummyjson.com/products/category/womens-watches"),
+          fetch("https://dummyjson.com/products/category/mens-watches?limit=5"),
+          fetch("https://dummyjson.com/products/category/womens-watches?limit=5"),
         ];
         const [resH, resF] = await Promise.all(requete);
         if (!resH.ok || !resF.ok) {
@@ -47,9 +46,15 @@ function MemoryCard() {
     <div className="pt-16">
       <p>Score total :</p>
       <p>Meilleur score :</p>
-      {dataMontre.map((m) => (
-        <p>{m.title}</p>
-      ))}
+
+      <div className="grid grid-cols-5">
+        {dataMontre.map((m) => (
+          <article key={m.id}>
+            <p>{m.title}</p>
+            <img src={m.thumbnail} alt={m.title} />
+          </article>
+        ))}
+      </div>
     </div>
   );
 }
