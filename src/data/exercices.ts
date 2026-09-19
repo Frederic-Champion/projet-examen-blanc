@@ -26,6 +26,12 @@ export const EXERCICES: Exercice[] = [
     titre: "Page Calculatrice",
     description: "Lien vers les exercices de calculatrice",
   },
+    {
+    path: "/memory-card",
+    titre: "Odin - Memory Card",
+    description: "Second exercice du Projet Odin React",
+  },
+
 
 ];
 

@@ -1,18 +1,16 @@
-import { useEffect, useState } from "react";
+import { NavLink } from "react-router";
 
 export default function Brouillon() {
-  const [seconde, setSeconde] = useState(() => {
-    return new Date().toLocaleTimeString();
-  });
+  return <Exercice/>;
+}
 
-  useEffect(() => {
-    const s = setInterval(() => {
-      setSeconde(new Date().toLocaleTimeString())
-    }, 1000);
-    return () => clearInterval(s);
-  }, [])
-
-  return <div className="pt-16 text-center">
-    {seconde}
-  </div>;
+function Exercice() {
+  return (
+    <div className="pt-16">
+      <NavLink end className={ ({isActive}) => isActive ? "border p-2 text-blue-600" : "border p-2"} to='/mon-compte'>1</NavLink>
+      <NavLink end className={ ({isActive}) => isActive ? "border p-2 text-blue-600" : "border p-2"} to='/mon-compte/commande'>2</NavLink>
+      <NavLink className={ ({isActive}) => isActive ? "border p-2 text-blue-600" : "border p-2"} to='/mon-compte/commande/:id'>3</NavLink>
+      <NavLink className={ ({isActive}) => isActive ? "border p-2 text-blue-600" : "border p-2"} to='/mon-compte/ordonnance'>4</NavLink>
+    </div>
+  )
 }
