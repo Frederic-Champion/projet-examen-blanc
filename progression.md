@@ -635,7 +635,7 @@ Circuit réparé dans `projet-examen-blanc` (`Catalogue`) : copie dans `useState
 
 **🎓 Règle métier posée par Frédéric** : une addition à 0 n'existe pas en optique (minimum 0,75). Donc 0 ou absent → pas de ligne. Mon `!== undefined` était faux pour ce cas. Point technique qui reste : `addition && …` afficherait le chiffre `0` → forme retenue : `addition ? (…) : null`.
 
-**📌 Point ouvert** : survol de `sphere` dans le `.map()` non fait. Probable `any` (`Object.entries` sur une `interface` sans signature d'index) et `oeil` typé `string` — *non vérifié*. Bon support pour un exercice de typage.
+**📌 Point ouvert** : survol de `sphere` dans le `.map()` non fait. Probable `any` (`Object.entries` sur une `interface` sans signature d'index) et `oeil` typé `string` — _non vérifié_. Bon support pour un exercice de typage.
 
 **Niveaux** : `children` 🟢 (page blanche réussie) · critère props de données / `children` 🟢 · `<table>` sémantique 🟢 · modélisation objet vs liste 🟢 · déstructuration de tableau 🟡 · union sur prop optionnelle 🔴 · `scope` 🟡. **Exercice réussi au prix d'un effort long : fragile côté TS.**
 
@@ -661,6 +661,7 @@ Circuit réparé dans `projet-examen-blanc` (`Catalogue`) : copie dans `useState
 **Durée** : ~1h (samedi). Énergie bonne. Créneau court annoncé, séance coupée en fin de parcours par un client.
 
 **Révision éclair (`useParams` — route paramétrée)** 🔴 : trois points sur quatre manqués.
+
 - **Origine du nom inversée** : annoncé comme inventé dans le composant, repris ensuite dans `App`. C'est l'inverse — le nom naît dans le `path`, une seule fois, et devient ensuite une clé d'objet lue à l'identique. **Même point que la révision de sortie S90, non corrigé depuis.**
 - `useParams` **sans parenthèses** dans la ligne écrite (déstructure la fonction, pas son résultat) + clé inventée (`eclair`) absente de l'objet.
 - Type donné `string`, sans `| undefined` — c'est la moitié qui oblige à la garde.
@@ -714,6 +715,7 @@ Terrain neuf (`Brouillon.tsx`), notions déjà vues uniquement. Deux composants 
 **Niveaux** : `interface` ouverte vs `type` fermé 🟡 (question reposée après la 1ʳᵉ explication) · `Partial<Record<...>>` 🔴 (**non produit, donné**) · repère `type` pour boucler sur les clés 🟡 · `useParams` — origine du nom dans le `path` 🔴 (récurrence S90) · `useParams()` vs `useParams` 🔴 · `string | undefined` 🟡 · union sur prop optionnelle 🔴 (3ᵉ occurrence) · prop optionnelle + défaut 🟡 (rechute sur terrain neuf) · `.map()` + `key` 🟢.
 
 **⚠️ Mes erreurs** :
+
 1. **Exercice posé sur un assemblage vu une seule fois** — combinaison d'utility types demandée en page blanche. Récurrence du §9 (exercice sur mécanisme insuffisamment enseigné).
 2. **Erreur rouge annoncée comme certaine, inexistante** — hypothèse non vérifiée présentée comme un fait. Récurrence de la règle « qualifier la source ».
 3. **Raccourci `Ctrl+Maj+\` posé en S93 sur un besoin auquel il ne répond pas** (circulation dans du JSX).
@@ -810,6 +812,7 @@ Terrain neuf (`ExerciceUseRefBis`), les deux usages + champ contrôlé.
 **🔄 Rotation** : **`NavLink` + `end` passe en priorité haute** (🔴 à froid). Toujours dedans : React Router Declarative (8 autres points) · `setInterval`/`clearInterval`. **Sortis** : `useParams` + correspondance `path` (🟢 seul) · union de valeurs sur prop optionnelle (dette soldée).
 
 **⚠️ Mes erreurs** :
+
 1. **Consigne chiffrant les types à produire** (« deux composants et une interface ») — a induit une modélisation fausse. 4ᵉ occurrence consignes.
 2. **Énoncé d'exercice n'imposant pas la notion visée** — relevé par lui avant de commencer.
 3. **Question de révision éclair incomplète** (piège du préfixe sans les URL).
@@ -843,6 +846,7 @@ Point secondaire : `className` attend une **chaîne** → ternaire avec `""`, pa
 ### 2. Page blanche `useRef` — reprise N+1 ✅
 
 Réécrite entièrement. **Les deux 🔴 de la veille corrigés seuls** :
+
 - **champ contrôlé** (`value` + `onChange`), vidage par `setChamp("")` et focus par la ref — la frontière s'est déclenchée au clavier, pas seulement à l'oral ;
 - **early return de validation** dans le handler, avec le `return` qui protège l'incrément.
 
@@ -927,12 +931,14 @@ Section montures avec layout + `<Outlet>` + `index` + `useParams` + `find` + `<N
 **Niveaux** : `<Outlet>` 🟢 (**« très flou » en ouverture, produit en page blanche 1h plus tard**) · `<Navigate replace>` 🟢 (`replace` oublié deux fois au 1er jet) · `<Navigate>` vs `useNavigate` 🟢 · circuit `state` + donnée brute 🟢 · copie du `state` + effacement temporisé 🟢 · critère de nettoyage 🟡 · `setInterval` / `clearInterval` 🟢 · conversions 🟢 · déstructuration de tableau 🟢.
 
 **🎓 Règles posées par Frédéric**
+
 - **Nommage libre dans les exercices.** Claude peut proposer une convention quand elle apporte quelque chose, mais ne renomme pas ce qu'il a choisi. Les conventions strictes valent pour un projet sérieux.
 - **Ne pas exiger ce qui n'est pas l'objet de l'exercice** (ex. : interface sur un tableau en dur dans un exercice de routage).
 - Un simple oubli reconnu comme tel n'a pas à être consigné.
 
 **⚠️ Mes erreurs**
-1. **Affirmé de mémoire que `state` ne survit pas au F5 — faux**, contredit par son écran. Règle corrigée : `state` survit au Précédent/Suivant **et au F5 dans le même onglet** (entrée d'historique conservée) ; pas au lien partagé ni au nouvel onglet. *Source : observation + reconstruction MDN `History.pushState()`, non vérifiée dans la doc.*
+
+1. **Affirmé de mémoire que `state` ne survit pas au F5 — faux**, contredit par son écran. Règle corrigée : `state` survit au Précédent/Suivant **et au F5 dans le même onglet** (entrée d'historique conservée) ; pas au lien partagé ni au nouvel onglet. _Source : observation + reconstruction MDN `History.pushState()`, non vérifiée dans la doc._
 2. Corrections de nommage insistantes sur des exercices.
 
 **🗑️ Instruction obsolète** : §7 React Router, ligne `state` — « survit au retour arrière, pas au rechargement » est **faux** (même erreur dans les entrées S91 et S93).
@@ -943,6 +949,7 @@ Section montures avec layout + `<Outlet>` + `index` + `useParams` + `find` + `<N
 **Rotation** : `setInterval` / `clearInterval` **sort**. Restent : critère de nettoyage (à énoncer) · React Router Declarative (points non rejoués : montage, `path`/`to`, `<Link>` vs `<button>`, 404).
 
 **⏭️ Prochaine étape**
+
 1. **Git branches + Pull Request** — séance dédiée, longue et fraîche.
 2. Puis **Next.js**.
 3. En ouverture des prochaines séances : reprises `useRef` et `NavLink` (≈ S103), `location.pathname` + nettoyage du `state`.
@@ -977,7 +984,7 @@ Sur l'exercice montures (`ListeMonturesExo`). Second effet séparé, garde sur `
 
 **⚠️ Premier passage raté de ma part** : principe en quelques lignes puis liste de commandes sans explication. **Arrêt de Frédéric** (« tu me dis de taper du code sans expliquer ce que ça fait »). Repris depuis zéro : commit = photo, `main` = suite de photos, branche = deuxième suite, lecture d'une commande Git morceau par morceau, **une étape à la fois avec son pourquoi**. Ce format a fonctionné jusqu'au bout.
 
-**Cycle complet fait en guidé sur `projet-vite-local`** : branche → commit → publication → PR → relecture (commentaire *Pending* puis *Submit review*) → fusion → suppression de la branche (GitHub puis locale) → pull sur `master`.
+**Cycle complet fait en guidé sur `projet-vite-local`** : branche → commit → publication → PR → relecture (commentaire _Pending_ puis _Submit review_) → fusion → suppression de la branche (GitHub puis locale) → pull sur `master`.
 
 **Reformulation juste de sa part** : un fichier créé sur une branche n'existe pas sur la branche principale, et on peut abandonner l'essai. Nuances données : une branche ne copie rien (historique partagé) ; pas de retour en arrière nécessaire, `master` n'a jamais bougé.
 
@@ -1009,17 +1016,20 @@ Sur l'exercice montures (`ListeMonturesExo`). Second effet séparé, garde sur `
 ---
 
 **⚠️ Mes erreurs**
+
 1. **Git : commandes données sans expliquer ce qu'elles font** — arrêt net. Correctif : pour un outil entièrement neuf, le modèle mental d'abord, puis **une commande à la fois avec son pourquoi**.
 2. **Énoncé Memory Card donné de mémoire avec des écarts** (12 cartes présentées comme imposées, mélange au montage oublié). Corrigé après vérification à sa demande.
 3. **`sunglasses` recommandée sans vérifier le nombre d'articles.**
 
 **🔄 Cycle de reprise**
+
 - **`useRef`** : plus situé en fin de séance (« je ne sais même plus à quoi ça sert »), **revenu à la relecture de ses cours**. Noté 🟢 en S99 : compris en séance ≠ ancré, même après une reprise à N+1. **Reprise maintenue en S103, priorité haute.**
 - `NavLink` ≈ S103 · `state`, `<Outlet>`, `<Navigate replace>` ≈ S105 · **cycle Git PR** → rejoué sur Memory Card.
 
 **Rotation** : critère de nettoyage **sort**. Entrent : **`margin: auto` vertical (raison)** · **404 et spécificité des routes**. Restent : React Router Declarative (montage, `path`/`to`, `<Link>` vs `<button>`).
 
 **⏭️ Prochaine étape**
+
 1. **Memory Card, séance 1** : `Promise.all` sur les deux catégories de montres, grille de cartes avec chargement et erreur, CSS. Commits sur la branche.
 2. **Séance 2** : clic, score réel, meilleur score, mélange (au montage et au clic — le mélange aléatoire d'un tableau est **neuf**, cours court au moment venu). Puis PR et fusion en autonomie.
 3. **S103** : reprises `useRef` et `NavLink` en ouverture.
@@ -1057,9 +1067,10 @@ Structure (branche, page, route, entrée d'accueil) posée la veille en 15 min ;
 **Cours `Promise.all` demandé** (rappel + comparaison `await` / `.then`) : séquentiel vs parallèle, `fetch` lance et `await` attend, un tableau entre et un tableau sort dans le même ordre, deux passages (réponses puis `.json()`), `res.ok` + `throw` toujours nécessaires.
 
 **Trois questions de fond posées** :
-- *pourquoi les `fetch` sont-ils dans un tableau ?* → un seul argument, un conteneur pour un nombre variable de Promises.
-- *est-on obligé de déstructurer en deux `const` ?* → non, mais `const [resMontres] = ...` ne récupère que la position 0 et **perd la seconde réponse en silence**. Alternative : garder le tableau et travailler avec `some` / `map`.
-- *`throw new Error` et `e instanceof Error`* → cours complet donné : `throw` accepte n'importe quelle valeur, d'où `catch (e: unknown)` et le narrowing par `instanceof`. Question de suite (« faut-il stocker `const stockage = new Error` ? ») → confusion classe / instance levée : `instanceof` compare à la **classe**, pas à un objet.
+
+- _pourquoi les `fetch` sont-ils dans un tableau ?_ → un seul argument, un conteneur pour un nombre variable de Promises.
+- _est-on obligé de déstructurer en deux `const` ?_ → non, mais `const [resMontres] = ...` ne récupère que la position 0 et **perd la seconde réponse en silence**. Alternative : garder le tableau et travailler avec `some` / `map`.
+- _`throw new Error` et `e instanceof Error`_ → cours complet donné : `throw` accepte n'importe quelle valeur, d'où `catch (e: unknown)` et le narrowing par `instanceof`. Question de suite (« faut-il stocker `const stockage = new Error` ? ») → confusion classe / instance levée : `instanceof` compare à la **classe**, pas à un objet.
 
 **✅ Écrit seul** : les deux `Promise.all`, déstructuration par position, `res.ok` sur les deux réponses, `instanceof` dans le `catch`, `finally`, fusion des deux listes par double spread dans **un seul** state, `useState<Montre[]>` typé, `interface Reponse` appliquée au résultat de `.json()` (annotation portée sur **ce qui arrive** 🟢).
 
@@ -1072,6 +1083,7 @@ Structure (branche, page, route, entrée d'accueil) posée la veille en 15 min ;
 **Niveaux** : `Promise.all` 🟢 · `instanceof` + `unknown` 🟡 (enseignés, plus donnés) · `throw new Error` 🟢 · annotation d'un résultat de `.json()` 🟢 · `Record` 🟢 (**dette soldée**) · union sur prop optionnelle 🟢 (confirmée) · état initial de chargement 🟡.
 
 **⚠️ Mes erreurs** :
+
 1. **Deux questions de révision éclair identiques à celles de la veille.**
 2. **Format de révision sans code**, qui ne mesure pas ce qui le fait échouer.
 3. **`?limit=5` recommandé sans vérification** — corrigé par sa capture de la doc.
@@ -1093,7 +1105,7 @@ Structure (branche, page, route, entrée d'accueil) posée la veille en 15 min ;
 **`useRef`, exercice complet en page blanche** (deux usages + champ contrôlé) : **code juste, mais 25 min pour 15 annoncées, avec recherche en mémoire.** Les deux 🔴 de la fois précédente corrigés seuls : **champ contrôlé** et **early return de validation** protégeant l'incrément. Reste 🟡 : le signal est l'**effort**, pas le résultat.
 Corrections : `useEffect(() => {}, [])` vide (réflexe de frappe) · **garde `if (myRef.current !== null)` englobant le comptage et le message**, qui ne dépendent pas de la ref → une garde protège **la seule instruction qui en a besoin**, d'où `myRef.current?.focus()` · `return setMessage(...)` mélangeant sortir et renvoyer.
 
-**`NavLink`, question courte** 🔴 — **et il le sentait acquis.** A reconstruit à la main avec `useLocation` ce que `NavLink` fait seul, avec un ternaire sur `location.pathname` (chaîne non vide, donc toujours vrai : les trois liens en gras partout). **La fonction dans `className` n'est pas ressortie**, 2ᵉ échec à froid. Réécriture après rappel : fonction juste sur les trois, mais **`end` posé sur les trois liens** — appliqué mécaniquement, pas par le raisonnement du préfixe. Repère donné : *quelle autre adresse commence par celle-ci ?* Si aucune, pas de `end`.
+**`NavLink`, question courte** 🔴 — **et il le sentait acquis.** A reconstruit à la main avec `useLocation` ce que `NavLink` fait seul, avec un ternaire sur `location.pathname` (chaîne non vide, donc toujours vrai : les trois liens en gras partout). **La fonction dans `className` n'est pas ressortie**, 2ᵉ échec à froid. Réécriture après rappel : fonction juste sur les trois, mais **`end` posé sur les trois liens** — appliqué mécaniquement, pas par le raisonnement du préfixe. Repère donné : _quelle autre adresse commence par celle-ci ?_ Si aucune, pas de `end`.
 
 **Révision éclair `.then`** 🔴 — **« je n'y arrive pas »**, jamais écrit lui-même, seulement lu. Cours complet donné : `.then` renvoie une nouvelle Promise, d'où le **`return res.json()`** obligatoire · correspondance terme à terme avec `await` · `throw` identique · `.catch` / `.finally` · piège du corps-bloc sans `return` (même famille que son `className` de `NavLink`). Réécrit ensuite. **Reste en rotation à sa demande — non ressorti seul.**
 
@@ -1120,6 +1132,7 @@ Deux questions de suite : faut-il repasser la boucle ? (non, chaque tour fixe d�
 **🎓 Règle posée par Frédéric** : la présentation visuelle des exercices lui appartient — cadrer le **comportement**, pas l'habillage.
 
 **🔄 Cycle de reprise**
+
 - **`NavLink` + `end`** → reprise **rapprochée (N+2)**, priorité haute. Échec à froid avec ressenti d'acquis.
 - **`useRef`** → **N+5 ≈ S108**, toujours ouvert.
 - `.then` **reste en rotation**.
@@ -1150,12 +1163,14 @@ Deux questions de suite : faut-il repasser la boucle ? (non, chaque tour fixe d�
 **Item 1 — Prédire (`.then`)** 🔴 : chaîne avec `res.json();` sans `return`. A répondu « affiche le titre, le catch est ignoré ». La console affiche **`échec`** : `data` vaut `undefined`, `data.title` lève une `TypeError`, que le `.catch` attrape. Piège reconnu et compris après coup.
 
 **Item 2 — Écrire (`.then`)** : a **demandé lui-même** un fetch simple avant la version `Promise.all` pour vérifier qu'il suivait. Bonne démarche, accordée.
+
 - **Fetch simple** 🟢 : `return res.json()` posé, `throw` dans le premier `.then`, `.catch` et `.finally` en fin de chaîne, corps-expression bien employés. `async` résiduel.
 - **Version `Promise.all`** 🟡 : la partie difficile est juste — **déstructuration dans le paramètre** `([resM, resV]) =>` et **`return Promise.all([...])`** pour enchaîner. A dérapé en fin de chaîne : `Promise.all(setArticles(...))`, réflexe « deux données donc `Promise.all` ». Repère donné : **on n'écrit `Promise.all` que quand on lance plusieurs opérations asynchrones à attendre** — ici les deux `fetch`, puis les deux `.json()`, et plus rien après.
 
 **Cours `instanceof Error` redonné** à sa demande (« pas encore clair ») : reconstruit depuis le problème (`throw` accepte n'importe quoi → `e: unknown` → TS interdit l'accès) et non depuis la syntaxe. Narrowing rattaché à `if (!client)`. Analogie marque / exemplaire pour la distinction classe / instance.
 
 **Item 3 — Déboguer (React)** 🔴 **trois erreurs, aucune repérée** : composant avec `setTotal(montures.length)` dans le corps.
+
 - **Setter dans le corps** non repéré → boucle infinie. Famille la plus récurrente du parcours.
 - **State vs donnée dérivée** non repéré : `total` se calcule depuis une prop, il ne se stocke pas. Le réflexe « déplacer dans un `useEffect` » aurait aussi été faux.
 - **🔴 Régression introduite** : a modifié la signature correcte `{ montures }: { montures: Monture[] }` en `{ montures }: Monture[]`. **4ᵉ occurrence** de l'annotation portée sur ce qui est extrait au lieu de ce qui arrive.
@@ -1182,8 +1197,9 @@ Réécriture non faite, séance basculée sur Memory Card à sa demande (1h déj
 **Corrections** : le `10` en dur → `score === dataMontre.length` (nombre magique, casse si `limit` change) · classes Tailwind inexistantes (`from`, `to`, `blue-100`) → **repère permanent réappliqué : une classe mal orthographiée ne produit ni erreur ni warning** · handler de 3 instructions dans le JSX → fonction nommée.
 
 **🌟 Deux désaccords exprimés, tous deux fondés** :
+
 1. **`some` vs `includes`** — sa version est correcte et lisible, `includes` n'était qu'une préférence. Retiré.
-2. **`dataH["products"]`** — syntaxe valide, plus lisible pour lui dans cet exercice. Retiré. *(Règle S100 réappliquée : ne pas imposer de convention hors de l'objet de l'exercice.)*
+2. **`dataH["products"]`** — syntaxe valide, plus lisible pour lui dans cet exercice. Retiré. _(Règle S100 réappliquée : ne pas imposer de convention hors de l'objet de l'exercice.)_
 
 **⚠️ Mon erreur, relevée par lui** : j'ai présenté son `useRef` des cartes cliquées comme un mauvais choix (« c'est fragile ») alors qu'il **avait appliqué le critère correctement** — la liste n'apparaît pas à l'écran, donc ref. C'était une remarque d'anticipation (le jour où on voudra l'afficher), formulée comme une correction. Retirée.
 
@@ -1208,11 +1224,13 @@ Point relevé : le seul chapitre « bonnes pratiques » de Grafikart porte sur *
 **Niveaux** : `.then` fetch simple 🟢 · `.then` + `Promise.all` 🟡 · `instanceof` / `unknown` 🟢 (2ᵉ cours, appliqué) · setter dans le corps 🔴 · state vs donnée dérivée 🔴 · annotation d'un paramètre déstructuré 🔴 (4ᵉ) · `NavLink` fonction 🟢 / `end` 🔴 · early return dans un handler 🟢 · nombre magique 🟡 · classe Tailwind inexistante 🟡 · cycle Git PR 🟢.
 
 **⚠️ Mes erreurs**
+
 1. **Correction infondée sur son `useRef`** — critère correctement appliqué de sa part, présenté comme une faiblesse.
 2. **Deux corrections de préférence présentées comme des corrections** (`includes`, notation en crochets).
 3. **Bloc de révision trop long** : 1h sur 2h30, alors que le format vise 15 min. Le nouveau format est bon, le **volume** ne l'est pas — 3 items dont un cours complet, c'est une séance, pas une ouverture.
 
 **🔄 Cycle de reprise**
+
 - **`NavLink` / `end`** → reprise **maintenue**, réécriture non faite. Le mécanisme est acquis, le critère `end` non.
 - **Setter dans le corps + donnée dérivée + annotation déstructurée** → 🔴 à rejouer ensemble, même famille.
 - `useRef` ≈ S108 · `state`, `<Outlet>`, `<Navigate replace>` ≈ S105.
@@ -1226,3 +1244,59 @@ Point relevé : le seul chapitre « bonnes pratiques » de Grafikart porte sur *
 1. **Consolidation avant Next.js** — c'est un très gros morceau, on ne l'ouvre pas sur une base tiède. Reprises `NavLink`/`end` et la famille setter / donnée dérivée / annotation.
 2. **Top 5 des dettes** à traiter au fil des prochaines séances, en commençant par **coercion + hoisting**.
 3. Puis **Next.js** : séance longue et fraîche (week-end ou midi).
+
+## Session 105 — Reprises React Router + coercion, hoisting, `var` + Debugger Chrome
+
+**Durée** : ~2h30 en deux blocs (dimanche 1h30, lundi 1h). Énergie bonne.
+
+**🎹 Raccourci** : `Ctrl+Maj+L` — reconduit.
+
+---
+
+### Révision éclair (2 items, format code)
+
+- **Prédire `.then`** 🟢 : ordre et `.catch` ignoré justes. Précision : la valeur affichée est celle **retournée** par le `.then` précédent (`19.98`, pas le prix).
+- **Écrire le montage React Router** 🟢 : structure juste. `path` fixe au lieu de paramétré — **pas une rechute selon Frédéric, consigne floue** (deux fichiers demandés sans nécessité). **Montage / `path` / `to` sortent de rotation à sa demande**, retour bien plus tard.
+
+---
+
+### 1. Reprises
+
+- **`NavLink` + `end`** 🟢 : fonction dans `className` sortie seule (2ᵉ fois), `end` posé sur le seul lien qui en a besoin, absent là où il serait inutile. **Redressé après deux échecs à froid.**
+- **Famille setter / donnée dérivée / annotation** 🟢 à l'**écriture** (composant `ResumePanier`) : annotation sur ce qui arrive, setter dans un handler, total et longueur dérivés. Restent : `(prev) =>` non déclenché 🟡 · paramètre de fonction inutile 🟡. **Le format débogage (échec S104) reste à remesurer.**
+- **`state` / `<Outlet>` / `<Navigate replace>` (N+5)** — exercice SAV en page blanche : layout + `<Outlet>` + `index` 🟢 · `<Navigate replace>` après les hooks 🟢 · circuit `state` 🟢 · `state` transportant une phrase au lieu d'une donnée brute 🟡 · chemin enfant absolu 🟡. Garde `?.` oubliée : **oubli, pas rechute**. Ressenti « moyen » en ouverture : bien calibré.
+
+### 2. Coercion — dette n°1 du registre, enseignée
+
+1ʳᵉ série 5/8, 2ᵉ série sur autre code 4/5. `+` et l'ordre de lecture 🟢 · `Number("")` = 0 🟢 · `Boolean()` renvoie toujours un booléen 🟢 · `==` vs `===` 🟢 · chaînes truthy (`"0"`, `" "`) 🟡.
+
+### 3. Hoisting + `var`
+
+Déclaration de fonction vs `const` fléchée 🟢 · `let`/`const` et TDZ 🟢 · **`var` : difficulté réelle signalée par lui** → cours complet (portée fonction, redéclaration, boucle + `setTimeout`). 🟢 après explication.
+
+### 4. Debugger Chrome — pratiqué pour la première fois
+
+Guidé sur la boucle `var` / `let` : points d'arrêt, F8, Scope, Closure, Call Stack, `debugger;`. Survol, console en pause, Watch vus. 🟡 (un passage). **À entretenir et refaire ensemble au prochain vrai bug.**
+
+---
+
+**🎓 Règle posée par Frédéric** : **des encouragements quand un point est réussi.** Il en avait avant, c'était motivant. Le « couper les félicitations » du §1 visait les récapitulatifs longs, pas ça.
+
+**🎓 Décisions** : **Next.js repoussé** (pas prêt) · **Shopping Cart Odin avant** · **React Developer Tools à installer avant Shopping Cart**.
+
+**Registre** : **coercion + hoisting soldée** (enseignée) · **Debugger soldé** (pratiqué) · **ajout `trim()`** (non urgent, à recroiser au prochain formulaire). Top restant : event loop · dark mode sémantique React · `@keyframes` (retournement de carte Memory Card).
+
+**⚠️ Mes erreurs** : consigne du montage floue (livrable en deux fichiers inutile) · `path` fixe qualifié de rechute alors que la consigne était en cause.
+
+**🗑️ Instruction à ajuster** : §1 « Couper : les félicitations détaillées » → préciser que les encouragements sur un point réussi restent attendus.
+
+**🔄 Cycle de reprise** : `NavLink` / `end` → N+5 ≈ S110 · `state` / `<Outlet>` / `<Navigate replace>` → cycle fermé (donnée brute à surveiller) · `useRef` ≈ S108 · **coercion + hoisting → N+2 ≈ S107**.
+
+**🔄 Rotation** : **sortent** — montage, `path` / `to`, `NavLink` / `end` (priorité haute levée). **Entrent** — chaînes truthy · `var`. **Reste** — `.then` en écriture (`Promise.all`).
+
+**⏭️ Prochaine étape**
+
+1. Ouverture : reprise coercion / hoisting (N+2) + famille setter / donnée dérivée **en format débogage**.
+2. Installer React Developer Tools.
+3. **Shopping Cart (The Odin Project)** — énoncé à vérifier sur theodinproject.com avant de cadrer. Sur branche, PR en fin de projet.
+4. Puis **Next.js**, quand tu te sentiras prêt.
