@@ -1300,3 +1300,63 @@ Guidé sur la boucle `var` / `let` : points d'arrêt, F8, Scope, Closure, Call S
 2. Installer React Developer Tools.
 3. **Shopping Cart (The Odin Project)** — énoncé à vérifier sur theodinproject.com avant de cadrer. Sur branche, PR en fin de projet.
 4. Puis **Next.js**, quand tu te sentiras prêt.
+
+## Session 106 — Reprises coercion / donnée dérivée + `useOutletContext` + cadrage Shopping Cart
+
+**Durée** : ~2h15. Énergie bonne.
+
+**🎹 Raccourci** : `Ctrl+Maj+L` **acté 🟢**. Nouveau, posé à sa demande sur un besoin à venir (Shopping Cart) : **`Alt+Maj+↓`** (copier la ligne en dessous).
+
+**Ressenti en ouverture** : coercion et `var` « pas trop mal ».
+
+---
+
+### Révision éclair (2 items, prédiction)
+
+- **Coercion** 2/4 : `Boolean("false")` 🟢 · `null == undefined` 🟢 · **`+` et l'ordre de lecture 🟡, retombé** (`"10" + 5 - 5` → 100, `4 + 4 + "4"` → "84"). Redressé samedi, perdu aujourd'hui : c'est un réflexe à installer (couper la ligne en étapes), pas une incompréhension.
+- **`var` vs `let`, portée** 🟢 : juste et bien raisonné.
+
+### 1. Famille setter / donnée dérivée — format débogage
+
+Annotation corrigée 🟢 · setter dans le corps repéré 🟢 · `(prev) =>` repéré 🟢 (syntaxe cassée = copier-coller).
+**🔴 Donnée dérivée non repérée (2ᵉ échec en débogage)** : `nombre` déplacé dans un `useEffect`. **Raison donnée par lui** : ne sachant pas si `verres` venait d'une API, il a voulu suivre un éventuel changement. **Débloqué** : une prop suit déjà les changements (le parent se re-rend, la `const` est recalculée) ; c'est le state recopié qui se désynchronise. Repère : *une prop n'a jamais besoin d'être recopiée dans un state pour rester à jour.*
+Reprise immédiate (tri de 4 `useState`) : 4/4 🟢, lignes `const` non écrites.
+**Niveau** : critère 🟢 au tri · 🟡 en débogage.
+
+### 2. Shopping Cart — cadrage
+
+**Énoncé vérifié sur theodinproject.com.** Adaptations retenues : section routée dans `projet-examen-blanc` sur branche · pas de tests · pas de déploiement · données DummyJSON (lunettes + montres). **Référence visuelle choisie par lui : kapaha** (démo GitHub Pages).
+
+**Question de conception** : le panier est lu par la navigation, la boutique et la page panier → il vit dans le **layout de section** (parent commun, reste monté). `<Outlet>` ne transmettant aucune prop, d'où la notion suivante.
+
+### 3. `useOutletContext` — notion neuve
+
+Doc officielle vérifiée. Exercice guidé (layout favoris + page enfant) ✅ fonctionnel. 🟡 (un passage).
+**Blocage réel** : ranger une **fonction dans un objet** (`{ ajouterFavori }`). Levé par la forme longue (`{ ajouterFavori: ajouterFavori }`, une fonction est une valeur) et le rapprochement avec `console.log` et les props fonction.
+**🌟 Question juste de sa part** : `favoris` était envoyé inutilement → on n'envoie que ce dont l'enfant a besoin, et l'interface suit (TS ne vérifie pas le lien entre les deux côtés).
+`as` : nom oublié, redonné (assertion de type).
+
+### 4. Scaffolding Shopping Cart ✅
+
+Branche `Shopping-Cart-ODIN-Project` créée d'abord · dossier `pages/shopping-cart/` (renommé depuis `Shopping-Cart.tsx` : extension sur un dossier + majuscules) · 4 composants (layout, accueil, boutique, panier) · routes imbriquées relatives + `index` + `<Outlet>`.
+
+---
+
+**🎓 Décision** : **hooks personnalisés + Context API juste après Shopping Cart** (leçon Odin suivante, avec le panier comme cas réel).
+
+**📌 À demander** : installation de React Developer Tools (non confirmée).
+
+**⚠️ Mes erreurs**
+1. **« Rien de neuf » annoncé pour Shopping Cart** alors que j'avais moi-même annoncé `useOutletContext` en S104. Contradiction relevée par lui.
+2. **Cours `useOutletContext` surchargé** (typage, `unknown`, `as`, hooks personnalisés, Context API dans un seul message) → blocage. Récurrence du dosage.
+3. `favoris` inclus inutilement dans le `context` de l'exercice.
+
+**🔄 Cycle de reprise** : `useOutletContext` → rejoué dans Shopping Cart (N+2) · donnée dérivée → compteur de navigation et total du panier · `NavLink` / `end` → barre de navigation de Shopping Cart (avant le N+5 prévu) · `useRef` ≈ S108.
+
+**🔄 Rotation** : **`+` et ordre de lecture (priorité)** · chaînes truthy · `var` · `.then` en écriture.
+
+**⏭️ Prochaine étape**
+
+1. **Barre de navigation du layout** avec `NavLink` (question du préfixe sur le lien d'accueil de section).
+2. **Le plan** : states (et ce qui n'en est pas), interfaces produit et ligne de panier, contenu du `context` et page qui utilise quoi.
+3. Puis fetch DummyJSON et cartes produits.
