@@ -1319,7 +1319,7 @@ Guidé sur la boucle `var` / `let` : points d'arrêt, F8, Scope, Closure, Call S
 ### 1. Famille setter / donnée dérivée — format débogage
 
 Annotation corrigée 🟢 · setter dans le corps repéré 🟢 · `(prev) =>` repéré 🟢 (syntaxe cassée = copier-coller).
-**🔴 Donnée dérivée non repérée (2ᵉ échec en débogage)** : `nombre` déplacé dans un `useEffect`. **Raison donnée par lui** : ne sachant pas si `verres` venait d'une API, il a voulu suivre un éventuel changement. **Débloqué** : une prop suit déjà les changements (le parent se re-rend, la `const` est recalculée) ; c'est le state recopié qui se désynchronise. Repère : *une prop n'a jamais besoin d'être recopiée dans un state pour rester à jour.*
+**🔴 Donnée dérivée non repérée (2ᵉ échec en débogage)** : `nombre` déplacé dans un `useEffect`. **Raison donnée par lui** : ne sachant pas si `verres` venait d'une API, il a voulu suivre un éventuel changement. **Débloqué** : une prop suit déjà les changements (le parent se re-rend, la `const` est recalculée) ; c'est le state recopié qui se désynchronise. Repère : _une prop n'a jamais besoin d'être recopiée dans un state pour rester à jour._
 Reprise immédiate (tri de 4 `useState`) : 4/4 🟢, lignes `const` non écrites.
 **Niveau** : critère 🟢 au tri · 🟡 en débogage.
 
@@ -1347,6 +1347,7 @@ Branche `Shopping-Cart-ODIN-Project` créée d'abord · dossier `pages/shopping-
 **📌 À demander** : installation de React Developer Tools (non confirmée).
 
 **⚠️ Mes erreurs**
+
 1. **« Rien de neuf » annoncé pour Shopping Cart** alors que j'avais moi-même annoncé `useOutletContext` en S104. Contradiction relevée par lui.
 2. **Cours `useOutletContext` surchargé** (typage, `unknown`, `as`, hooks personnalisés, Context API dans un seul message) → blocage. Récurrence du dosage.
 3. `favoris` inclus inutilement dans le `context` de l'exercice.
@@ -1360,3 +1361,70 @@ Branche `Shopping-Cart-ODIN-Project` créée d'abord · dossier `pages/shopping-
 1. **Barre de navigation du layout** avec `NavLink` (question du préfixe sur le lien d'accueil de section).
 2. **Le plan** : states (et ce qui n'en est pas), interfaces produit et ligne de panier, contenu du `context` et page qui utilise quoi.
 3. Puis fetch DummyJSON et cartes produits.
+
+## Session 107 — Shopping Cart : navigation, plan des données, fetch dans le layout, `useOutletContext`
+
+**Durée** : ~3h. Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+↓` — usage non confirmé, **à demander** en ouverture.
+**Outillage** : React Developer Tools installé sur le **portable**. Autre machine : à vérifier.
+
+---
+
+### Révision éclair (2 items)
+
+- **Prédire — coercion** 🟢 **6/6** : `+` et ordre de lecture (retombé en S106) **redressé**, dont `"6" - 2 + "1"` · chaînes truthy (`" "`, `"0"`) justes.
+- **Écrire — `.then` + `Promise.all`** 🔴 : structure de la chaîne juste (déstructuration dans le paramètre, `throw`, `.catch` / `.finally`, `instanceof` juste). **Second `Promise.all` absent** (`return [res1.json(), res2.json()]` → tableau de Promises transmis tel quel). Retombé alors qu'il était sorti en S104. Repère retenu par lui : **deux `await`, donc deux `Promise.all`**. Clé `titre` au lieu de `title`. Correction donnée.
+
+---
+
+### 1. Barre de navigation du layout
+
+`<header>` + `<nav>` + trois `NavLink`, titre en **`Link`** (choix juste : il n'a pas à s'allumer). **Fonction dans `className` sortie seule, 3ᵉ fois d'affilée → acquise.**
+`end` d'abord posé sur les trois liens, puis **décidé lien par lien après la question « page ou section ? »** : Accueil seul. 🟢
+
+### 2. Plan de Shopping Cart
+
+API retenue par lui : **fakestoreapi**. Interface `Produit` juste.
+
+- **🔴 Donnée dérivée à la planification** : quantité panier et montant total listés comme states (3ᵉ contexte après S104 et S106 en débogage). Le state central `panier` manquait. **Structure donnée** : 4 states dans le layout (`produits`, `chargement`, `erreur`, `panier`), deux `reduce` numériques pour le compteur et le total.
+- `LignePanier` décrivait l'écran (boutons) au lieu de la donnée → `{ produit: Produit; quantite: number }`.
+- Types partagés dans `pages/shopping-cart/type.ts`.
+
+### 3. Fetch dans le layout
+
+**Syntaxe hybride conçue seul** : fonction `async` + `.catch` / `.finally` accrochés à l'appel. Valide, et montre la compréhension « une fonction `async` renvoie une Promise ». 🟢
+Corrections : `chargement` initialisé à `false` (récurrence S102) · `useState([])` non typé (`never[]`).
+
+**Règle pro posée** : l'état de chargement / d'erreur s'affiche **dans le composant qui a besoin de la donnée**. Principe trouvé seul (« la nav reste visible, seule la zone de contenu affiche l'erreur »). Le **layout sert de réserve** (reste monté → un seul fetch), la **Boutique affiche** chargement, erreur et catalogue. Test d'URL fausse passé : seule la Boutique affiche l'erreur.
+
+### 4. `useOutletContext` — reprise N+1
+
+Circuit juste des deux côtés (objet dans `<Outlet context>`, déstructuration par nom, `useOutletContext<Type>()`). Seul écart : `produits: []` dans l'interface → `never`. **Ressenti « fragile » exprimé par lui** → à rejouer. 🟡
+
+**Neuf** : `import type` imposé par `verbatimModuleSyntax` 🟡.
+
+### 5. Taille des images
+
+**Neuf** : `object-contain` / `object-cover` 🟡. Rappel `aspect-ratio` (impose un rapport, jamais une taille). Forme retenue : conteneur `max-w-6xl mx-auto`, grille à colonnes responsives, image `h-48 w-full object-contain`. Distinction **boîte / photo dans la boîte** donnée.
+Explications trop longues de ma part ; **le format « code corrigé + une phrase par ligne » a fonctionné**.
+
+---
+
+**Niveaux** : coercion `+` 🟢 · chaînes truthy 🟢 · `.then` + `Promise.all` 🔴 · `NavLink` fonction 🟢 · `end` 🟢 · donnée dérivée (planification) 🔴 · modélisation `LignePanier` 🟡 · fetch `async` + `.catch` 🟢 · état initial de chargement 🟡 · règle chargement/erreur au plus près 🟢 · `useOutletContext` 🟡 · `import type` 🟡 · `object-contain` 🟡.
+
+**⚠️ Mes erreurs**
+
+1. **« Le raccourci a servi » affirmé sans information** — récurrence de « ne pas déduire l'état d'un item ».
+2. **« La boutique et le panier ont besoin des produits »** — faux avec `LignePanier` contenant son produit, corrigé en séance.
+3. **Explications CSS trop longues** avant le format ligne par ligne.
+
+**🔄 Cycle de reprise** : `useOutletContext` → fiche produit (N+2) · **`useRef` ≈ S108** (en ouverture) · `NavLink` / `end` → N+5 ≈ S110 · donnée dérivée → compteur et total du panier (écriture réelle).
+
+**🔄 Rotation** : **`.then` + `Promise.all` (priorité)** · `+` et ordre de lecture (une fois encore, sur autre code) · chaînes truthy · `var`.
+
+**⏭️ Prochaine étape**
+
+1. Ouverture : reprise **`useRef`**.
+2. **Cartes en `Link` vers la fiche produit** : route `boutique/:id`, `useParams` + `find` dans `produits` lu par le `context` (pas de nouveau fetch), `Link` en bloc, **pas de bouton dans le lien**. Vérifier que le lien Boutique reste allumé sur la fiche.
+3. Puis le **panier** : state `panier`, ajout, compteur et total dérivés.
