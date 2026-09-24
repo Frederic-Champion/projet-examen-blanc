@@ -1428,3 +1428,55 @@ Explications trop longues de ma part ; **le format « code corrigé + une phrase
 1. Ouverture : reprise **`useRef`**.
 2. **Cartes en `Link` vers la fiche produit** : route `boutique/:id`, `useParams` + `find` dans `produits` lu par le `context` (pas de nouveau fetch), `Link` en bloc, **pas de bouton dans le lien**. Vérifier que le lien Boutique reste allumé sur la fiche.
 3. Puis le **panier** : state `panier`, ajout, compteur et total dérivés.
+
+## Session 108 — Reprise `useRef` + Shopping Cart : fiche produit
+
+**Durée** : ~2h. Énergie bonne. Machine : **portable** (React DevTools installé ; le fixe reste à vérifier).
+
+**🎹 Raccourci** : `Alt+Maj+↓` — pas encore utilisé, **reconduit**.
+
+---
+
+### Révision éclair (2 items)
+
+- **Prédire — coercion** : `"73"` et `60` justes · `"211"` juste (faute de frappe à la saisie) · **`"5" + 2 * 3` → `"56"` 🟡 : priorité de `*` sur `+` non connue** (« je ne savais pas que ça fonctionnait comme les vrais maths »). Repère : d'abord `*` et `/`, puis gauche → droite ; `+` ne colle qu'à partir de la première chaîne. **Reste en rotation, test rapide.**
+- **Déboguer — `Promise.all`** 🟢 : `return` manquant trouvé et corrigé. Prédiction juste sur le fond (`undefined` transmis), formulation incomplète : la déstructuration de `undefined` lève une `TypeError` → `.catch` → « échec ». **Sort de rotation à sa demande**, retour plus tard en entretien.
+
+---
+
+### 1. Reprise `useRef` (N+5) — page blanche 🟢
+
+Ressenti annoncé **6,5/10**, résultat au-dessus. Deux refs distinguées et typées (DOM + valeur), champ contrôlé, early return protégeant l'ajout, compteur incrémenté avant la sortie, `(prev) =>` posé d'emblée, compteur lu seulement au clic.
+**Désaccord fondé de sa part** : test `if (!ref.current?.value)` au lieu de `if (!nom)` — **équivalent sur un champ contrôlé**, pas une rechute. Argument de robustesse retenu (test qui dépend de la donnée, pas de l'attachement de la ref).
+
+### 2. Shopping Cart — fiche produit ✅
+
+**Préparé seul avant la consigne** : route `boutique/:id`, carte entière en `Link` avec `key`, `useParams` + `find`. **`String(p.id) === id` sorti seul** → conversion aux frontières déclenchée au clavier (dette chaude). `Omit` appliqué spontanément à un vrai besoin.
+
+- A trouvé lui-même que `chargement` et `erreur` étaient nécessaires (F5 → `produits` vide → faux « introuvable » ; API en panne → message mensonger) → `Omit` retiré, `FetchDataContext` complet.
+- **Ordre des early returns inversé au 1er jet** 🟡, corrigé (chargement → erreur → introuvable).
+- Bouton Retour : `naviguer(..., { replace: true })` → **`naviguer(-1)`** (`replace` réservé aux redirections décidées par le code).
+- **Panier commencé dans la fiche** (state local, un seul article) → recadré : la fiche est démontée en la quittant, le panier vit dans le **layout** en liste. Retiré pour l'étape suivante.
+- Champ quantité rendu contrôlé sans consigne. Early return renvoyant un bloc JSX (message + `Link`) plutôt qu'un ternaire enveloppant la page.
+- **Les quatre tests passés** (clic carte + lien Boutique allumé · F5 sans faux « introuvable » · id inexistant · clic droit / nouvel onglet).
+
+**🎓 Questions de fond** : lifting state up à travers le `context` (ça monte par un appel de fonction, ça redescend par le `context`) · `useOutletContext` = des props pour un enfant que le layout ne connaît pas à l'avance ; lien annoncé avec la Context API.
+
+---
+
+**Niveaux** : priorité `*` / `+` 🟡 · `Promise.all` (débogage) 🟢 · `useRef` 🟢 · frontière state / ref DOM 🟢 · `useOutletContext` 🟢 (2ᵉ page, circuit juste — **à confirmer à froid**) · `useParams` + `find` 🟢 · conversion aux frontières 🟢 · ordre des early returns 🟡 · `naviguer(-1)` vs `replace` 🟢 · emplacement du state partagé 🟡.
+
+**⚠️ Mes erreurs**
+Pas d'erreur particulière : Remarque écrite par Frédéric après => cette partie du résumé a volontairement été supprimer par Frédéric. Il n'y a pas forcement d'erreur à me faire une remarque. Claude n'est pas obligé de spécifiquement noté toutes les observations faite par Frédéric n'allant pas dans son sens.
+
+**🔄 Cycle de reprise** : `useRef` → cycle fermé (N+2, N+5 tenus) · `useOutletContext` → rejoué sur le panier · `NavLink` / `end` ≈ S110 · donnée dérivée → compteur et total (écriture réelle).
+
+**🔄 Rotation** : **`+` et priorité des opérateurs** (test rapide) · chaînes truthy · `var`. **Sort** : `Promise.all`.
+
+**⏭️ Prochaine étape — le panier**
+
+1. Dans le **layout** : state `panier: LignePanier[]`, fonction `ajouterAuPanier(produit, quantite)` transmise par le `context`.
+2. Quantité : `number`, valeur par défaut 1, conversion `Number()` à la frontière de l'input.
+3. **Produit déjà présent → augmenter sa quantité** au lieu d'ajouter une ligne (upsert, déjà conçu seul sur le CV Application).
+4. Compteur dans la barre et total en `const` dérivées.
+5. Puis la page Panier : +, −, suppression.

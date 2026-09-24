@@ -1,4 +1,4 @@
-import { useOutletContext } from "react-router";
+import { Link, useOutletContext } from "react-router";
 import type { FetchDataContext } from "./type";
 
 function BoutiquePage() {
@@ -11,11 +11,11 @@ function BoutiquePage() {
       <h2>La boutique</h2>
       <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
         {produits.map((produit) => (
-          <article key={produit.id}>
+          <Link to={`/shopping-cart/boutique/${produit.id}`} key={produit.id}>
             <img className="h-48 w-full object-contain" src={produit.image} alt={produit.title} />
             <h3>{produit.title}</h3>
             <p>{produit.price}</p>
-          </article>
+          </Link>
         ))}
       </div>
     </div>

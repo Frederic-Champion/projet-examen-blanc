@@ -12,3 +12,8 @@ export interface FetchDataContext {
   erreur: string;
   produits: Produit[]
 }
+
+export interface Article {
+  produit: Produit;
+  quantite: string;
+}

@@ -12,6 +12,7 @@ import { LayoutPage } from "./pages/shopping-cart/Layout";
 import { AccueilPage } from "./pages/shopping-cart/Accueil";
 import { BoutiquePage } from "./pages/shopping-cart/Boutique";
 import { PanierPage } from "./pages/shopping-cart/Panier";
+import { FicheProduitPage } from "./pages/shopping-cart/FicheProduit";
 
 function App() {
   const naviguer = useNavigate();
@@ -50,6 +51,7 @@ function App() {
           <Route path="/shopping-cart" element={<LayoutPage />}>
             <Route index element={ <AccueilPage />}/>
             <Route path="boutique" element={<BoutiquePage />} />
+            <Route path="boutique/:id" element={<FicheProduitPage />} />
             <Route path="panier" element={<PanierPage />} />
           </Route>
         </Routes>
