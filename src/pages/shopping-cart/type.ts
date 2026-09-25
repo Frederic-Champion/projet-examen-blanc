@@ -10,10 +10,12 @@ export interface Produit {
 export interface FetchDataContext {
   chargement: boolean;
   erreur: string;
-  produits: Produit[]
+  produits: Produit[];
+  panier: Article[];
+  ajouterPanier: (produit: Produit, quantite: number) => void;
 }
 
 export interface Article {
   produit: Produit;
-  quantite: string;
+  quantite: number;
 }

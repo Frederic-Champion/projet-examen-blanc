@@ -1480,3 +1480,40 @@ Pas d'erreur particulière : Remarque écrite par Frédéric après => cette par
 3. **Produit déjà présent → augmenter sa quantité** au lieu d'ajouter une ligne (upsert, déjà conçu seul sur le CV Application).
 4. Compteur dans la barre et total en `const` dérivées.
 5. Puis la page Panier : +, −, suppression.
+
+## Session 107 — Shopping Cart : layout, contexte et page panier
+
+**Durée** : ~2h. Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+↓` — *usage à renseigner.*
+
+---
+
+### Shopping Cart (branche `Shopping-Cart-ODIN-Project`, `projet-examen-blanc`)
+
+**Barre de navigation du layout** : *à compléter.*
+**Plan (states, interfaces, contenu du `context`)** : *à compléter.*
+
+**✅ Modélisation du panier, seul** : ligne de panier en `{ produit, quantite }` — la bonne forme, et le point délicat du projet. Type du contexte extrait dans un fichier `type.ts` dédié, importé par les deux côtés.
+
+**✅ `useOutletContext` rejoué sur terrain neuf** (N+2, un jour après le cours) : hook, generic rempli, déstructuration justes sans aide. Passe 🟢.
+
+**Page panier** : `.map()` sur le panier, `key` sur id stable, image + titre + quantité + prix, trois boutons sans handler pour l'instant.
+
+**Corrections** : **`<article>` enfant direct de `<ul>`** → un `<li>` porte la `key` et enveloppe la ligne · **`flex-inline`, classe inexistante** (c'est `inline-flex`) — repère permanent réappliqué : aucune erreur, aucun warning, l'élément reste en `block`. À prévoir : `aria-label` sur les boutons à symboles.
+
+**🎓 Question de fond posée avant d'écrire** : la fonction de suppression vit-elle dans le layout et redescend-elle par le contexte ? **Réponse juste de sa part.** Règle posée : une fonction vit là où vit le state qu'elle modifie, puisqu'elle appelle son setter. Alternatives données et écartées : passer `setPanier` brut (chaque page devient responsable de la forme du panier) · Context API (un seul niveau à franchir ici, et c'est la leçon Odin suivante).
+
+**Git** : publication de la branche sur GitHub (équivalent `push -u`). Point signalé : le scaffolding et `progression.md` vivent sur la branche, donc récupérer la branche sur l'autre machine avant `npm install`.
+
+---
+
+**Niveaux** : `useOutletContext` 🟢 (rejoué seul) · modélisation ligne de panier 🟢 · fonction au même endroit que son state 🟢 · `<ul>` / `<li>` 🟡 · classe Tailwind inexistante 🟡 (récurrence).
+
+**🔄 Cycle de reprise** : `useOutletContext` fermé · `useRef` ≈ S108 · `NavLink` / `end` → barre de navigation Shopping Cart.
+
+**⏭️ Prochaine étape**
+
+1. **Handlers du panier** : combien de fonctions pour `[+]` et `[-]`, et quels arguments. Écriture dans le layout, exposition dans le `context`, branchement dans la page.
+2. Boutique : fetch DummyJSON, cartes produits, champ quantité (**conversion aux frontières**, dette chaude) et ajout au panier.
+3. Compteur de la navigation et total du panier — **donnée dérivée**, à ne pas stocker en state.
