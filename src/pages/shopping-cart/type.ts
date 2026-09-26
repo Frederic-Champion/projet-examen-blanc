@@ -13,6 +13,8 @@ export interface FetchDataContext {
   produits: Produit[];
   panier: Article[];
   ajouterPanier: (produit: Produit, quantite: number) => void;
+  supprimerPanier: (id: number) => void;
+  modifierPanier: (id:number, delta: number) => void;
 }
 
 export interface Article {

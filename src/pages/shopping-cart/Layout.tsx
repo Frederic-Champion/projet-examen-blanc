@@ -6,14 +6,18 @@ function LayoutPage() {
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
   const [produits, setProduits] = useState<Produit[]>([]);
-  const [panier, setPanier] = useState<Article[]>([]);
+  const [panier, setPanier] = useState<Article[]>(() => {
+    const memoire =localStorage.getItem("panier");
+    return JSON.parse(memoire ?? "[]")
+  });
+  const [recherche, setRecherche] = useState("");
 
   useEffect(() => {
     async function fetchData() {
       const URL = "https://fakestoreapi.com/products";
       const reponse = await fetch(URL);
       if (!reponse.ok) throw new Error("Impossible de récupérer les données");
-      const data = await reponse.json();
+      const data: Produit[] = await reponse.json();
       setProduits(data);
     }
     fetchData()
@@ -34,15 +38,35 @@ function LayoutPage() {
 
   function supprimerPanier(id: number) {
     setPanier((prev) => {
-      const delet = prev.find((a) => a.produit.id === id);
-      return prev.map(a => )
+      return prev.filter((a) => a.produit.id !== id);
     });
   }
+
+  function modifierPanier(id: number, delta: number) {
+    setPanier((prev) => {
+      return prev.map((a) => (a.produit.id !== id ? a : { ...a, quantite: a.quantite + delta }));
+    });
+  }
+
+  function rechercher(mot: string) {
+    setRecherche(mot);
+    
+  }
+
+  useEffect(() => {
+    const memoire = JSON.stringify(panier);
+    localStorage.setItem("panier", memoire);
+  }, [panier]);
+
 
   return (
     <div className="pt-16">
       <header className="flex justify-between">
         <Link to="/shopping-cart">Un titre sur la gauche ramenant également à l'accueil</Link>
+        <div>
+          <input value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Recherchez un article, un produit ..." />
+          <button>🔍</button>
+        </div>
         <nav>
           <NavLink end className={({ isActive }) => (isActive ? "text-blue-600" : "")} to="/shopping-cart">
             Accueil
@@ -57,7 +81,7 @@ function LayoutPage() {
         </nav>
       </header>
 
-      <Outlet context={{ chargement, erreur, produits, ajouterPanier, panier }} />
+      <Outlet context={{ chargement, erreur, produits, ajouterPanier, panier, supprimerPanier, modifierPanier }} />
     </div>
   );
 }

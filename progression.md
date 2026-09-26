@@ -1481,39 +1481,114 @@ Pas d'erreur particulière : Remarque écrite par Frédéric après => cette par
 4. Compteur dans la barre et total en `const` dérivées.
 5. Puis la page Panier : +, −, suppression.
 
-## Session 107 — Shopping Cart : layout, contexte et page panier
+## Session 109 — Shopping Cart : panier étape 1 (ajout, upsert, compteur)
 
-**Durée** : ~2h. Énergie bonne.
+**Durée** : ~2h (vendredi). Énergie bonne.
 
-**🎹 Raccourci** : `Alt+Maj+↓` — *usage à renseigner.*
-
----
-
-### Shopping Cart (branche `Shopping-Cart-ODIN-Project`, `projet-examen-blanc`)
-
-**Barre de navigation du layout** : *à compléter.*
-**Plan (states, interfaces, contenu du `context`)** : *à compléter.*
-
-**✅ Modélisation du panier, seul** : ligne de panier en `{ produit, quantite }` — la bonne forme, et le point délicat du projet. Type du contexte extrait dans un fichier `type.ts` dédié, importé par les deux côtés.
-
-**✅ `useOutletContext` rejoué sur terrain neuf** (N+2, un jour après le cours) : hook, generic rempli, déstructuration justes sans aide. Passe 🟢.
-
-**Page panier** : `.map()` sur le panier, `key` sur id stable, image + titre + quantité + prix, trois boutons sans handler pour l'instant.
-
-**Corrections** : **`<article>` enfant direct de `<ul>`** → un `<li>` porte la `key` et enveloppe la ligne · **`flex-inline`, classe inexistante** (c'est `inline-flex`) — repère permanent réappliqué : aucune erreur, aucun warning, l'élément reste en `block`. À prévoir : `aria-label` sur les boutons à symboles.
-
-**🎓 Question de fond posée avant d'écrire** : la fonction de suppression vit-elle dans le layout et redescend-elle par le contexte ? **Réponse juste de sa part.** Règle posée : une fonction vit là où vit le state qu'elle modifie, puisqu'elle appelle son setter. Alternatives données et écartées : passer `setPanier` brut (chaque page devient responsable de la forme du panier) · Context API (un seul niveau à franchir ici, et c'est la leçon Odin suivante).
-
-**Git** : publication de la branche sur GitHub (équivalent `push -u`). Point signalé : le scaffolding et `progression.md` vivent sur la branche, donc récupérer la branche sur l'autre machine avant `npm install`.
+**🎹 Raccourci** : `Alt+Maj+↓` — reconduit.
 
 ---
 
-**Niveaux** : `useOutletContext` 🟢 (rejoué seul) · modélisation ligne de panier 🟢 · fonction au même endroit que son state 🟢 · `<ul>` / `<li>` 🟡 · classe Tailwind inexistante 🟡 (récurrence).
+### Révision éclair (2 items)
 
-**🔄 Cycle de reprise** : `useOutletContext` fermé · `useRef` ≈ S108 · `NavLink` / `end` → barre de navigation Shopping Cart.
+- **Prédire — priorité des opérateurs** : `2 + "3" * 2` → `8` 🟢 · `"4" + 4 * 2 + 1` → `"441"` au lieu de `"481"` (**faute de frappe selon lui**) · `3 * "2" + "2"` → `"62"` (guillemets absents, type à confirmer).
+- **Prédire — `var` / `let`** : portée juste et bien expliquée · `b` hors du bloc donné `undefined` au lieu d'une **`ReferenceError`** (distinction posée : `undefined` = existe sans valeur / `ReferenceError` = n'existe pas à cet endroit).
+- **Les deux sortent de rotation, décision de Frédéric.**
+
+---
+
+### 1. Panier dans le layout
+
+- `Article.quantite` passé en `number` · type du `context` complété (panier + fonction d'ajout).
+- **🔴 Donnée dérivée — 4ᵉ occurrence** (S104, S106, S107, S109) : compteur stocké dans un state `affichageQuantite` mis à jour à la main. **Règle des trois échecs appliquée** : cours donné directement, remplacé par une `const` + `reduce`. Test retenu : *« est-ce que je peux le calculer à partir d'un state existant ? »* → `const`.
+- **Upsert** : 1ᵉʳ jet avec `find` **dans** le `(prev) =>` (bon emplacement), mais `return article.quantite += quantite` → mutation de l'ancien state **et** retour d'un nombre au lieu d'un tableau. 2ᵉ jet **juste et immuable** : `.map()` + `{ ...a, quantite: ... }`. 🟢 Allègements proposés, facultatifs : `some` au lieu de `find`, `else` inutile après `return`.
+
+### 2. Fiche produit
+
+- Quantité à **1 par défaut**, `Number(e.target.value)` à la frontière 🟢.
+- **Neuf** : bouton **`disabled={quantite < 1}`** (condition dérivée, recalculée à chaque rendu) + variante Tailwind **`disabled:opacity-50`** 🟡. `min={1}` = confort, pas protection.
+- **Garde dans `ajouterPanier`** : jugée redondante aujourd'hui (un seul appelant, bouton grisé). **Décision de Frédéric : l'ajouter quand le bouton +  du panier ou l'ajout rapide de la boutique arriveront.** Choix légitime — à ne pas oublier à ce moment-là.
+
+### 3. React DevTools — premier usage 🟢
+
+Onglet Components → `LayoutPage` → lecture du state `panier` en direct. **Tests passés** : 2 × A → 1 ligne · +1 × A → toujours 1 ligne, quantité 3 · 1 × B → 2 lignes · 0 → bouton grisé. Nombre négatif non testable (bouton grisé).
+
+---
+
+**Niveaux** : priorité `*` / `+` 🟢 · portée `var` / `let` 🟢 · `ReferenceError` vs `undefined` 🟡 · donnée dérivée 🔴 (cours donné, appliqué ensuite) · upsert immuable `.map()` + spread 🟢 · mutation dans un updater 🟡 (repérée après indices) · conversion aux frontières 🟢 · `disabled` dérivé 🟡 · React DevTools 🟢 · `useOutletContext` 🟢 (3ᵉ passage, fonction transmise et appelée).
+
+**⚠️ Mes erreurs** : aucune relevée cette séance.
+
+**🔄 Cycle de reprise** : `useOutletContext` → page Panier (lecture + fonctions de modification) · **donnée dérivée → total du panier, à écrire seul (test décisif)** · `NavLink` / `end` ≈ S110.
+
+**🔄 Rotation** : chaînes truthy. **Sortent** : priorité des opérateurs · `var` / `let`.
+
+**⏭️ Prochaine étape — le panier, étape 2**
+1. Page Panier : afficher les lignes (image, titre, prix unitaire, quantité, sous-total).
+2. Boutons **+**, **−** et **supprimer**, via des fonctions du layout transmises par le `context`. Quantité qui tombe à 0 → la ligne disparaît.
+3. **Garde dans `ajouterPanier`** au moment où le + l'appelle (décision S109).
+4. **Total** en `const` dérivée.
+5. Puis : ajout rapide depuis la Boutique · habillage · PR et fusion · **hooks personnalisés + Context API**.
+
+## Session 110 — Shopping Cart : page Panier, ajout rapide, paiement, panier persistant
+
+**Durée** : ~2h30 (samedi). Énergie bonne. Pas de révision éclair : séance ouverte directement sur le code préparé seul.
+
+**🎹 Raccourci** : `Alt+Maj+↓` — peu utilisé, **reconduit**.
+
+---
+
+### 1. Page Panier — préparée seule (35 min avant la séance) 🟢
+
+- `supprimerPanier` (`filter`) et **`modifierPanier(id, delta)`** (`.map()` + spread) : immuables, via `(prev) =>`. **Une seule fonction pour + et −** grâce au paramètre `delta` — décision de conception juste.
+- **Types fonction avec paramètres** dans l'interface du `context` : justes (notion en attente depuis S72 → **soldée**). `const data: Produit[]` sur le résultat de `.json()`.
+- − **grisé à 1**, X pour supprimer : choix d'interface légitime (aucune quantité 0 possible).
+- Sous-totaux, panier vide + lien boutique, `formatEuro` réutilisé depuis `utils/`.
+- **✅ Total du panier écrit seul, en `reduce` dérivé — dette donnée dérivée : test décisif réussi** après 4 occurrences (S104, S106, S107, S109). Allègements proposés : `const total` nommée, early return pour le panier vide.
+
+### 2. Ajout rapide depuis la Boutique 🟢
+
+Carte restructurée : `<article>` > `Link` (image + titre) + bouton **frère**, jamais dans le lien. Garde d'`ajouterPanier` inutile (quantité en dur à 1) — décision S109 tenue.
+`Link` sorti de la grille → redevenu **inline** → `block` ajouté (le « point 3 » de S108 trouve ici son vrai cas).
+
+### 3. Reprise `NavLink` / `end` (N+5) 🟢
+
+Ressenti « très bien », **bien calibré** : fonction dans `className` juste, `end` uniquement sur le lien racine. Seul écart : `to` inexacts par rapport aux adresses données. **Cycle fermé.**
+
+### 4. Bouton Paiement
+
+State local `paiement` + écran de message. Faute visible dans l'interface (« Paiment ») signalée.
+
+### 5. Panier persistant (`localStorage`) — notion Phase 1 réactivée
+
+1ᵉʳ jet : clé = contenu du panier (`setItem(memoire, memoire)`) · résultat de `getItem` jeté · **lecture dans un effet** (écrasée au 1ᵉʳ rendu par l'effet d'écriture). **Squelette à un trou donné** → `JSON.parse(memoire ?? "[]")`, **plus élégant que la forme classique**. 🟢 Quatre tests passés.
+**Vocabulaire « lazy initializer » oublié** (mécanisme appliqué juste) → redonné. 🟡 sur le terme.
+
+---
+
+### 🎓 Décisions de Frédéric — suite de Shopping Cart
+
+- **L'énoncé Odin n'est pas à suivre à la lettre** : ajout rapide de 1 en boutique, quantité choisie sur la fiche. Adaptation voulue et défendable.
+- **Indispensables** : habillage CSS soigné (belle page d'accueil, image) · `localStorage` ✅ · paiement ✅.
+- **Recherche** : validée. **Tailles XS→XL** (vêtements) : **décision ouverte**, tentante car travaille la modélisation (une ligne de panier s'identifierait par produit + taille). **Mini-panier glissant** : pendant l'habillage, **au clic** (pas de survol sur mobile).
+
+**Conception de la recherche posée** (non codée) : **un seul state** (`recherche`) · résultats en `const` dérivée (`filter` insensible à la casse) · ouverture de la fenêtre dérivée (`recherche` non vide) — pas de booléen séparé · composant `BarreRecherche` qui détient son state et reçoit `produits` en prop · `slice` à 5 · résultats en `Link` qui vident `recherche` · `absolute` sous un parent `relative`. Fermeture au clic extérieur (`useRef` + écouteur) en option.
+
+---
+
+**Niveaux** : fonctions de modification immuables 🟢 · types fonction avec paramètres 🟢 · **donnée dérivée 🟢 (écrite seule)** · `Link` inline hors grille 🟢 · `NavLink` / `end` 🟢 · `localStorage` + `JSON` 🟡 (reconstruit avec squelette) · lazy initializer : mécanisme 🟢 / terme 🟡 · `??` 🟢.
+
+**⚠️ Mes erreurs** : aucune relevée cette séance.
+
+**🔄 Cycle de reprise** : `NavLink` / `end` → **fermé** · `useOutletContext` → acquis en usage réel (4 pages) · `localStorage` → à rejouer (N+2) · **donnée dérivée → recherche** (liste filtrée).
+
+**🔄 Rotation** : chaînes truthy · **entre** : lazy initializer (le nom et le « pourquoi »).
+
+**Registre** : types fonction au-delà de `() => void` **soldée**.
 
 **⏭️ Prochaine étape**
-
-1. **Handlers du panier** : combien de fonctions pour `[+]` et `[-]`, et quels arguments. Écriture dans le layout, exposition dans le `context`, branchement dans la page.
-2. Boutique : fetch DummyJSON, cartes produits, champ quantité (**conversion aux frontières**, dette chaude) et ajout au panier.
-3. Compteur de la navigation et total du panier — **donnée dérivée**, à ne pas stocker en state.
+1. **Barre de recherche** selon la conception posée (ouverture de séance).
+2. **Habillage** (1 à 2 séances) : accueil, cartes, fiche, panier, mini-panier, textes provisoires.
+3. **PR et fusion** de la branche Shopping Cart.
+4. Décision sur les **tailles**.
+5. Puis **hooks personnalisés + Context API**, avec Shopping Cart comme terrain (`usePanier`, contexte de panier).
