@@ -1592,3 +1592,58 @@ State local `paiement` + écran de message. Faute visible dans l'interface (« P
 3. **PR et fusion** de la branche Shopping Cart.
 4. Décision sur les **tailles**.
 5. Puis **hooks personnalisés + Context API**, avec Shopping Cart comme terrain (`usePanier`, contexte de panier).
+
+## Session 111 — Shopping Cart : barre de recherche complète (résultats, « Afficher plus », clic extérieur)
+
+**Durée** : ~1h samedi soir (23h40, hors séance) + 2h10 dimanche matin. Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+↓` **acté 🟢**. Nouveau, sur un besoin exprimé (ajouter / retirer des parenthèses) : sélection + `(` pour entourer (comportement natif) · **Remove Brackets** (`Ctrl+Alt+Retour arrière`, donné de mémoire — **existence et raccourci à vérifier** via `Ctrl+Maj+P`, à demander).
+
+---
+
+### Révision éclair
+
+- **Chaînes truthy** 🟢 6/6. **Sort de rotation.**
+- **`localStorage` + lazy initializer** 🔴 à froid, correction donnée au 3ᵉ essai : corps-bloc sans `return` (famille récurrente) · `JSON.parse("favoris")` (ordre `getItem` → `parse` inversé) · `??` placé dans la parenthèse de `getItem` · effet recopié avec `panier` · `JSON.stringify(data)` pour fabriquer `data`. Nom « lazy initializer » retrouvé, le pourquoi non formulé → donné. **Reprise N+2.**
+
+### 1. Soir — condition d'affichage + extraction
+
+- **Question de fond** : pourquoi `includes("")` renvoie `true` → réponse comprise (la suite vide se trouve partout). Condition inversée corrigée.
+- **Extraction `BarreRecherche`** 🟢 : fichier dans `shopping-cart/`, interface, prop `produits`, state descendu au plus près de son usage.
+
+### 2. Matin — résultats et clic extérieur
+
+- **« Afficher plus / moins » ajouté de sa propre initiative**, `deplier` justifié comme vrai state.
+- Erreurs corrigées : `key` oubliée · `<li>` dans un `<li>` · seuil `> 4` · **`slice(…, -1)` deux fois** (le dernier résultat disparaît) 🟡.
+- **Fragment `<>` posé seul** 🟢. `const visible` en ternaire : bloqué, débloqué par l'indice « écris la phrase si… alors… sinon » 🟢. Un seul `.map()` (DRY).
+- **Clic extérieur** : state `ouvert` (l'ouverture n'est plus dérivée du texte — compris) · `useRef` sur la `<div>` · **`contains` trouvé seul** 🟢 · `PointerEvent` trouvé au survol 🟢. **🔴 Référence unique oubliée** (résultat d'`addEventListener` stocké, `removeEventListener` sans `document`) + condition inversée → squelette à un trou donné.
+- **`as Node`** : cours `EventTarget` / `Node` / `as` / alternative `instanceof` → « compris, pas instinctif » (ses mots).
+- **Question `onBlur`** : piège expliqué (le blur ferme la liste avant que le clic n'atteigne le `Link`) → compris.
+- **4 tests passés.**
+
+**Niveaux** : chaînes truthy 🟢 · `localStorage` + lazy initializer 🔴 · extraction de composant + state local 🟢 · `slice` avec index négatif 🟡 · fragment 🟢 · ternaire dans une `const` 🟢 (avec indice) · `contains` 🟢 · référence unique d'écouteur 🔴 (rechute, notion verrouillée) · `as` + `Node` 🟡 · `onFocus` / `onBlur` 🟡 (neufs).
+
+**🆕 Neuf** : `contains` · `onFocus` / `onBlur` · hiérarchie `EventTarget` / `Node` · motif « fermer au clic extérieur ».
+
+---
+
+**Shopping Cart vs énoncé Odin (vérifié sur theodinproject.com)** : pages, navigation, compteur, panier (+ / − / suppression), FakeStore ✅ · ajout rapide en boutique + quantité sur la fiche (adapté) · tests et déploiement écartés. Ajouts hors énoncé : fiche, `localStorage`, paiement, recherche.
+
+**🎓 Décisions de Frédéric**
+- **Tests et déploiement** : voir l'en-tête (roadmap modifiée).
+- **Quantité** : masquer les flèches natives du `type="number"` et construire ses propres boutons − / + — **en dernier** dans l'habillage.
+- **Bouton 🔍** en ouverture de la prochaine séance (~30 min), **à la place** des deux exercices courts : entretien (`<form>`, `onSubmit`, `preventDefault`, `useNavigate`, `visible[0]`, garde sur liste vide).
+
+**⚠️ Mes erreurs** : réécriture « plus élégante » proposée à minuit alors que sa version fonctionnait → trois incompréhensions, « illisible ». Correctif : en séance tardive, ne pas proposer de refonte d'un code qui marche.
+
+**🔄 Cycle de reprise** : `localStorage` + lazy initializer → N+2 · **clic extérieur + référence unique → mini-panier glissant** · `useOutletContext` acquis en usage.
+
+**🔄 Rotation** : **sort** — chaînes truthy. **Reste** — lazy initializer.
+
+**⏭️ Prochaine étape**
+1. **Bouton 🔍** (ouverture, ~30 min).
+2. **Habillage** : accueil avec image, cartes, fiche, panier, liste de recherche en `absolute` sous le champ.
+3. **Mini-panier glissant au clic** (reprise du clic extérieur).
+4. Décision sur les **tailles XS → XL**.
+5. Boutons − / + personnalisés.
+6. **PR + fusion**, puis **hooks personnalisés + Context API**.

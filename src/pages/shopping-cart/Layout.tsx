@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet } from "react-router";
 import type { Article, Produit } from "./type";
+import { BarreRecherche } from "./BarreRecherche";
 
 function LayoutPage() {
   const [chargement, setChargement] = useState(true);
@@ -10,7 +11,6 @@ function LayoutPage() {
     const memoire =localStorage.getItem("panier");
     return JSON.parse(memoire ?? "[]")
   });
-  const [recherche, setRecherche] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -48,11 +48,6 @@ function LayoutPage() {
     });
   }
 
-  function rechercher(mot: string) {
-    setRecherche(mot);
-    
-  }
-
   useEffect(() => {
     const memoire = JSON.stringify(panier);
     localStorage.setItem("panier", memoire);
@@ -63,10 +58,7 @@ function LayoutPage() {
     <div className="pt-16">
       <header className="flex justify-between">
         <Link to="/shopping-cart">Un titre sur la gauche ramenant également à l'accueil</Link>
-        <div>
-          <input value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Recherchez un article, un produit ..." />
-          <button>🔍</button>
-        </div>
+        <BarreRecherche produits={produits}/>
         <nav>
           <NavLink end className={({ isActive }) => (isActive ? "text-blue-600" : "")} to="/shopping-cart">
             Accueil

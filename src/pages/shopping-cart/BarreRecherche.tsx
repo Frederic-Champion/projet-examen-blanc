@@ -1,0 +1,67 @@
+import { useRef, useState, useEffect } from "react";
+import type { Produit } from "./type";
+import { Link } from "react-router";
+import { formatEuro } from "../../utils/format";
+
+interface BarreRechercheProps {
+  produits: Produit[];
+}
+
+function BarreRecherche({ produits }: BarreRechercheProps) {
+  const [recherche, setRecherche] = useState("");
+  const [deplier, setDeplier] = useState(false);
+  const [ouvert, setOuvert] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const equivalent = produits.filter((p) => p.title.toLowerCase().includes(recherche.trim().toLowerCase()));
+  const visible = deplier ? equivalent.slice() : equivalent.slice(0, 5);
+
+  function nettoyageRecherche() {
+    setRecherche("");
+    setDeplier(false);
+  }
+
+  useEffect(() => {
+    function gererClick(e: PointerEvent) {
+      if (!ref.current?.contains(e.target as Node)) {
+        setOuvert(false);
+      }
+    }
+    document.addEventListener("click", gererClick);
+    return () => document.removeEventListener("click", gererClick);
+  }, []);
+
+  return (
+    <div ref={ref}>
+      <input
+        onFocus={() => setOuvert(true)}
+        value={recherche}
+        onChange={(e) => setRecherche(e.target.value)}
+        placeholder="Recherchez un article, un produit ..."
+      />
+      <button>🔍</button>
+      {equivalent.length > 0 && recherche.trim() !== "" && ouvert && (
+        <ul>
+          {visible.map((p) => (
+            <li key={p.id}>
+              <Link onClick={nettoyageRecherche} className="flex" to={`/shopping-cart/boutique/${p.id}`}>
+                <img className="h-12 w-full object-contain" src={p.image} alt={p.title} />
+                <p>{p.title}</p>
+                <p>{formatEuro(p.price)}</p>
+              </Link>
+            </li>
+          ))}
+          {equivalent.length > 5 && (
+            <li>
+              <button onClick={() => setDeplier((prev) => !prev)} className="border">
+                {deplier ? "Afficher moins" : "Afficher plus"}
+              </button>
+            </li>
+          )}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+export { BarreRecherche };
