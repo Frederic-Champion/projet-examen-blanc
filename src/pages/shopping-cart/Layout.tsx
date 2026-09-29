@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet } from "react-router";
 import type { Article, Produit } from "./type";
 import { BarreRecherche } from "./BarreRecherche";
+import { Home, ShoppingCart, Store } from "lucide-react";
 
 function LayoutPage() {
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
   const [produits, setProduits] = useState<Produit[]>([]);
   const [panier, setPanier] = useState<Article[]>(() => {
-    const memoire =localStorage.getItem("panier");
-    return JSON.parse(memoire ?? "[]")
+    const memoire = localStorage.getItem("panier");
+    return JSON.parse(memoire ?? "[]");
   });
 
   useEffect(() => {
@@ -53,27 +54,47 @@ function LayoutPage() {
     localStorage.setItem("panier", memoire);
   }, [panier]);
 
-
   return (
-    <div className="pt-16">
+    <div className=" flex min-h-screen flex-col pt-4">
       <header className="flex justify-between">
         <Link to="/shopping-cart">Un titre sur la gauche ramenant également à l'accueil</Link>
-        <BarreRecherche produits={produits}/>
-        <nav>
-          <NavLink end className={({ isActive }) => (isActive ? "text-blue-600" : "")} to="/shopping-cart">
-            Accueil
+        <BarreRecherche produits={produits} />
+        <nav className="flex gap-4 p-2">
+          <NavLink
+            end
+            className={({ isActive }) =>
+              isActive ? "flex gap-1 text-blue-600 font-semibold hover:text-blue-600" : "flex gap-2 font-semibold hover:text-blue-600"
+            }
+            to="/shopping-cart"
+          >
+            <Home />
+            <p>Accueil</p>
           </NavLink>
-          <NavLink className={({ isActive }) => (isActive ? "text-blue-600" : "")} to="/shopping-cart/boutique">
-            Boutique
+          <NavLink
+            className={({ isActive }) =>
+              isActive ? "flex gap-1 text-blue-600 font-semibold hover:text-blue-600" : "flex gap-2 font-semibold hover:text-blue-600"
+            }
+            to="/shopping-cart/boutique"
+          >
+            <Store />
+            <p>Boutique</p>
           </NavLink>
-          <NavLink className={({ isActive }) => (isActive ? "text-blue-600" : "")} to="/shopping-cart/panier">
-            <p>Panier</p>
+          <NavLink
+            className={({ isActive }) =>
+              isActive ? "flex gap-1 text-blue-600 font-semibold hover:text-blue-600" : "flex gap-2 font-semibold hover:text-blue-600"
+            }
+            to="/shopping-cart/panier"
+          >
+            <ShoppingCart />
+            <p>Votre panier</p>
             <p>{nombreArticles ? nombreArticles : ""}</p>
           </NavLink>
         </nav>
       </header>
 
-      <Outlet context={{ chargement, erreur, produits, ajouterPanier, panier, supprimerPanier, modifierPanier }} />
+      <main className="flex flex-1 flex-col">
+        <Outlet context={{ chargement, erreur, produits, ajouterPanier, panier, supprimerPanier, modifierPanier }} />
+      </main>
     </div>
   );
 }

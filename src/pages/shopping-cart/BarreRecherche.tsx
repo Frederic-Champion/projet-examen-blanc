@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import type { Produit } from "./type";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { formatEuro } from "../../utils/format";
 
 interface BarreRechercheProps {
@@ -12,6 +12,7 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
   const [deplier, setDeplier] = useState(false);
   const [ouvert, setOuvert] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const naviguer = useNavigate();
 
   const equivalent = produits.filter((p) => p.title.toLowerCase().includes(recherche.trim().toLowerCase()));
   const visible = deplier ? equivalent.slice() : equivalent.slice(0, 5);
@@ -19,6 +20,13 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
   function nettoyageRecherche() {
     setRecherche("");
     setDeplier(false);
+  }
+
+  function onSearch(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (recherche.trim() === "" || equivalent.length === 0) return;
+    naviguer(`/shopping-cart/boutique/${equivalent[0].id}`);
+    nettoyageRecherche();
   }
 
   useEffect(() => {
@@ -33,13 +41,18 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
 
   return (
     <div ref={ref}>
-      <input
-        onFocus={() => setOuvert(true)}
-        value={recherche}
-        onChange={(e) => setRecherche(e.target.value)}
-        placeholder="Recherchez un article, un produit ..."
-      />
-      <button>🔍</button>
+      <form onSubmit={onSearch}>
+        <input
+          className="bg-stone-200 w-2xl p-1 rounded-lg focus:border-blue-600"
+          onFocus={() => setOuvert(true)}
+          value={recherche}
+          onChange={(e) => setRecherche(e.target.value)}
+          placeholder="Recherchez un article, un produit ..."
+        />
+        <button aria-label="Bouton recherche" >
+          🔍
+        </button>
+      </form>
       {equivalent.length > 0 && recherche.trim() !== "" && ouvert && (
         <ul>
           {visible.map((p) => (
