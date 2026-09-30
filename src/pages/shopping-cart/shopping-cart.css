@@ -1,0 +1,23 @@
+/* ───────────────────────────────────────────
+   ODIN Store — tokens de design
+   Préfixe "shop" : évite les collisions avec
+   les autres exercices de l'atelier
+   ─────────────────────────────────────────── */
+
+@theme {
+  /* Couleurs — nommées par rôle */
+  --color-shop-primaire: #2563eb;        /* liens actifs, focus, boutons */
+  --color-shop-primaire-survol: #60a5fa; /* hover des éléments primaires */
+  --color-shop-surface: #e7e5e4;         /* barre de recherche, footer, cartes */
+  --color-shop-texte: #1c1917;           /* texte principal */
+  --color-shop-texte-doux: #78716c;      /* prix barrés, placeholders, mentions */
+
+  /* Typographie */
+  --font-shop-titre: "Poppins", sans-serif;
+
+  /* Formes */
+  --radius-shop: 0.5rem;
+
+  /* Ombres */
+  --shadow-shop-flottant: rgba(0, 0, 0, 0.24) 1px 2px 4px 1px; /* listes, mini-panier */
+}

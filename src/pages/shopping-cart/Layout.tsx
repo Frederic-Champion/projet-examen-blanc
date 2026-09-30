@@ -55,7 +55,7 @@ function LayoutPage() {
   }, [panier]);
 
   return (
-    <div className=" flex min-h-screen flex-col pt-4">
+    <div className=" flex min-h-screen flex-col pt-4 text-shop-texte">
       <header className="grid grid-cols-3 items-center text-center px-12 py-3">
         <Link className="text-4xl font-bold justify-self-start hover:text-blue-400" to="/shopping-cart">ODIN Store</Link>
         <BarreRecherche produits={produits} />

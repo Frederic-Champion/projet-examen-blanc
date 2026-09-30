@@ -1747,3 +1747,41 @@ Parent `relative` · `<ul>` `absolute top-full left-0 w-full z-10` + fond opaque
 2. Vérifier : grille 3 colonnes du header · décision `App.tsx` (barre `fixed`).
 3. Suite de l'habillage : retouches `NavLink`, pastille du panier, police, cartes, fiche, panier.
 4. Mini-panier glissant au clic · décision tailles XS→XL · boutons − / + · **PR + fusion**, puis **hooks personnalisés + Context API**.
+
+## Session 113 bis — Tokens `@theme`, architecture CSS pro, liste de recherche en `absolute`
+
+**Durée** : ~2h (mercredi soir, 22h20 → 00h05). Séance « extra », à sa demande.
+
+**🎹 Raccourci** : **`Ctrl+Maj+F` revenu spontanément** sur un vrai besoin (recherche de `rounded` dans le projet). Ajout : le champ « files to include » pour limiter la recherche à un dossier.
+
+---
+
+### Fait
+
+- **Liste de résultats en `absolute`** ✅ appliquée (`top-full left-0 w-full z-10`) : plus rien ne bouge à l'ouverture. Notion 🔴 hier soir, appliquée seule ce soir.
+- **`shopping-cart.css` créé** : un seul `@theme` préfixé `shop`, rangé par catégorie (couleurs → typo → formes → ombres), nommé par rôle et commenté. Importé depuis `index.css`. **Tokens appliqués à toute la barre et à la liste** 🟢.
+- **Erreur Prettier** (`Can't resolve '/src/…'`) : le `/` initial est une convention Vite, que Prettier lit comme la racine du disque → **import relatif**. Cours `./` / `../` compris 🟢, **et déjà pratiqué sans le savoir** (`../../utils/format`).
+- **Renommage `Shopping-cart.css` → minuscules** : les dossiers et fichiers hors composants vont en minuscules, les composants restent en PascalCase. ⚠️ **Piège Git Windows** : un changement de casse seule peut passer inaperçu → `git mv` en deux temps. **Vérification : à demander.**
+
+### Expliqué (compris, pas encore pratiqué)
+
+- **Architecture CSS d'un projet Tailwind** : très peu de CSS, rangé **par rôle** (`theme.css`, `base.css`), pas par page. Le fichier par section ne se justifie que dans l'atelier.
+- **Pas de classe maison `@apply` pour alléger le JSX** : Tailwind reste dans le JSX ; un JSX trop chargé → **extraire un composant**. CSS réservé à `@layer base`, `@utility`, et au HTML qu'on ne contrôle pas.
+- **Méthode pro du visuel** : partir d'une référence, limiter les choix (tokens), construire dans l'ordre structure → typo → couleurs → états → responsive.
+- **F12 sur un site existant** : on relève des **mesures** (onglet Calculés, box model), on ne lit pas leur architecture (CSS compilé). Liste qui disparaît → « Emulate a focused page » *(cité de mémoire)*.
+- **Police** : `--font-shop-titre` = liste de secours ; le nom seul ne charge rien → `@import` Google Fonts en premier dans `index.css`. **Reportée à demain.**
+- **Titres trop longs dans la liste** : `truncate` + `min-w-0` (texte) + `shrink-0` (image, qui s'écrasait) + `items-center` + `title={p.title}`. **Non appliqué.**
+
+### Non compris
+
+- **`cn()` (`clsx` + `tailwind-merge`)** 🔴 : « je ne vois toujours pas ce que c'est ». **Cours à reprendre demain**, sur les `NavLink`.
+
+**Divers** : *Refactoring UI* présenté (livre des créateurs de Tailwind). **Figma : demande de l'avancer dans la roadmap** → proposition : usage de base avant le SaaS optique, **à trancher**. Avertissement VS Code `Unknown at rule @theme` : sans conséquence, réglage `files.associations` reporté.
+
+**Niveaux** : `@theme` + tokens par rôle 🟢 · `absolute` + `top-full` / `w-full` 🟢 (appliqué) · chemins relatifs 🟢 · architecture CSS Tailwind 🟡 · `truncate` + `min-w-0` 🟡 · `cn()` 🔴.
+
+**⏭️ Prochaine étape**
+1. **Cours `cn()`**, appliqué à la factorisation des `NavLink`.
+2. Appliquer la coupure des titres, puis **trois remarques en attente sur `BarreRecherche`**.
+3. Police · vérifier la casse dans Git · header en grille 3 colonnes et barre `fixed` d'`App.tsx` *(état à demander)*.
+4. Suite de l'habillage → mini-panier → PR + fusion → hooks personnalisés + Context API.

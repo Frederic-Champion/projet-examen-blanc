@@ -41,9 +41,9 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
   }, []);
 
   return (
-    <div ref={ref}>
+    <div className="relative" ref={ref}>
       <form
-        className="flex min-w-96 overflow-hidden rounded-lg bg-stone-200 focus-within:ring-2 focus-within:ring-blue-600"
+        className="flex min-w-96 overflow-hidden rounded-shop bg-shop-surface focus-within:ring-2 focus-within:ring-shop-primaire"
         onSubmit={onSearch}
       >
         <input
@@ -51,20 +51,30 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
           onFocus={() => setOuvert(true)}
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
-          placeholder="Recherchez un article, un produit ..."
+          placeholder="Recherchez un article, un produit  ..."
         />
-        <button className="p-2 hover:bg-blue-400" aria-label="Recherche">
+        <button className="p-2 hover:bg-shop-primaire-survol" aria-label="Recherche">
           <Search />
         </button>
       </form>
       {equivalent.length > 0 && recherche.trim() !== "" && ouvert && (
-        <ul>
+        <ul className="absolute top-full left-0 z-10 mt-1 flex w-full flex-col rounded-shop bg-white shadow-shop-flottant">
           {visible.map((p) => (
-            <li key={p.id}>
-              <Link onClick={nettoyageRecherche} className="flex" to={`/shopping-cart/boutique/${p.id}`}>
-                <img className="h-12 w-full object-contain" src={p.image} alt={p.title} />
-                <p>{p.title}</p>
-                <p>{formatEuro(p.price)}</p>
+            <li className="p-2" key={p.id}>
+              <Link
+                onClick={nettoyageRecherche}
+                className="flex items-center gap-2"
+                to={`/shopping-cart/boutique/${p.id}`}
+              >
+                <div className="flex h-11 w-11 shrink-0 rounded-shop bg-white p-1.25 shadow-shop-flottant">
+                  <img className="max-h-8.5 w-full max-w-8.5 object-contain" src={p.image} alt={p.title} />
+                </div>
+                <div className="min-w-0 text-left">
+                  <p title={p.title} className="truncate font-semibold">
+                    {p.title}
+                  </p>
+                  <p className="font-semibold text-red-400">{formatEuro(p.price)}</p>
+                </div>
               </Link>
             </li>
           ))}

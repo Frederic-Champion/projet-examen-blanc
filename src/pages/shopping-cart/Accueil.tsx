@@ -1,4 +1,4 @@
-import photoAccueilProjectOdin from "/src/assets/photoAccueilProjectOdin.jpg";
+import photoAccueilProjectOdin from "../../assets/photoAccueilProjectOdin.jpg";
 
 function AccueilPage() {
   return (
@@ -10,14 +10,14 @@ function AccueilPage() {
           alt="photo d'accueil"
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="rounded-2xl bg-stone-200 p-12 text-center text-6xl font-bold">
+          <h1 className="rounded-2xl bg-shop-surface p-12 text-center text-6xl font-bold">
             SHOPPING CART
             <br />
             Odin Project
           </h1>
         </div>
       </div>
-      <footer className="bg-stone-200">
+      <footer className="bg-shop-surface text-shop-texte-doux font-bold">
         <div className="flex justify-center gap-2 py-4">
           <p>Réaliser par Frédéric</p>
           {/* Link à installer au moment de la publication en ligne */}
