@@ -3,8 +3,12 @@ import photoAccueilProjectOdin from "/src/assets/photoAccueilProjectOdin.jpg";
 function AccueilPage() {
   return (
     <div className="flex flex-1 flex-col text-center">
-      <div className="relative mt-auto">
-        <img className="h-64 w-full object-cover md:h-[85vh]" src={photoAccueilProjectOdin} alt="photo d'accueil" />
+      <div className="relative flex-1">
+        <img
+          className="absolute inset-0 h-full min-h-64 w-full object-cover"
+          src={photoAccueilProjectOdin}
+          alt="photo d'accueil"
+        />
         <div className="absolute inset-0 flex items-center justify-center">
           <h1 className="rounded-2xl bg-stone-200 p-12 text-center text-6xl font-bold">
             SHOPPING CART
@@ -13,8 +17,8 @@ function AccueilPage() {
           </h1>
         </div>
       </div>
-      <footer className="mt-auto bg-stone-200">
-        <div className="flex justify-center py-4 gap-2">
+      <footer className="bg-stone-200">
+        <div className="flex justify-center gap-2 py-4">
           <p>Réaliser par Frédéric</p>
           {/* Link à installer au moment de la publication en ligne */}
           <svg width={24} height={24} viewBox="0 0 128 128">

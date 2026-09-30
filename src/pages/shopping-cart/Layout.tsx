@@ -56,10 +56,10 @@ function LayoutPage() {
 
   return (
     <div className=" flex min-h-screen flex-col pt-4">
-      <header className="flex justify-between">
-        <Link to="/shopping-cart">Un titre sur la gauche ramenant également à l'accueil</Link>
+      <header className="grid grid-cols-3 items-center text-center px-12 py-3">
+        <Link className="text-4xl font-bold justify-self-start hover:text-blue-400" to="/shopping-cart">ODIN Store</Link>
         <BarreRecherche produits={produits} />
-        <nav className="flex gap-4 p-2">
+        <nav className="flex gap-4 p-2 justify-self-end">
           <NavLink
             end
             className={({ isActive }) =>

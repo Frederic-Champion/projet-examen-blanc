@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import type { Produit } from "./type";
 import { Link, useNavigate } from "react-router";
 import { formatEuro } from "../../utils/format";
+import { Search } from "lucide-react";
 
 interface BarreRechercheProps {
   produits: Produit[];
@@ -41,16 +42,19 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
 
   return (
     <div ref={ref}>
-      <form onSubmit={onSearch}>
+      <form
+        className="flex min-w-96 overflow-hidden rounded-lg bg-stone-200 focus-within:ring-2 focus-within:ring-blue-600"
+        onSubmit={onSearch}
+      >
         <input
-          className="bg-stone-200 w-2xl p-1 rounded-lg focus:border-blue-600"
+          className="flex-1 p-2 outline-none"
           onFocus={() => setOuvert(true)}
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
           placeholder="Recherchez un article, un produit ..."
         />
-        <button aria-label="Bouton recherche" >
-          🔍
+        <button className="p-2 hover:bg-blue-400" aria-label="Recherche">
+          <Search />
         </button>
       </form>
       {equivalent.length > 0 && recherche.trim() !== "" && ouvert && (

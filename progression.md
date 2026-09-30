@@ -1691,3 +1691,59 @@ State local `paiement` + écran de message. Faute visible dans l'interface (« P
 1. **Cours positionnement**, pas à pas, sur la page d'accueil → régler le blanc.
 2. Au retour de l'API : vérifier `onSubmit` sur le `<form>` + les 4 tests du bouton 🔍.
 3. Suite de l'habillage (chevauchement du header, `NavLink` factorisés, pastille du panier, police).
+
+## Session 113 — Cours de positionnement (accueil) + habillage de la barre de recherche
+
+**Durée** : ~2h (mercredi, en deux blocs). Énergie bonne. API FakeStore revenue.
+
+**🎹 Raccourci** : Remove Brackets (`Ctrl+Alt+Retour arrière`) — redonné, usage non confirmé, **reconduit**.
+
+---
+
+### Révision éclair — reprise `localStorage` + lazy initializer (N+2) 🟢
+
+Ressenti 7,5/10, **bien calibré**. `useState` + `useEffect` justes du premier coup (`return`, `??` avant `parse`, bonne dépendance) : les quatre erreurs de S111 ont disparu.
+« Pourquoi la fonction ? » 🟡 : idée juste, formulation imprécise (« la fonction est lancée » au lieu de « donnée à React, qui l'appelle une fois ») · rien ne change à l'écran : non cité. Corrigé.
+
+### 1. Cours de positionnement — demande S112, blanc réglé ✅
+
+Une notion à la fois, chacune vérifiée dans le navigateur. **Format efficace** : « plus clair qu'hier ».
+- **Chaîne des hauteurs** (`min-h-screen` → `flex-1` → `flex-1`, parent `flex flex-col` + enfant `flex-1`) 🟢 : maillon cassé testé (`flex` retiré du `<main>` → blanc déplacé sous le footer).
+- **`mt-auto` + partage de l'espace libre** 🟢 : démontré seul (un seul `mt-auto` → même quantité de blanc, déplacée). Retenu : une marge `auto` ne supprime pas l'espace libre, elle le **place**.
+- **Hero plein écran** (option choisie) : zone photo `relative flex-1 min-h-64`, image `absolute inset-0 h-full w-full object-cover`. **Mécanisme reformulé juste et seul** ; précisions données : `relative` = repère des enfants · `object-cover` recadre.
+- **Neuf** : `Ctrl+F` et clic droit → Inspecter dans le panneau Elements 🟢.
+
+### 2. Barre de recherche habillée ✅
+
+- **Bouton 🔍** : `onSubmit` bien sur le `<form>` (suspens S112 levé), **4 tests passés**.
+- Habillage déplacé sur le `<form>`, input `flex-1 outline-none`, icône Lucide : écrit seul 🟢.
+- **Neuf** : `focus-within:` (cours CSS vs Tailwind demandé) 🟡 · **`ring` vs `border`** 🟡 — **décalage au focus remarqué par lui**, cause : bordure ajoutée seulement au focus ; `ring` = peinture, pas layout · `overflow-hidden` pour les coins · `aria-label` = l'action.
+- Contour collé à la photo → `items-center py-3` sur le header 🟢.
+
+### 3. Header
+
+- Titre : **nom de marque inventé** (« ODIN Store ») plutôt que son nom ou une icône de profil.
+- **Chevauchement avec la barre d'`App.tsx`** : `ml-24` écarté (nombre magique) → réserver l'espace dans `App.tsx`, ou sortir la barre du `fixed`. **Choix fait : à demander.**
+- Barre décentrée (`justify-center` centre le **groupe**) → `grid grid-cols-3` + `justify-self-*`, `gap-36` retiré. **Application : à demander.**
+
+### 4. Liste de résultats en `absolute` — expliquée, **non codée**
+
+Parent `relative` · `<ul>` `absolute top-full left-0 w-full z-10` + fond opaque. `top-full` et `w-full` difficiles à visualiser → schémas donnés · `left-full` vs `left-0` (axe et base du pourcentage) · un `absolute` perd la pleine largeur du bloc · `z-10` car la photo positionnée vient après dans le HTML. **À relire et coder demain, à sa demande.**
+
+---
+
+**Niveaux** : `localStorage` + lazy initializer 🟢 (pourquoi 🟡) · chaîne des hauteurs 🟢 · `mt-auto` en flex 🟢 · `relative` / `absolute inset-0` 🟢 · `object-cover` 🟢 · `focus-within` 🟡 · `ring` vs `border` 🟡 · `items-center` / stretch 🟢 · `grid-cols-3` + `justify-self` 🟡 · `top-full` / `left` / `w-full` en `absolute` 🔴 (neuf, non pratiqué).
+
+**⚠️ Mes erreurs** : aucune relevée.
+
+**🔄 Cycle de reprise** : `localStorage` + lazy initializer → N+5 ≈ S116 · positionnement → liste de recherche (demain) puis mini-panier glissant.
+
+**🔄 Rotation** : lazy initializer (le **pourquoi** à formuler seul).
+
+**📌 Petites retouches** : « Réalis**é** par Frédéric » dans le footer · chaîne `className` des `NavLink` recopiée trois fois · `gap-1` / `gap-2` différents selon l'état actif.
+
+**⏭️ Prochaine étape**
+1. Relecture du mini-cours, puis **liste de résultats en `absolute`** (test : rien ne bouge à l'ouverture).
+2. Vérifier : grille 3 colonnes du header · décision `App.tsx` (barre `fixed`).
+3. Suite de l'habillage : retouches `NavLink`, pastille du panier, police, cartes, fiche, panier.
+4. Mini-panier glissant au clic · décision tailles XS→XL · boutons − / + · **PR + fusion**, puis **hooks personnalisés + Context API**.
