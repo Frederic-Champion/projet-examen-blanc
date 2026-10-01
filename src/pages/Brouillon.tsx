@@ -1,15 +1,11 @@
-import { useState, useEffect } from "react";
-
 export default function Brouillon() {
-
-  const [historique, setHistorique] = useState<string[]>(() => {
-    return JSON.parse(localStorage.getItem("historique") ?? "[]")
-  })
-
-  useEffect(() => {
-    localStorage.setItem("historique", JSON.stringify(historique))
-  }, [historique])
-
-  return <div>broruillon</div>;
+  return <div>brouillon</div>;
 }
 
+<div className="flex min-h-screen flex-col">
+  <header className="py-3">ODIN Store</header>
+  <main className="flex flex-1 flex-col">
+    <section className="mt-auto flex-1">Contenu court</section>
+    <footer>Réalisé par Frédéric</footer>
+  </main>
+</div>;

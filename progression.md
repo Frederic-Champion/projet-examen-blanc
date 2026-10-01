@@ -1785,3 +1785,47 @@ Parent `relative` · `<ul>` `absolute top-full left-0 w-full z-10` + fond opaque
 2. Appliquer la coupure des titres, puis **trois remarques en attente sur `BarreRecherche`**.
 3. Police · vérifier la casse dans Git · header en grille 3 colonnes et barre `fixed` d'`App.tsx` *(état à demander)*.
 4. Suite de l'habillage → mini-panier → PR + fusion → hooks personnalisés + Context API.
+
+## Session 114 — Révision lazy initializer et chaîne des hauteurs + `clsx`, `tailwind-merge`, `cn()` + pastille du panier
+
+**Durée** : ~2h (jeudi, interrompue par un client). Énergie bonne.
+
+**🎹 Raccourci** : Remove Brackets — non utilisé, reconduit.
+
+---
+
+### État vérifié en ouverture
+- **Casse de `shopping-cart.css`** : aucun risque, le fichier n'avait jamais été commité (`U`). Le piège Git ne concerne que les fichiers déjà suivis.
+- **Header en grille 3 colonnes** : appliqué ✅.
+- **Barre `fixed` d'`App.tsx`** : conservée (navigation de l'atelier). **Idée de Frédéric** : pouvoir la masquer / l'afficher à la demande → exercice court noté (`useState` booléen + `&&`), sans notion neuve.
+
+### Révision éclair
+- **Lazy initializer** 🟢 : correction juste (flèche). Prédiction donnée dans le désordre, en connaissance de cause selon lui → **non fragile**. Variante sans parenthèses (`useState(lireHistorique)`) donnée.
+- **Chaîne des hauteurs (N+1)** 🟢 : maillon `<main>` réparé, `<div>` inutile supprimée de sa propre initiative, `flex-1` sur le contenu (motif valide). `mt-auto` + `flex-1` redondants : signalé.
+
+### `clsx` / `tailwind-merge` / `cn()`
+- **Blocage initial** : « `clsx` c'est du JS natif ? » → c'est un **paquet npm**. Forme longue donnée (`filter` + `join`), qui a débloqué. Installé, absent du modèle Vite (`package.json` fait foi).
+- **1ᵉʳ jet** 🔴 : `clsx` avec un template literal → une seule chaîne, virgule entrée dans la classe (survol cassé), `${false}` écrit `"false"`. Corrigé : **arguments séparés**. Appliqué aux trois `NavLink`, extrait en fonction `lienActif` 🟢.
+- **🔴 `({ isActive }: boolean)`** : annotation portée sur ce qui est extrait, **5ᵉ occurrence**. Geste donné : survoler `isActive` sur un `NavLink` qui fonctionne.
+- **`tailwind-merge`** 🟢 : conflits (l'ordre dans le HTML ne décide pas) → la dernière classe écrite gagne, par propriété. Utile **seulement** quand un composant accepte des classes de l'extérieur.
+- **`cn()`** : fonction écrite soi-même dans `utils/cn.ts`, testée (`p-4` en console ✅). **`...inputs` (paramètre rest) expliqué en forme longue** 🟡 · `ClassValue` 🟡. Rôles retenus : le rest **collecte**, `clsx` **trie**, `twMerge` **arbitre**.
+
+### Pastille du panier ✅
+`` `${lienActif} relative` `` → la fonction devient son code source, `isActive` perdu. Corrigé : `relative` sur un `<span>` qui enveloppe l'icône, pastille `absolute -top-2 -right-2`. Un `absolute` sans décalage reste à sa place dans le flux.
+
+---
+
+**Niveaux** : lazy initializer 🟢 · chaîne des hauteurs 🟢 · `clsx` 🟢 · `twMerge` 🟢 · `cn()` / rest / `ClassValue` 🟡 · annotation d'un paramètre déstructuré 🔴 (5ᵉ) · `${}` avec une valeur non-chaîne 🟡 · décalages négatifs en `absolute` 🟢.
+
+**⚠️ Mes erreurs** : consigne de l'item 2 sans **rendu attendu** (relevé par lui).
+
+**🔄 Rotation — décision de Frédéric** : les notions simples récentes **entrent toutes en rotation**, parce qu'elles s'oublient si on ne les réemploie pas (fonctionnement ou simple nom) :
+`clsx` · `twMerge` / `cn()` · paramètre rest · `relative` / `absolute` / `inset-0` · `top-full`, `left-0`, `w-full`, décalages négatifs, `z-10` · `object-cover` · `truncate` + `min-w-0` + `shrink-0` · `mt-auto` / chaîne `flex-1` · `focus-within` · `ring` vs `border` · `trim()` · `contains` / `onFocus` / `onBlur` · `${}` piège · préfixes `@theme` · chemins `./` `../`.
+Toujours dedans : lazy initializer (le pourquoi).
+
+**📌 En attente** : coupure des titres de la liste *(appliquée ? à demander)* · 3 remarques sur `BarreRecherche` · police · bascule de la barre d'`App.tsx` · Figma dans la roadmap (à trancher).
+
+**⏭️ Prochaine étape**
+1. **Composant `<Bouton>` avec `cn()`** (bouton « Ajouter au panier » de la Boutique et de la Fiche) → coller les deux JSX en ouverture.
+2. Points en attente ci-dessus.
+3. Suite de l'habillage → mini-panier → PR + fusion → hooks personnalisés + Context API.
