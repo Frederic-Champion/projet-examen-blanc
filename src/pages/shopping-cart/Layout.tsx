@@ -59,9 +59,9 @@ function LayoutPage() {
     clsx("flex gap-2 font-semibold hover:text-blue-600", isActive && "text-blue-600");
 
   return (
-    <div className="flex min-h-screen flex-col pt-4 text-shop-texte">
+    <div className="bg-stone-100 flex min-h-screen flex-col pt-4 text-shop-texte font-shop-texte">
       <header className="grid grid-cols-3 items-center px-12 py-3 text-center">
-        <Link className="justify-self-start text-4xl font-bold hover:text-blue-400" to="/shopping-cart">
+        <Link className="justify-self-start text-4xl font-shop-titre hover:text-blue-400" to="/shopping-cart">
           ODIN Store
         </Link>
         <BarreRecherche produits={produits} />

@@ -1,6 +1,8 @@
 import { useNavigate, useOutletContext, useParams, Link } from "react-router";
 import type { FetchDataContext } from "./type";
 import { useState } from "react";
+import { Bouton } from "./Bouton";
+import { formatEuro } from "../../utils/format";
 
 function FicheProduitPage() {
   const naviguer = useNavigate();
@@ -28,7 +30,7 @@ function FicheProduitPage() {
       </div>
       <div>
         <h2>{produit.title}</h2>
-        <p>{produit.price}</p>
+        <p className="text-shop-prix">{formatEuro(produit.price)}</p>
         <p>{produit.category}</p>
         <p>{produit.description}</p>
         <label htmlFor="quantite">Quantité</label>
@@ -40,9 +42,12 @@ function FicheProduitPage() {
           type="number"
           className="border"
         />
-        <button onClick={() => ajouterPanier(produit, quantite)} disabled={quantite < 1} className="border disabled:opacity-50">
+        <Bouton
+          onClick={() => ajouterPanier(produit, quantite)}
+          desactive={quantite < 1}
+        >
           Ajouter au panier
-        </button>
+        </Bouton>
       </div>
     </div>
   );

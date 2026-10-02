@@ -3,6 +3,7 @@ import type { Produit } from "./type";
 import { Link, useNavigate } from "react-router";
 import { formatEuro } from "../../utils/format";
 import { Search } from "lucide-react";
+import { Bouton } from "./Bouton";
 
 interface BarreRechercheProps {
   produits: Produit[];
@@ -53,7 +54,7 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
           onChange={(e) => setRecherche(e.target.value)}
           placeholder="Recherchez un article, un produit  ..."
         />
-        <button className="p-2 hover:bg-shop-primaire-survol" aria-label="Recherche">
+        <button className="p-2 hover:bg-shop-primaire-survol" aria-label="Rechercher">
           <Search />
         </button>
       </form>
@@ -73,16 +74,16 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
                   <p title={p.title} className="truncate font-semibold">
                     {p.title}
                   </p>
-                  <p className="font-semibold text-red-400">{formatEuro(p.price)}</p>
+                  <p className="font-semibold text-shop-prix">{formatEuro(p.price)}</p>
                 </div>
               </Link>
             </li>
           ))}
           {equivalent.length > 5 && (
             <li>
-              <button onClick={() => setDeplier((prev) => !prev)} className="border">
+              <Bouton onClick={() => setDeplier((prev) => !prev)} className="px-2 py-1 mb-1">
                 {deplier ? "Afficher moins" : "Afficher plus"}
-              </button>
+              </Bouton>
             </li>
           )}
         </ul>

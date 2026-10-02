@@ -1829,3 +1829,52 @@ Toujours dedans : lazy initializer (le pourquoi).
 1. **Composant `<Bouton>` avec `cn()`** (bouton « Ajouter au panier » de la Boutique et de la Fiche) → coller les deux JSX en ouverture.
 2. Points en attente ci-dessus.
 3. Suite de l'habillage → mini-panier → PR + fusion → hooks personnalisés + Context API.
+
+## Session 115 — Cartes de la Boutique, composant `<Bouton>` avec `cn()`, polices
+
+**Durée** : ~3h30 (vendredi, avec pause repas). Énergie bonne.
+
+**🎹 Raccourci** : Remove Brackets — non utilisé (séances surtout CSS), reconduit.
+
+---
+
+### Révision éclair
+- **`truncate` dans un flex** 🟡 : `shrink-0` sur l'image ✅ · **`min-w-0` sur le conteneur du texte oublié** ❌ · faute `object-contains` (classe inexistante, silencieuse).
+- **Prédire** : `${false}` dans un template literal → écrit `"false"` ❌ (**2ᵉ fois**, après `clsx` en S114) · tableau vide truthy ✅ · `trim()` ✅.
+- Fiche de définitions demandée : `shrink-0` / `min-w-0` / `truncate` / `object-contain` · **`truncate` (1 ligne, listes) vs `line-clamp-N` (N lignes, cartes)**.
+
+### 1. Cartes de la Boutique
+Débordement du titre : `line-clamp-2` fonctionnait, mais la **case de grille étirée** (`h-32` + `stretch`) laissait voir une 3ᵉ ligne. Correctif `h-14` jugé « tassé » → **refonte complète demandée** : deux flex au lieu d'une grille interne, `gap-4`, titre `h-14`, `flex-1` + `mt-auto` pour aligner les prix, `Link` en `block`. Retirés : `min-h-96`, `min-w-72`, `h-32`. **Validé : « propre »** 🟢.
+Au passage : `text-[rgb(249-83-62)]` (tirets → classe silencieuse) → **token `--color-shop-prix`** créé et appliqué partout.
+
+### 2. Composant `<Bouton>` + `cn()`
+- **Intérêt contesté par lui**, à raison pour deux occurrences. Recadré : **cohérence** sur 6+ boutons (une définition, un seul endroit à modifier), et `cn()` comme condition d'un composant ajustable. Accepté.
+- Rappels demandés : **`children`** · **où trouver `React.ReactNode`** (type décidé par soi → source : `Ctrl+clic` sur `StrictMode`) · **`...inputs: ClassValue[]`** réexpliqué (2ᵉ fois) par l'union + `[]` et le trajet d'un appel.
+- 1ᵉʳ jet : `children` passé en attribut (forme longue) · `onAjouter` trop spécifique → `onClick` · `className` obligatoire · **aucune classe par défaut** (le composant n'apportait rien). Tout corrigé.
+- Règle posée : **ce qui vaut pour tous les boutons → composant** (dont l'état grisé), **ajustements et marges extérieures → page**.
+- **Test `twMerge` réussi** dans les DevTools (`px-2 py-1` gagne sur `px-4 py-2`). Réutilisé seul sur « Afficher plus ».
+
+### 3. `BarreRecherche` terminée
+Coupure des titres **déjà faite seul** (`items-center`, `shrink-0`, `min-w-0`, `truncate`, `title`). `text-shop-prix`, `aria-label="Rechercher"`. `equivalent.slice()` : copie inutile signalée ; **conservée par choix** (symétrie des deux branches), défendable.
+
+### 4. Polices
+**Bebas Neue** (titres, marque) + **Oswald** (texte) via `@import` en tête de `index.css` et tokens `--font-shop-*`. Points posés : graisse unique de Bebas → **pas de `font-bold`** (faux gras) · police posée une fois sur la racine (héritage) · Oswald à éviter sur les paragraphes longs · vérification par **Rendered Fonts**. ✅ Les deux fonctionnent.
+
+---
+
+**Niveaux** : `truncate` + `min-w-0` 🟡 (oubli en révision, appliqué en code) · `line-clamp` + hauteur de boîte 🟢 · flex dans une carte / `mt-auto` 🟢 · `${}` avec une valeur non-chaîne 🔴 (2ᵉ) · composant avec `children` + `cn()` 🟢 · rest / `ClassValue` 🟡 · tokens de police 🟢.
+
+**⚠️ Mon erreur** : « trois remarques » annoncées en S113 bis **sans les écrire**, reconstituées aujourd'hui sans garantie. **Correctif : une remarque annoncée s'écrit tout de suite, même en une ligne.**
+
+**🔄 Rotation** : ajouter **`${}` piège (priorité)** · `truncate` vs `line-clamp` · `children` entre les balises · rest / `ClassValue`. Le reste de la liste S114 est inchangé.
+
+---
+
+### 🛒 Shopping Cart — reste à faire
+
+**Habillage** : fiche produit (mise en page, `formatEuro`, champ quantité) · page Panier + écran de paiement · états de chargement / d'erreur (Boutique, Fiche ; « Monture » → « produit ») · **`<Bouton>` partout** (Paiement, Retour, + / − / supprimer), à faire seul · footer « Réalisé » *(à confirmer)*.
+**Fonctionnalités** : mini-panier glissant au clic · boutons − / + personnalisés (en dernier) · **tailles XS → XL : décision ouverte**.
+**Clôture** : responsive (header 3 colonnes à adapter) · **PR + fusion**.
+Atelier : bascule masquer / afficher de la barre d'`App.tsx`.
+
+**⏭️ Prochaine étape** : habillage de la **fiche produit**, puis du **panier**.

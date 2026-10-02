@@ -10,7 +10,7 @@ function AccueilPage() {
           alt="photo d'accueil"
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="rounded-2xl bg-shop-surface p-12 text-center text-6xl font-bold">
+          <h1 className="rounded-2xl bg-shop-surface p-12 text-center text-6xl font-shop-titre">
             SHOPPING CART
             <br />
             Odin Project

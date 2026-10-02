@@ -11,9 +11,11 @@
   --color-shop-surface: #e7e5e4;         /* barre de recherche, footer, cartes */
   --color-shop-texte: #1c1917;           /* texte principal */
   --color-shop-texte-doux: #78716c;      /* prix barrés, placeholders, mentions */
+  --color-shop-prix: #F9533E;            /* couleurs des tarifs */
 
   /* Typographie */
-  --font-shop-titre: "Poppins", sans-serif;
+  --font-shop-titre: "Bebas Neue", sans-serif;
+  --font-shop-texte: "Oswald", sans-serif;
 
   /* Formes */
   --radius-shop: 0.5rem;
