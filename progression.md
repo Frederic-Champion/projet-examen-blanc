@@ -1878,3 +1878,44 @@ Coupure des titres **déjà faite seul** (`items-center`, `shrink-0`, `min-w-0`,
 Atelier : bascule masquer / afficher de la barre d'`App.tsx`.
 
 **⏭️ Prochaine étape** : habillage de la **fiche produit**, puis du **panier**.
+
+## Session 116 — États de chargement et d'erreur, composant `EtatMessage`, début de l'habillage du panier
+
+**Durée** : ~2h15 (samedi, en deux blocs). Énergie bonne. **API FakeStore en panne toute la journée.**
+
+**🎹 Raccourci** : Remove Brackets — non utilisé, reconduit.
+
+---
+
+### Révision éclair (`${}`, `||`, `??`)
+`${promo && "barré"}` ✅ · `quantite || "épuisé"` ✅ · **`quantite ?? "épuisé"` ❌** : `??` ne remplace que `null` / `undefined`, donc `0` est gardé (« un stock à 0 est une information »).
+
+### 1. API en panne : lecture de la console
+`ERR_FAILED 522` (Cloudflare, serveur d'origine injoignable) + message CORS. Repère posé : **le message CORS est une conséquence** (la page d'erreur de Cloudflare n'a pas l'en-tête) ; chercher le code serveur qui l'accompagne. Erreurs doublées = StrictMode. Images servies depuis le cache.
+
+### 2. États de chargement et d'erreur ✅
+- **Chargement** : centrage par `flex-1` + `items-center justify-center` **trouvé seul** (chaîne des hauteurs réinvestie) 🟢. Ajouts : `flex-col gap-3`, taille et couleur de l'icône. **Neuf** : `Loader2` + `animate-spin` 🟡 · classe `uppercase` plutôt que du texte tapé en capitales (lecteurs d'écran) 🟡.
+- **Erreur** : message humain à l'écran, détail technique en `console.error` · `{erreur}` remis à l'écran au 2ᵉ jet, signalé · titre + phrase d'aide en deux éléments au lieu d'un `<br>`. **Neuf** : `window.location.reload()` 🟡, avec la distinction **`window.location` (navigateur, agit sur la page) vs `useLocation` (React Router, lit la route)** — demandée par lui.
+- `min-h-44 min-w-44` réapparus par copier-coller (inutiles avec `flex-1`).
+
+### 3. Composant `EtatMessage`
+**Code donné** (interface, composant, trois états de la Fiche), faute de temps, à sa demande. **Réutilisé seul dans la Boutique** ✅. Question posée : `icone: React.ReactNode` → une **deuxième zone de contenu** passe par une prop nommée, de même type que `children`. `<Link>` (destination) et non `<Bouton>` (action) pour « Retour à la boutique ».
+
+### 4. Panier — habillage commencé
+Structure standard donnée (liste 2/3 + récapitulatif 1/3 en `lg:grid-cols-3`, ligne en flex : image `shrink-0`, texte `flex-1 min-w-0`, quantité, supprimer). Choix tranchés : `<Bouton>` pour Paiement, − et + ; bouton-icône `Trash2` pour supprimer. États vide et paiement → `EtatMessage`. **Étapes 1 et 2 faites par lui, code non vu.** Au passage : `paiment` (faute), total à sortir du JSX dans une `const`.
+
+---
+
+**Niveaux** : `??` vs `||` sur `0` 🔴 · lecture d'une erreur réseau 🟢 · centrage par `flex-1` 🟢 · `animate-spin` / `uppercase` 🟡 · `window.location` vs `useLocation` 🟡 · `EtatMessage` : utilisation 🟢 / **conception 🔴 (donnée, à rejouer seul)** · `ReactNode` pour une prop de contenu 🟢.
+
+**🔄 Rotation** : ajouter **`??` vs `||` avec `0`** · `window.location` vs `useLocation` · `animate-spin` · `uppercase`. Le reste inchangé (dont `${}` piège).
+
+---
+
+### 🛒 Shopping Cart — reste à faire
+**Habillage** : **panier (en cours)** + écran de paiement · fiche produit (mise en page, `formatEuro`, champ quantité) · `<Bouton>` sur les boutons restants · footer « Réalisé » *(à confirmer)*. ✅ États de chargement / d'erreur faits (Boutique, Fiche).
+**Fonctionnalités** : mini-panier glissant au clic · boutons − / + personnalisés (en dernier) · **tailles XS → XL : décision ouverte**.
+**Clôture** : responsive · **PR + fusion**.
+Atelier : bascule de la barre d'`App.tsx`.
+
+**⏭️ Prochaine étape** : coller `Panier.tsx` en ouverture → étapes 3 (ligne d'article) et 4 (récapitulatif).

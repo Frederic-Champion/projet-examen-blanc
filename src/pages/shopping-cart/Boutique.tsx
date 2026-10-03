@@ -2,15 +2,34 @@ import { Link, useOutletContext } from "react-router";
 import type { FetchDataContext } from "./type";
 import { formatEuro } from "../../utils/format";
 import { Bouton } from "./Bouton";
+import { Loader2, WifiOff } from "lucide-react";
+import { EtatMessage } from "./EtatMessage";
 
 function BoutiquePage() {
   const { chargement, erreur, produits, ajouterPanier } = useOutletContext<FetchDataContext>();
 
-  if (chargement) return <p>Chargement à habiller</p>;
-  if (erreur) return <p>erreur : {erreur}</p>;
+  if (chargement)
+    return (
+      <EtatMessage
+        icone={<Loader2 className="size-10 animate-spin text-shop-primaire" />}
+        titre="Chargement des produits…"
+      />
+    );
+
+  if (erreur) {
+    console.error(erreur);
+    return (
+      <EtatMessage
+        icone={<WifiOff className="size-10 text-shop-texte-doux" />}
+        titre="Impossible de charger les produits"
+        texte="Vérifiez votre connexion ou réessayez dans quelques instants."
+      >
+        <Bouton onClick={() => window.location.reload()}>Réessayer</Bouton>
+      </EtatMessage>
+    );
+  }
   return (
     <div className="mx-auto max-w-7xl p-4">
-      <h2>La boutique</h2>
       <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
         {produits.map((produit) => (
           <article

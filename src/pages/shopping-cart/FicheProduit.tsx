@@ -1,8 +1,10 @@
-import { useNavigate, useOutletContext, useParams, Link } from "react-router";
+import { Link, useNavigate, useOutletContext, useParams } from "react-router";
 import type { FetchDataContext } from "./type";
 import { useState } from "react";
 import { Bouton } from "./Bouton";
 import { formatEuro } from "../../utils/format";
+import { Loader2, SearchX, WifiOff } from "lucide-react";
+import { EtatMessage } from "./EtatMessage";
 
 function FicheProduitPage() {
   const naviguer = useNavigate();
@@ -11,19 +13,43 @@ function FicheProduitPage() {
   const [quantite, setQuantite] = useState(1);
 
   const produit = produits.find((p) => String(p.id) === id);
-  if (chargement) return <p>Chargement à habiller proprement</p>;
-  if (erreur) return <p>Erreur : {erreur}</p>;
+  if (chargement)
+    return (
+      <EtatMessage
+        icone={<Loader2 className="size-10 animate-spin text-shop-primaire" />}
+        titre="Chargement du produit…"
+      />
+    );
+
+  if (erreur) {
+    console.error(erreur);
+    return (
+      <EtatMessage
+        icone={<WifiOff className="size-10 text-shop-texte-doux" />}
+        titre="Impossible de charger le produit"
+        texte="Vérifiez votre connexion ou réessayez dans quelques instants."
+      >
+        <Bouton onClick={() => window.location.reload()}>Réessayer</Bouton>
+      </EtatMessage>
+    );
+  }
+
   if (!produit)
     return (
-      <div>
-        <p>Monture absente à définir proprement</p>
-        <Link to="/shopping-cart/boutique">Retour à la boutique</Link>
-      </div>
+      <EtatMessage
+        icone={<SearchX className="size-10 text-shop-texte-doux" />}
+        titre="Produit introuvable"
+        texte="Ce produit n'existe pas ou a été retiré du catalogue."
+      >
+        <Link to="/shopping-cart/boutique" className="font-semibold text-shop-primaire hover:underline">
+          Retour à la boutique
+        </Link>
+      </EtatMessage>
     );
   return (
     <div className="grid grid-cols-2">
       <div>
-        <button onClick={() => naviguer(-1)} className="border">
+        <button onClick={() => naviguer("/shopping-cart/boutiqueshopping-cart/boutique")} className="border">
           Retour
         </button>
         <img src={produit.image} alt={produit.title} />
@@ -42,10 +68,7 @@ function FicheProduitPage() {
           type="number"
           className="border"
         />
-        <Bouton
-          onClick={() => ajouterPanier(produit, quantite)}
-          desactive={quantite < 1}
-        >
+        <Bouton onClick={() => ajouterPanier(produit, quantite)} desactive={quantite < 1}>
           Ajouter au panier
         </Bouton>
       </div>
