@@ -1919,3 +1919,53 @@ Structure standard donnée (liste 2/3 + récapitulatif 1/3 en `lg:grid-cols-3`, 
 Atelier : bascule de la barre d'`App.tsx`.
 
 **⏭️ Prochaine étape** : coller `Panier.tsx` en ouverture → étapes 3 (ligne d'article) et 4 (récapitulatif).
+
+## Session 117 — Panier : mise en page de la ligne, quantité éditable + cours flex-grow / flex-shrink / flex-basis
+
+**Durée** : ~3h (dimanche matin). Énergie bonne.
+
+**🎹 Raccourci** : Remove Brackets — utilisé une fois, reconduit.
+
+---
+
+### Révision éclair (2 items, format code)
+- **Prédire `??` / `||` / `${}`** 3/6 : `stock ?? 10` → 0 ✅ · `||` ✅ · **`${stock > 0 && "dispo"}` → `"false"` ✅ — le piège `${}` tombe pour la première fois (2 échecs avant)** · `nom ?? "Sans nom"` → `""` ❌ (règle appliquée au `0`, pas à la chaîne vide) · `` `${null}` `` → `"null"` ❌ (croyait qu'un template literal efface `null`). Repère retenu : **le JSX masque `null` / `false` / `undefined`, un template literal les écrit tous**.
+- **Déboguer — pastille `absolute`** 🟢 : `relative` posé. Cause non énoncée. `inline-block` remplacé par `flex` → précision donnée : **`inline-flex`** garde la taille du contenu hors d'un parent flex.
+
+### 1. Ligne d'article du panier
+- `min-w-300` → `w-full max-w-6xl` (largeur max et non min) 🟢 compris et reformulé seul.
+- Image débordant de son conteneur (`size-24` contenant un `h-48`) + `shrink-0` au mauvais niveau → image dimensionnée directement 🟢.
+- **`items-*` (parent, tous les enfants) vs `self-*` (un enfant)** 🟢 — a choisi `self` sur le récapitulatif pour garder le reste.
+- **`min-w-0` à chaque niveau** 🟡 : réexpliqué à sa demande (plancher `min-width: auto` des enfants flex). `<div>` intermédiaire conservée par lui, fonctionne.
+- **Colonne de prix alignée sur toutes les lignes** (demande de sa part, référence d'un site réel) : chaque `<li>` est un flex indépendant → **largeur fixe `w-32 shrink-0` + alignement du texte dans la boîte** 🟢. **Neuf** : `tabular-nums` 🟡.
+- Débordement de grille : `w-full` + `m-6` sur les sections → retirés, `gap` du parent 🟢.
+- Choix d'interface de sa part : `−` à 1 supprime l'article · prix unitaire non affiché.
+
+### 2. 🎓 Cours flex-grow / flex-shrink / flex-basis — demandé (« jamais appris »)
+Cours complet : basis = taille de départ, grow = part de l'espace en trop, shrink = part du manque · calcul en trois temps · lien avec `min-width: auto` · raccourci `flex: grow shrink basis` · `flex-1` (1 1 0%) vs `flex-auto` (1 1 auto) vs `flex-none`.
+- **Exercice de prédiction 3/3** : calculs grow et shrink exacts, dont le cas `shrink-0` 🟢. Cas 3 (`grow-1` sur un input) → forme robuste `flex-1 min-w-0` (largeur naturelle de l'input).
+- Questions de suite : `0 1 auto` en forme longue · `basis-0` (départ à zéro, taille issue du partage, n'a de sens qu'avec `grow`) · `img size-16 shrink-0` = `0 0 auto` (**corrigé par lui** : ma ligne de cours était ambiguë).
+- **`w-*` vs `basis-*`** pour un élément fixe : `basis` dépend de l'axe et n'existe qu'en flex · avec `basis` seul, un contenu trop large élargit la boîte (alignement cassé en silence), avec `width` il déborde visiblement → **convention : `w-*` + `shrink-0`**, `basis` pour les mises en page proportionnelles.
+**Niveau** : mécanisme 🟢 (calculs) · choix des classes en situation 🟡. **Notion ouverte → reprise N+2.**
+
+### 3. Page blanche
+`ReferenceError: ShoppingCart is not defined` dans `Brouillon.tsx` (icône de la révision collée sans import) → toute l'app tombe car le fichier est chargé par `App.tsx`. **Console ouverte de lui-même sur demande, erreur trouvée** 🟢. Rappel : **Vite traduit sans vérifier les types** → `typecheck`.
+
+### 4. Quantité éditable au clavier (initiative de sa part)
+- 1ᵉʳ jet : un seul `useState` pour toutes les lignes + `onChange` modifiant une variable que `value` ne lit pas → débloqué par deux questions (deux propriétaires pour une donnée).
+- **Écart `nouvelle − ancienne` trouvé seul, en réutilisant `modifierPanier`** 🟢 + `Number()` à la frontière 🟢.
+- **🔴 `supprimerPanier` appelé dans `value`** → setter pendant le rendu (famille récurrente) + `value` à `undefined`. Cas du champ effacé (`Number("")` = 0 → suppression avant la frappe) expliqué. **Correction demandée, donnée** : handler en accolades, `const` + early return `< 1`.
+- Limite assumée : champ impossible à vider (brouillon local par ligne non ouvert).
+- **Flèches natives masquées** en `@layer base` (préfixes `-webkit-` / `-moz-`, extrait cité de mémoire, vérifié à l'écran). **Neuf** : sélecteur d'attribut, pseudo-éléments natifs du navigateur, préfixes 🟡. Question « les devs l'apprennent ? » → non, on cherche l'extrait et on sait le lire. Shadow DOM de l'agent utilisateur dans les DevTools signalé.
+
+---
+
+**Niveaux** : `${}` piège 🟢 (1ʳᵉ réussite) · `??` sur chaîne vide 🟡 · template literal écrit `null` 🟡 · `relative` + `absolute` 🟢 · `inline-flex` 🟡 · `items` vs `self` 🟢 · `min-w-0` à chaque niveau 🟡 · flex-grow / shrink / basis 🟢 calcul / 🟡 usage · `w-*` vs `basis` 🟡 · colonne fixe + `tabular-nums` 🟢 / 🟡 · écart de quantité 🟢 · **setter dans `value` 🔴** · lecture console page blanche 🟢 · préfixes et pseudo-éléments natifs 🟡.
+
+**🗑️ Instruction à ajuster** : §7 CSS « Flexbox complet » ✅ — ne couvrait pas `flex-grow` / `flex-shrink` / `flex-basis`, enseignés S117.
+
+**🔄 Cycle de reprise** : flex-grow / shrink / basis → N+2 ≈ S119.
+
+**🔄 Rotation** : **entrent** — flex-grow / shrink / basis · `??` sur chaîne vide · `tabular-nums` · `inline-flex` · `items` / `self`. **Reste** — `${}` piège (une réussite, à confirmer) · liste S114 inchangée.
+
+**⏭️ Prochaine étape** : récapitulatif du panier → fiche produit (boutons `−` / `+` désormais nécessaires, flèches retirées globalement) → `<Bouton>` partout → mini-panier → décision tailles → responsive → PR + fusion.
