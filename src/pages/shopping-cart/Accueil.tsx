@@ -19,7 +19,7 @@ function AccueilPage() {
       </div>
       <footer className="bg-shop-surface text-shop-texte-doux font-bold">
         <div className="flex justify-center gap-2 py-4">
-          <p>Réaliser par Frédéric</p>
+          <p>Réalisé par Frédéric</p>
           {/* Link à installer au moment de la publication en ligne */}
           <svg width={24} height={24} viewBox="0 0 128 128">
             <g fill="#181616">

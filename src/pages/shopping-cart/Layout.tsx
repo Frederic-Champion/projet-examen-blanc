@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
 import type { Article, Produit } from "./type";
 import { BarreRecherche } from "./BarreRecherche";
-import { Home, ShoppingCart, Store } from "lucide-react";
+import { Home, ShoppingCart, Store, X } from "lucide-react";
 import clsx from "clsx";
+import { formatEuro } from "../../utils/format";
+import { cn } from "../../utils/cn";
+import { SelecteurQuantite } from "./SelecteurQuantite";
 
 function LayoutPage() {
+  const location = useLocation();
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
   const [produits, setProduits] = useState<Produit[]>([]);
@@ -13,6 +17,7 @@ function LayoutPage() {
     const memoire = localStorage.getItem("panier");
     return JSON.parse(memoire ?? "[]");
   });
+  const [bandeOuverte, setBandeOuverte] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -35,8 +40,8 @@ function LayoutPage() {
       }
       return [...prev, { produit, quantite }];
     });
+    setBandeOuverte(true);
   }
-  const nombreArticles = panier.reduce((acc, a) => acc + a.quantite, 0);
 
   function supprimerPanier(id: number) {
     setPanier((prev) => {
@@ -55,17 +60,19 @@ function LayoutPage() {
     localStorage.setItem("panier", memoire);
   }, [panier]);
 
+  const nombreArticles = panier.reduce((acc, a) => acc + a.quantite, 0);
   const lienActif = ({ isActive }: { isActive: boolean }) =>
     clsx("flex gap-2 font-semibold hover:text-blue-600", isActive && "text-blue-600");
+  const afficherBande = nombreArticles > 0 && location.pathname.startsWith("/shopping-cart/boutique");
 
   return (
-    <div className="bg-stone-100 flex min-h-screen flex-col pt-4 text-shop-texte font-shop-texte">
-      <header className="grid grid-cols-3 items-center px-12 py-3 text-center">
-        <Link className="justify-self-start text-4xl font-shop-titre hover:text-blue-400" to="/shopping-cart">
+    <div className="flex min-h-screen flex-col bg-stone-100 pt-4 font-shop-texte text-shop-texte">
+      <header className="grid grid-cols-3 items-center px-40 py-3 text-center">
+        <Link className="justify-self-start font-shop-titre text-4xl hover:text-blue-400" to="/shopping-cart">
           ODIN Store
         </Link>
         <BarreRecherche produits={produits} />
-        <nav className="flex gap-4 justify-self-end p-2">
+        <nav className="flex gap-4 justify-self-end">
           <NavLink end className={lienActif} to="/shopping-cart">
             <Home />
             <p>Accueil</p>
@@ -91,6 +98,52 @@ function LayoutPage() {
       <main className="flex flex-1 flex-col">
         <Outlet context={{ chargement, erreur, produits, ajouterPanier, panier, supprimerPanier, modifierPanier }} />
       </main>
+
+      <aside
+        className={cn(
+          "fixed inset-y-0 right-0 z-20 hidden w-36 translate-x-full flex-col border border-gray-400 bg-stone-100 p-2 text-center transition-transform duration-300 2xl:flex",
+          afficherBande && bandeOuverte && "translate-x-0",
+        )}
+      >
+        <div className="flex shrink-0 flex-col border-b border-gray-300 pb-4">
+          <button
+            className="absolute top-1 right-1 cursor-pointer rounded-full p-1 hover:bg-gray-200"
+            aria-label="Fermer le panier"
+            onClick={() => setBandeOuverte(false)}
+          >
+            <X className="size-4" />
+          </button>
+          <h3>Sous-total</h3>
+          <p className="text-shop-prix">
+            {formatEuro(panier.reduce((acc, a) => acc + a.quantite * a.produit.price, 0))}
+          </p>
+          <Link
+            className="my-2 cursor-pointer rounded-lg border bg-blue-500 px-1 py-0.5 text-white hover:bg-shop-primaire"
+            to="/shopping-cart/panier"
+          >
+            Aller au panier
+          </Link>
+        </div>
+        <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          {panier.map((a) => (
+            <li
+              className="flex flex-col items-center justify-center gap-2 border-b border-gray-300 py-4"
+              key={a.produit.id}
+            >
+              <img className="size-20 shrink-0 object-contain" src={a.produit.image} alt={a.produit.title} />
+              <p className="shrink-0 text-center font-semibold text-[#1D2633] tabular-nums">
+                {formatEuro(a.produit.price * a.quantite)}
+              </p>
+              <SelecteurQuantite
+                quantite={a.quantite}
+                onChangerQuantite={(nouvelle) =>
+                  nouvelle === 0 ? supprimerPanier(a.produit.id) : modifierPanier(a.produit.id, nouvelle - a.quantite)
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      </aside>
     </div>
   );
 }

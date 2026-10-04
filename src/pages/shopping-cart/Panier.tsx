@@ -34,10 +34,11 @@ function PanierPage() {
       </EtatMessage>
     );
 
+  const total = panier.reduce((acc, a) => acc + a.quantite * a.produit.price, 0);
   return (
     <div className="mx-auto w-full max-w-7xl p-4">
       <h2 className="py-8 font-shop-titre text-3xl">Votre Panier</h2>
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 gap-6 items-start">
         <section className="col-span-2 rounded-lg bg-white p-6 shadow-shop-flottant">
           <ul className="flex flex-col">
             {panier.map((a) => (
@@ -97,12 +98,32 @@ function PanierPage() {
             ))}
           </ul>
         </section>
-        <section className="rounded-lg bg-white p-6 shadow-shop-flottant">
-          <p>Recap à droite</p>
-          <p className="tabular-nums">
-            Total : {formatEuro(panier.reduce((acc, a) => acc + a.quantite * a.produit.price, 0))}
-          </p>
-          <Bouton onClick={() => setPaiement(true)}>Paiement</Bouton>
+        <section className="flex flex-col">
+          <div className="flex flex-col gap-2 rounded-lg bg-white p-6 shadow-shop-flottant">
+            <div className="flex justify-between">
+              <p>Total panier :</p>
+              <p>{formatEuro(total)}</p>
+            </div>
+            <div className="flex justify-between">
+              <p>Livraison :</p>
+              <p>Offerte</p>
+            </div>
+            <div className="mt-2 flex justify-between border-t border-gray-200 pt-4 text-xl">
+              <p>Total :</p>
+              <p className="text-shop-prix tabular-nums">{formatEuro(total)}</p>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <Bouton className="mt-4 text-xl" onClick={() => setPaiement(true)}>
+              Paiement
+            </Bouton>
+            <Link
+              className="mt-4 rounded-lg border bg-white px-4 py-2 text-center text-shop-texte-doux hover:bg-black hover:text-white"
+              to={"/shopping-cart/boutique"}
+            >
+              ... ou continuer mes achats
+            </Link>
+          </div>
         </section>
       </div>
     </div>
