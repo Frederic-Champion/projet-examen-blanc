@@ -5,6 +5,7 @@ import { useState } from "react";
 import { EtatMessage } from "./EtatMessage";
 import { FaceSlightlySmiling, ShoppingCart, Trash } from "lucide-react";
 import { Bouton } from "./Bouton";
+import { SelecteurQuantite } from "./SelecteurQuantite";
 
 function PanierPage() {
   const { panier, supprimerPanier, modifierPanier } = useOutletContext<FetchDataContext>();
@@ -38,7 +39,7 @@ function PanierPage() {
   return (
     <div className="mx-auto w-full max-w-7xl p-4">
       <h2 className="py-8 font-shop-titre text-3xl">Votre Panier</h2>
-      <div className="grid grid-cols-3 gap-6 items-start">
+      <div className="grid grid-cols-3 items-start gap-6">
         <section className="col-span-2 rounded-lg bg-white p-6 shadow-shop-flottant">
           <ul className="flex flex-col">
             {panier.map((a) => (
@@ -53,35 +54,16 @@ function PanierPage() {
                     {a.produit.title}
                   </Link>
                   <div className="flex items-center gap-4">
-                    <div className="flex w-fit items-center gap-4 rounded-lg border border-gray-300 p-2 text-center">
-                      <button
-                        className="flex size-6 cursor-pointer items-center justify-center rounded-full pb-1 text-xl hover:bg-shop-primaire-survol"
-                        aria-label="soustraire quantité"
-                        onClick={() =>
-                          a.quantite === 1 ? supprimerPanier(a.produit.id) : modifierPanier(a.produit.id, -1)
-                        }
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        aria-label="Quantité"
-                        value={a.quantite}
-                        onChange={(e) => {
-                          const nouvelleQuantite = Number(e.target.value);
-                          if (nouvelleQuantite < 1) return;
-                          modifierPanier(a.produit.id, nouvelleQuantite - a.quantite);
-                        }}
-                        className="w-8 text-center tabular-nums"
-                      />
-                      <button
-                        className="flex size-6 cursor-pointer items-center justify-center rounded-full pb-1 text-xl hover:bg-shop-primaire-survol"
-                        aria-label="ajouter quantité"
-                        onClick={() => modifierPanier(a.produit.id, 1)}
-                      >
-                        +
-                      </button>
-                    </div>
+                    <SelecteurQuantite
+                      className="gap-4 p-2"
+                      quantite={a.quantite}
+                      onChangerQuantite={(nouvelle) =>
+                        nouvelle === 0
+                          ? supprimerPanier(a.produit.id)
+                          : modifierPanier(a.produit.id, nouvelle - a.quantite)
+                      }
+                    />
+
                     <p className="w-32 shrink-0 text-center text-2xl font-semibold whitespace-nowrap text-[#1D2633] tabular-nums">
                       {formatEuro(a.produit.price * a.quantite)}
                     </p>

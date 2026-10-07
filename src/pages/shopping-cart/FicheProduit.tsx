@@ -1,13 +1,13 @@
-import { Link, useNavigate, useOutletContext, useParams } from "react-router";
+import { Link, useOutletContext, useParams } from "react-router";
 import type { FetchDataContext } from "./type";
 import { useState } from "react";
 import { Bouton } from "./Bouton";
 import { formatEuro } from "../../utils/format";
 import { Loader2, SearchX, WifiOff } from "lucide-react";
 import { EtatMessage } from "./EtatMessage";
+import { SelecteurQuantite } from "./SelecteurQuantite";
 
 function FicheProduitPage() {
-  const naviguer = useNavigate();
   const { id } = useParams();
   const { chargement, erreur, produits, ajouterPanier } = useOutletContext<FetchDataContext>();
   const [quantite, setQuantite] = useState(1);
@@ -49,9 +49,9 @@ function FicheProduitPage() {
   return (
     <div className="grid grid-cols-2">
       <div>
-        <button onClick={() => naviguer("/shopping-cart/boutiqueshopping-cart/boutique")} className="border">
+        <Link to="/shopping-cart/boutique" className="border">
           Retour
-        </button>
+        </Link>
         <img src={produit.image} alt={produit.title} />
       </div>
       <div>
@@ -59,14 +59,13 @@ function FicheProduitPage() {
         <p className="text-shop-prix">{formatEuro(produit.price)}</p>
         <p>{produit.category}</p>
         <p>{produit.description}</p>
-        <label htmlFor="quantite">Quantité</label>
-        <input
-          min={1}
-          value={quantite}
-          onChange={(e) => setQuantite(Number(e.target.value))}
-          id="quantite"
-          type="number"
-          className="border"
+        <SelecteurQuantite
+          className="gap-4 p-2"
+          quantite={quantite}
+          onChangerQuantite={(nouvelle) => {
+            if (nouvelle < 1) return;
+            setQuantite(nouvelle);
+          }}
         />
         <Bouton onClick={() => ajouterPanier(produit, quantite)} desactive={quantite < 1}>
           Ajouter au panier
