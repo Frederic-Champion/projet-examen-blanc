@@ -53,6 +53,7 @@ function LayoutPage() {
     setPanier((prev) => {
       return prev.map((a) => (a.produit.id !== id ? a : { ...a, quantite: a.quantite + delta }));
     });
+    setBandeOuverte(true);
   }
 
   useEffect(() => {
@@ -130,7 +131,9 @@ function LayoutPage() {
               className="flex flex-col items-center justify-center gap-2 border-b border-gray-300 py-4"
               key={a.produit.id}
             >
-              <img className="size-20 shrink-0 object-contain" src={a.produit.image} alt={a.produit.title} />
+              <Link to={`/shopping-cart/boutique/${a.produit.id}`} title={a.produit.title}>
+                <img className="size-20 shrink-0 object-contain" src={a.produit.image} alt={a.produit.title} />
+              </Link>
               <p className="shrink-0 text-center font-semibold text-[#1D2633] tabular-nums">
                 {formatEuro(a.produit.price * a.quantite)}
               </p>

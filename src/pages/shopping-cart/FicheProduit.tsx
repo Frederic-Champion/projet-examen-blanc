@@ -9,10 +9,15 @@ import { SelecteurQuantite } from "./SelecteurQuantite";
 
 function FicheProduitPage() {
   const { id } = useParams();
-  const { chargement, erreur, produits, ajouterPanier } = useOutletContext<FetchDataContext>();
+  const { chargement, erreur, produits, ajouterPanier} = useOutletContext<FetchDataContext>();
+  const produit = produits.find((p) => String(p.id) === id);
   const [quantite, setQuantite] = useState(1);
 
-  const produit = produits.find((p) => String(p.id) === id);
+  function quantiteArticle() {
+    if (!produit) return;
+    ajouterPanier(produit, quantite);
+  }
+
   if (chargement)
     return (
       <EtatMessage
@@ -47,29 +52,36 @@ function FicheProduitPage() {
       </EtatMessage>
     );
   return (
-    <div className="grid grid-cols-2">
-      <div>
-        <Link to="/shopping-cart/boutique" className="border">
-          Retour
-        </Link>
-        <img src={produit.image} alt={produit.title} />
-      </div>
-      <div>
-        <h2>{produit.title}</h2>
-        <p className="text-shop-prix">{formatEuro(produit.price)}</p>
-        <p>{produit.category}</p>
-        <p>{produit.description}</p>
-        <SelecteurQuantite
-          className="gap-4 p-2"
-          quantite={quantite}
-          onChangerQuantite={(nouvelle) => {
-            if (nouvelle < 1) return;
-            setQuantite(nouvelle);
-          }}
-        />
-        <Bouton onClick={() => ajouterPanier(produit, quantite)} desactive={quantite < 1}>
-          Ajouter au panier
-        </Bouton>
+    <div className="mx-auto w-full max-w-6xl p-4">
+      <Link
+        to="/shopping-cart/boutique"
+        className="rounded-lg border bg-white px-4 py-2 text-center text-shop-texte-doux hover:bg-black hover:text-white"
+      >
+        Retour
+      </Link>
+      <div className="mt-16 grid grid-cols-2 gap-12">
+        <div className="flex h-96 items-center justify-center rounded-lg bg-white p-6 shadow">
+          <img className="h-full w-full object-contain" src={produit.image} alt={produit.title} />
+        </div>
+        <div>
+          <h2 className="font-shop-titre text-3xl">{produit.title}</h2>
+          <p className="text-2xl font-bold text-shop-prix">{formatEuro(produit.price)}</p>
+          <p className="text-lg">{produit.category}</p>
+          <p className="my-8 rounded-lg bg-shop-surface p-3">{produit.description}</p>
+          <div className="flex gap-3">
+            <SelecteurQuantite
+              className="gap-4 p-2"
+              quantite={quantite}
+              onChangerQuantite={(nouvelle) => {
+                if (nouvelle < 1) return;
+                setQuantite(nouvelle);
+              }}
+            />
+            <Bouton onClick={quantiteArticle} desactive={quantite < 1}>
+              Ajouter au panier
+            </Bouton>
+          </div>
+        </div>
       </div>
     </div>
   );

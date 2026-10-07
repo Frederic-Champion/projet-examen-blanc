@@ -45,7 +45,7 @@ function PanierPage() {
             {panier.map((a) => (
               <li key={a.produit.id} className="flex items-center gap-4 border-b border-gray-200 py-4">
                 <img className="size-16 shrink-0 object-contain" src={a.produit.image} alt={a.produit.title} />
-                <div className="flex w-full items-center justify-between">
+                <div className="flex flex-1 min-w-0 items-center justify-between">
                   <Link
                     to={`/shopping-cart/boutique/${a.produit.id}`}
                     title={a.produit.title}
@@ -53,7 +53,7 @@ function PanierPage() {
                   >
                     {a.produit.title}
                   </Link>
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-none items-center gap-4">
                     <SelecteurQuantite
                       className="gap-4 p-2"
                       quantite={a.quantite}
