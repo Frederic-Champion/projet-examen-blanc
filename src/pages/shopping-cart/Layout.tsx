@@ -68,7 +68,7 @@ function LayoutPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-stone-100 pt-4 font-shop-texte text-shop-texte">
-      <header className="grid grid-cols-3 items-center px-40 py-3 text-center">
+      <header className="grid grid-cols-2 items-center px-[clamp(8px,40px,40px)] py-3 text-center xl:grid-cols-3">
         <Link className="justify-self-start font-shop-titre text-4xl hover:text-blue-400" to="/shopping-cart">
           ODIN Store
         </Link>
@@ -76,11 +76,11 @@ function LayoutPage() {
         <nav className="flex gap-4 justify-self-end">
           <NavLink end className={lienActif} to="/shopping-cart">
             <Home />
-            <p>Accueil</p>
+            <p className="hidden md:block">Accueil</p>
           </NavLink>
           <NavLink className={lienActif} to="/shopping-cart/boutique">
             <Store />
-            <p>Boutique</p>
+            <p className="hidden md:block">Boutique</p>
           </NavLink>
           <NavLink className={lienActif} to="/shopping-cart/panier">
             <span className="relative flex gap-2">
@@ -91,7 +91,7 @@ function LayoutPage() {
                 </span>
               )}
             </span>
-            <p>Votre panier</p>
+            <p className="hidden md:block">Votre panier</p>
           </NavLink>
         </nav>
       </header>

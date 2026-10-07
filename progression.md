@@ -2003,3 +2003,52 @@ basis = départ, grow = part de l'espace en trop, shrink = part du manque · cal
 4. **PR + fusion.**
 
 **⏭️ Prochaine étape** : finir Shopping Cart (liste ci-dessus), puis **hooks personnalisés + Context API**, avec le panier comme terrain.
+
+## Session 118 — Panier : `SelecteurQuantite`, fiche produit, débordement de ligne, début du responsive
+
+**Durée** : ~3h15 (mercredi, en deux blocs). Énergie bonne. API FakeStore revenue.
+
+**🎹 Raccourci** : Remove Brackets — peu utilisé, reconduit.
+
+---
+
+### Révision éclair (3 items, format code)
+- **Prédire `??` / `||` / `${}`** 🟢 5/5 : `??` sur chaîne vide **redressé** (raté en S117) · piège `${}` juste pour la 2ᵉ fois d'affilée.
+- **Déboguer `onChange={fn(...)}`** 🟢 : corrigé en fonction fléchée, mécanisme compris. Non cité : `e` n'existe pas à cet endroit (`ReferenceError` avant tout appel). **Remarque fondée de sa part** : l'exercice manquait de contexte (pas de code parent).
+- **Écrire `cn()`** 🟢 : `cn("… bg-green-100", stock === 0 && "bg-red-500 text-white")`. Il s'appuie sur l'arbitrage de `twMerge`, ce qui est valide. Variante en ternaire donnée.
+
+### 1. `SelecteurQuantite` dans la page Panier ✅
+Contrat générique respecté. Le `className` passé répétait la base du composant → la page ne fournit que ses ajustements (`gap-4 p-2`).
+**Factorisation `changerQuantite` dans le layout** : proposée (même décision métier écrite deux fois), tentée (`id.quantite` sur un `number`), correction demandée et donnée (poser la quantité au lieu d'appliquer un écart). **Abandonnée par lui : trop de DRY nuit à la lisibilité.** Choix défendable avec deux occurrences.
+`lienActif` annoté `{ isActive }: { isActive: boolean }` 🟢 : **la notion à 5 échecs est juste dans le code.**
+
+### 2. Fiche produit ✅
+- Retour en `<Link>` (adresse écrivable dans le JSX) 🟢 · `./shopping-cart/boutique` relatif → 404, corrigé en absolu 🟡.
+- Handler du sélecteur (refus sous 1, early return) 🟢. **`desactive` conservé par choix** (inutile aujourd'hui).
+- Image : principe boîte (hauteur fixe) / photo (`h-full w-full object-contain`) appliqué 🟢.
+- **Mode « Modifier le panier » ajouté de sa propre initiative** → bug : `useState` ne lit sa valeur de départ qu'une fois (F5 pendant le chargement → 1 ; fiche → fiche via la recherche → composant réutilisé, quantité conservée). Solution donnée (découpage en deux composants + `key={produit.id}`) **jugée trop complexe → retour à l'ancienne version.** Effet résiduel assumé : la quantité suit d'une fiche à l'autre.
+
+### 3. Ligne d'article qui déborde 🔴
+Titre long → groupe de droite et icône de suppression sortis de la carte. Cause : `min-w-0` absent sur la `div` intermédiaire + `w-full` au lieu de `flex-1`. **Non trouvé malgré l'indice** (« j'en sais rien »), correction donnée. Notion S117, reste en rotation.
+Message « error boundary » dans la console : trace probable de la version abandonnée. Vider la console et vérifier — **non confirmé**.
+
+### 4. Git : revenir à un état précédent (question de sa part) 🟡
+`git log --oneline` · `git restore` (non commité) · `git restore --source=<hash>` (un fichier) · `git switch --detach` (consulter) · `git revert` (annuler un commit) · **`reset --hard` à éviter**.
+
+### 5. Responsive — commencé
+- **Cours** : le designer livre des maquettes par taille, l'ordre du design dépend du produit (e-commerce → mobile ; outil métier → desktop, parfois desktop seul). **En code Tailwind, toujours mobile first, composant par composant, vérifié au fil de l'eau.** Une passe à la fin = inverser les classes (base mobile, actuel derrière `lg:`). `max-*` réservés aux exceptions. Un préfixe s'ajoute seulement là où la mise en page casse.
+- **Header** : burger menu écarté (3 liens, le panier ne doit pas être caché) → icônes seules en mobile (`hidden lg:block` sur les textes), recherche en 2ᵉ ligne avec **`order-last w-full`** (neuf). Padding fixe `px-40` qui écrase la recherche → **conteneur `mx-auto w-full max-w-6xl px-4`** recommandé. **Non appliqué, à reprendre.**
+
+---
+
+**Niveaux** : `??` sur chaîne vide 🟢 · `${}` piège 🟢 (2ᵉ réussite) · `fn` vs `fn()` 🟢 · `cn()` / `twMerge` 🟢 · annotation d'un paramètre déstructuré 🟢 (dans le code) · contrat générique d'un composant 🟢 · `/` absolu vs `./` relatif 🟡 · boîte / `object-contain` 🟢 · `useState` lit sa valeur de départ une seule fois 🟡 · `key` pour réinitialiser un state 🔴 (donné, non pratiqué) · chaîne `min-w-0` + `flex-1` vs `w-full` 🔴 · Git restore / revert 🟡 · mobile first en pratique 🟡 · `order` 🟡 (neuf).
+
+**🎓 Décisions de Frédéric** : pas de factorisation `changerQuantite` (lisibilité) · `desactive` conservé · pas de mode « Modifier le panier » · pas de burger.
+
+**🔄 Rotation** : **reste** — chaîne `min-w-0` (priorité). **Entrent** — `useState` et valeur de départ · lien relatif vs absolu · Git restore / revert · `order`. **Sortie possible** — `${}` piège (deux réussites d'affilée, à confirmer une fois).
+
+**⏭️ Prochaine étape — finir Shopping Cart**
+1. **Header responsive** : conteneur plafonné, icônes seules, recherche en 2ᵉ ligne (`order`), trois colonnes à `lg:`.
+2. Grille du panier · ligne d'article · fiche produit · vérification de la Boutique et de l'accueil.
+3. **PR + fusion.**
+4. Puis **hooks personnalisés + Context API**, avec le panier comme terrain.

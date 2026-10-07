@@ -42,9 +42,9 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
   }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="hidden xl:block relative" ref={ref}>
       <form
-        className="flex min-w-96 overflow-hidden rounded-shop bg-shop-surface focus-within:ring-2 focus-within:ring-shop-primaire"
+        className="flex flex-1 min-w-0 overflow-hidden rounded-shop bg-shop-surface focus-within:ring-2 focus-within:ring-shop-primaire"
         onSubmit={onSearch}
       >
         <input
