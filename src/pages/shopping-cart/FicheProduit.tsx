@@ -59,8 +59,8 @@ function FicheProduitPage() {
       >
         Retour
       </Link>
-      <div className="mt-16 grid grid-cols-2 gap-12">
-        <div className="flex h-96 items-center justify-center rounded-lg bg-white p-6 shadow">
+      <div className="mt-8 md:mt-16 flex flex-col md:grid md:grid-cols-2 gap-12">
+        <div className="flex h-64 md:h-96 items-center justify-center rounded-lg bg-white p-6 shadow">
           <img className="h-full w-full object-contain" src={produit.image} alt={produit.title} />
         </div>
         <div>
@@ -77,7 +77,7 @@ function FicheProduitPage() {
                 setQuantite(nouvelle);
               }}
             />
-            <Bouton onClick={quantiteArticle} desactive={quantite < 1}>
+            <Bouton className="flex-1 md:flex-none" onClick={quantiteArticle} desactive={quantite < 1}>
               Ajouter au panier
             </Bouton>
           </div>

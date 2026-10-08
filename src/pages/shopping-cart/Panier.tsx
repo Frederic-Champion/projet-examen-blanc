@@ -9,9 +9,9 @@ import { SelecteurQuantite } from "./SelecteurQuantite";
 
 function PanierPage() {
   const { panier, supprimerPanier, modifierPanier } = useOutletContext<FetchDataContext>();
-  const [paiment, setPaiement] = useState(false);
+  const [paiement, setPaiement] = useState(false);
 
-  if (paiment)
+  if (paiement)
     return (
       <EtatMessage
         titre="Ceci n'est pas un vrai site d'achat en ligne vous ne pouvez malheureusement pas acheter."
@@ -38,24 +38,26 @@ function PanierPage() {
   const total = panier.reduce((acc, a) => acc + a.quantite * a.produit.price, 0);
   return (
     <div className="mx-auto w-full max-w-7xl p-4">
-      <h2 className="py-8 font-shop-titre text-3xl">Votre Panier</h2>
-      <div className="grid grid-cols-3 items-start gap-6">
-        <section className="col-span-2 rounded-lg bg-white p-6 shadow-shop-flottant">
+      <h2 className="pb-2 font-shop-titre text-3xl md:py-8">Votre Panier</h2>
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-3">
+        <section className="rounded-lg bg-white p-2 shadow-shop-flottant md:col-span-2 md:p-6">
           <ul className="flex flex-col">
             {panier.map((a) => (
-              <li key={a.produit.id} className="flex items-center gap-4 border-b border-gray-200 py-4">
-                <img className="size-16 shrink-0 object-contain" src={a.produit.image} alt={a.produit.title} />
-                <div className="flex flex-1 min-w-0 items-center justify-between">
+              <li key={a.produit.id} className="flex items-center gap-2 border-b border-gray-200 py-4 md:gap-4">
+                <div className="shrink-0 rounded-lg border border-gray-300 p-2 md:p-4">
+                  <img className="size-16 object-contain" src={a.produit.image} alt={a.produit.title} />
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col gap-2 md:flex-row md:items-center md:justify-between">
                   <Link
                     to={`/shopping-cart/boutique/${a.produit.id}`}
                     title={a.produit.title}
-                    className="min-w-0 flex-1 truncate text-lg hover:text-shop-primaire-survol"
+                    className="min-w-0 flex-1 truncate hover:text-shop-primaire-survol md:text-lg"
                   >
                     {a.produit.title}
                   </Link>
-                  <div className="flex flex-none items-center gap-4">
+                  <div className="flex flex-none items-center md:gap-4">
                     <SelecteurQuantite
-                      className="gap-4 p-2"
+                      className="gap-0 p-2 md:gap-4"
                       quantite={a.quantite}
                       onChangerQuantite={(nouvelle) =>
                         nouvelle === 0
@@ -64,11 +66,11 @@ function PanierPage() {
                       }
                     />
 
-                    <p className="w-32 shrink-0 text-center text-2xl font-semibold whitespace-nowrap text-[#1D2633] tabular-nums">
+                    <p className="ml-auto shrink-0 text-center font-semibold whitespace-nowrap text-[#1D2633] tabular-nums md:w-32 md:text-2xl">
                       {formatEuro(a.produit.price * a.quantite)}
                     </p>
                     <button
-                      className="flex cursor-pointer items-center justify-center rounded-full p-2 text-xl hover:bg-shop-primaire-survol"
+                      className="ml-auto flex cursor-pointer items-center justify-center rounded-full p-2 text-xl hover:bg-shop-primaire-survol"
                       aria-label="supprimer du panier"
                       onClick={() => supprimerPanier(a.produit.id)}
                     >

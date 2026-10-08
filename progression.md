@@ -2052,3 +2052,42 @@ Message « error boundary » dans la console : trace probable de la version aban
 2. Grille du panier · ligne d'article · fiche produit · vérification de la Boutique et de l'accueil.
 3. **PR + fusion.**
 4. Puis **hooks personnalisés + Context API**, avec le panier comme terrain.
+
+## Session 119 — Shopping Cart responsive (header, boutique, fiche, panier) — projet terminé
+
+**Durée** : ~2h50 (jeudi, 2h30). Énergie bonne.
+
+**🎹 Raccourci** : Remove Brackets — usage non renseigné, reconduit.
+
+---
+
+### Révision éclair (2 items, format code)
+- **Déboguer — chaîne `min-w-0`** 🟡 2/3 : `shrink-0` sur l'image et `flex-1 min-w-0` sur le `<p>` justes · **`div` intermédiaire manquée** (`w-full` au lieu de `flex-1 min-w-0`), même maillon que la veille. Règle reformulée seul : « un `min-w-0` par étage jusqu'au parent ».
+- **Prédire — `useState` et prop** 🟡 : réponse juste (5), **raison fausse** (« le second setter se met à jour au prochain rendu »). Corrigé : l'argument de `useState` n'est lu qu'au montage, il est ignoré ensuite ; une prop recopiée dans un state cesse de la suivre.
+
+### 1. Header ✅
+- 1ᵉʳ jet : `hidden xl:block` sur la recherche → fonctionnalité supprimée sous 1280 px. Corrigé : **le layout place la recherche** via une prop `className` + `cn()` (`order-last col-span-2 lg:order-0 lg:col-span-1`) 🟢. Règle appliquée : le composant porte sa base, la page décide de la disposition.
+- **Palier traité seul** : `lg:hidden xl:block` sur « Votre panier » (place manquante en 3 colonnes entre `lg` et `xl`) 🟢.
+- **`clamp()` — notion neuve** : cours complet (MIN / préféré / MAX, `vw`, calcul d'une droite entre deux points). Besoin exprimé par lui : `px-40` sur grand écran, resserrement progressif jusqu'au mobile. Appliqué : `px-[clamp(16px,13.09vw-41px,160px)]`. « Je ne comprends pas tout mais ça fonctionne » 🟡. Tailwind ajoute lui-même les espaces autour de l'opérateur.
+- `max-w-7xl` = taille nommée maximale ; au-delà, valeur arbitraire ou token `--container-*` 🟡 (non appliqué).
+
+### 2. Boutique ✅
+Le bug du titre qui dépasse est revenu avec le responsive : `h-14` calé sur `md:text-lg` (2 × 28 px), trop haut pour le texte de base (2 × 24 px). **`h-14` retiré**, l'alignement des prix tient par `flex-1` + `mt-auto` 🟢. Repère : une hauteur fixe sur un bloc de texte doit suivre sa taille de texte, ou disparaître.
+**Effet de survol** : bordure noire puis blanche → couleur de bordure par défaut `currentColor` en v4 + `transition-all`. Corrigé par **`border border-transparent` permanent + `hover:border-white`** 🟢 (plus de saut d'1 px).
+
+### 3. Fiche produit ✅
+Colonne en mobile, deux colonnes à `md`, bouton d'ajout `flex-1 md:flex-none` 🟢.
+
+### 4. Panier ✅
+Grille `grid-cols-1` → `md:grid-cols-3` · ligne d'article en **colonne en mobile**, en ligne à `md` · piège `items-start` en colonne expliqué (le titre prendrait sa largeur pleine, `truncate` inopérant ; on garde le `stretch`) · `grid-col-1` (classe inexistante, silencieuse) corrigé · prix et paddings allégés en mobile. **Rendu à 375 px validé** 🟢. Retouches visuelles faites seul (cadre des images, `gap-0 md:gap-4`).
+Reste facultatif : `shrink-0` à déplacer de l'`<img>` vers la `div` du cadre.
+
+---
+
+**🏁 Shopping Cart terminé.** Énoncé Odin couvert, plus : fiche produit, recherche, panier persistant, bande latérale, états de chargement / d'erreur, responsive complet. **PR + fusion faites par lui en fin de séance.**
+
+**Niveaux** : chaîne `min-w-0` 🟡 (2ᵉ échec en révision, juste en code) · `useState` et valeur de départ 🟡 · placement d'un composant par le parent (`className` + `cn()`) 🟢 · `order` / `col-span` responsive 🟢 · `clamp()` + `vw` 🟡 (neuf) · hauteur fixe vs taille de texte responsive 🟢 · `border-transparent` au survol 🟢 · flex en colonne / `stretch` vs `items-start` 🟡 · mobile first en pratique 🟢.
+
+**🔄 Rotation** : **restent** — chaîne `min-w-0` (priorité) · `useState` et valeur de départ. **Entrent** — `clamp()` + `vw` · `border-transparent` au survol · hauteur fixe sur texte responsive · `stretch` vs `items-start` en colonne.
+
+**⏭️ Prochaine étape** : **hooks personnalisés + Context API**, avec le panier de Shopping Cart comme terrain, sur une séance fraîche.

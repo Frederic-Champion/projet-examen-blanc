@@ -34,14 +34,14 @@ function BoutiquePage() {
         {produits.map((produit) => (
           <article
             key={produit.id}
-            className="flex flex-col overflow-hidden rounded-lg bg-shop-surface shadow-shop-flottant"
+            className="flex flex-col overflow-hidden rounded-lg border border-transparent bg-shop-surface shadow-shop-flottant transition-all duration-300 hover:-translate-y-1 hover:border-white hover:shadow-xl/30"
           >
             <Link to={`/shopping-cart/boutique/${produit.id}`} className="block p-6">
-              <img className="h-48 w-full object-contain" src={produit.image} alt={produit.title} />
+              <img className="h-32 w-full object-contain md:h-48" src={produit.image} alt={produit.title} />
             </Link>
 
-            <div className="flex flex-1 flex-col gap-4 bg-stone-50 p-4">
-              <h3 className="line-clamp-2 h-14 text-lg font-semibold">{produit.title}</h3>
+            <div className="flex flex-1 flex-col gap-4 bg-stone-50 p-2 md:p-4">
+              <h3 className="line-clamp-2 md:text-lg md:font-semibold">{produit.title}</h3>
 
               <div className="mt-auto flex items-center justify-between">
                 <p className="text-xl font-bold text-shop-prix">{formatEuro(produit.price)}</p>

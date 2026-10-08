@@ -4,12 +4,14 @@ import { Link, useNavigate } from "react-router";
 import { formatEuro } from "../../utils/format";
 import { Search } from "lucide-react";
 import { Bouton } from "./Bouton";
+import { cn } from "../../utils/cn";
 
 interface BarreRechercheProps {
   produits: Produit[];
+  className?: string;
 }
 
-function BarreRecherche({ produits }: BarreRechercheProps) {
+function BarreRecherche({ produits, className }: BarreRechercheProps) {
   const [recherche, setRecherche] = useState("");
   const [deplier, setDeplier] = useState(false);
   const [ouvert, setOuvert] = useState(false);
@@ -42,9 +44,9 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
   }, []);
 
   return (
-    <div className="hidden xl:block relative" ref={ref}>
+    <div className={cn("relative", className)} ref={ref}>
       <form
-        className="flex flex-1 min-w-0 overflow-hidden rounded-shop bg-shop-surface focus-within:ring-2 focus-within:ring-shop-primaire"
+        className="flex overflow-hidden rounded-shop bg-shop-surface focus-within:ring-2 focus-within:ring-shop-primaire"
         onSubmit={onSearch}
       >
         <input
@@ -81,7 +83,7 @@ function BarreRecherche({ produits }: BarreRechercheProps) {
           ))}
           {equivalent.length > 5 && (
             <li>
-              <Bouton onClick={() => setDeplier((prev) => !prev)} className="px-2 py-1 mb-1">
+              <Bouton onClick={() => setDeplier((prev) => !prev)} className="mb-1 px-2 py-1">
                 {deplier ? "Afficher moins" : "Afficher plus"}
               </Bouton>
             </li>
