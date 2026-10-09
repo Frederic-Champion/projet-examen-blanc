@@ -2091,3 +2091,89 @@ Reste facultatif : `shrink-0` à déplacer de l'`<img>` vers la `div` du cadre.
 **🔄 Rotation** : **restent** — chaîne `min-w-0` (priorité) · `useState` et valeur de départ. **Entrent** — `clamp()` + `vw` · `border-transparent` au survol · hauteur fixe sur texte responsive · `stretch` vs `items-start` en colonne.
 
 **⏭️ Prochaine étape** : **hooks personnalisés + Context API**, avec le panier de Shopping Cart comme terrain, sur une séance fraîche.
+
+## Session 119 bis — Chantier documentaire : registre, audit, projets réalisés, cap
+
+**Durée** : ~45 min (jeudi après-midi). Aucun apprentissage.
+
+**Fait** :
+- `dettes-apprentissage.md` actualisé à la S119 : 54 → **45 dettes**, 🔴 12 → **6**. 13 soldées (`children`, `useRef`, `<table>`, types fonction, `unknown`/`instanceof`, branches + PR, coercion, hoisting, debugger, `localStorage`, `Promise.all`/`.then`, `line-clamp`, `clamp()`). Ajouts : portails, ErrorBoundary, render props (le nom), `IntersectionObserver` version React. Debugger classé soldé mais « à surveiller ».
+- `audit-exercices-types.md` **durci sur sources officielles** (pages Odin fetchées le 08/10) et coupé en deux : **partie A** = canon vérifié, utilisable · **partie B** = liste générique, grille de lecture seulement. Constat : les 3 projets React d'Odin sont faits ; le nouveau trou est l'organisation du code JS (constructeurs, prototypes, classes).
+- `Projets_realises_Frederic_S119.md` régénéré (S57 → S119). **Supprimer la version S56 du projet.**
+- Instructions §6 et §10 : texte de remplacement livré pour la ligne sur l'audit.
+
+**🎓 Décisions** :
+- **Le bloc React se termine avant Next.js** : `useMemo` / `useCallback` / `React.memo` remontent avant Next.js (hooks de base sur roadmap.sh, dernière leçon React d'Odin). Next.js ne remplace pas React, il est construit dessus.
+- **Tests** (Vitest, React Testing Library, Playwright) **avant le déploiement du SaaS**.
+- **Figma en Phase 2**, avant le passage en Phase 3.
+- **shadcn/ui** au moment du SaaS optique (prérequis déjà acquis : Tailwind, `cn()`, tokens par rôle).
+
+**⏭️ Prochaines étapes (ordre théorique)**
+1. **Bloc React complet** : Context API + hooks personnalisés + `useReducer` (sur le panier du Shopping Cart) → `useMemo` / `useCallback` / `React.memo` (warning `exhaustive-deps` de la calculatrice) → portails + ErrorBoundary.
+2. **Todo List (Odin)** en React + TS, projet de synthèse (dates, état partagé, `localStorage`). Dark mode React possible dedans.
+3. En créneaux courts, en parallèle : cycles de reprise et rotation · event loop · `@keyframes` (retournement de carte Memory Card).
+4. **Next.js**.
+5. Base de données + authentification → Zod + React Hook Form → shadcn/ui → **SaaS optique**.
+6. **Tests**, puis déploiement du SaaS.
+7. **Figma**, `this` + classes (projet Library d'Odin, JS sans React), puis **Phase 3**.
+
+**📝 Edit post-séance (09/10) — cap et calendrier**
+
+- **Compte d'heures** : ~357h au 08/10 (~285h jusqu'à la S93 + ~72h de la S94 à la S119 bis), soit ~17h par semaine travaillée, au-dessus du plancher de 15h. Le volume est dans les temps : 61 % de ~585h.
+- **Retard de contenu** : Phase 2 faite côté React seulement. Reste estimé à ~130-180h (Next.js, base de données, authentification, Zod, Figma, tests, SaaS). Fin de Phase 2 prévue à l'origine au 22/10.
+- **Lecture retenue** : pas de retard réel. Le planning de 9 mois à 15-20h par semaine était ambitieux. En heures, le parcours représente environ un tiers d'un cursus d'école à temps plein (35h × 6-9 mois). Aucun impératif de délai.
+- **🎯 Décision** : **fin de Phase 2 au 31 janvier 2027**, puis Phase 3 allégée (une fonctionnalité IA greffée sur le SaaS, réactivation des outils d'IA de développement). Recalcul de la date à la fin du bloc React.
+- **Critère de candidature** : être « compétent et confiant ». Il sera traduit en conditions concrètes en fin de Phase 2 (SaaS déployé, choix techniques expliqués, tests en place, cycle branche + PR réflexe).
+- **Portfolio** : la vitrine principale est le **SaaS optique**. Les exercices canoniques ont une valeur pédagogique : en garder un ou deux soignés, sans qu'ils absorbent le temps du SaaS.
+
+## Session 120 — Context API : cours, typage, ThemeProvider (dark mode étape 1)
+
+**Durée** : ~3h10 (vendredi, en trois blocs avec pauses). Énergie bonne.
+
+**🎹 Raccourci** : Remove Brackets **abandonné** (jamais utilisé). Nouveau : **`Ctrl+Entrée`** (ligne en dessous sans couper la ligne en cours) — donné de mémoire.
+
+---
+
+### Révision éclair (2 items)
+- **Déboguer — chaîne `min-w-0`** 🟢 : `div` intermédiaire en `flex-1 min-w-0` trouvée (le maillon raté deux fois), `shrink-0` sur l'image, explication juste. Classes inutiles sur le `<p>` (parent non flex) · `ml-auto` au lieu de `shrink-0` sur la ville.
+- **Prédire — `useState` et prop** 🟢 : 10, raison juste. Correction = supprimer le state, afficher la prop.
+- Ressenti 8/10 : **bien calibré**.
+
+### 1. Context API — notion neuve
+- **⚠️ Premier message surchargé** (correction + raccourci + cours + exercice + note de version) → « je ne comprends rien ». Redécoupé : idée seule, sans code (analogie de l'écran au mur du magasin), puis les trois gestes un par un. **Ce format est passé.**
+- Exercice à trou (la balise du Context) ✅ · prédiction sans balise : valeur par défaut ✅, **effet du clic manqué** (plus relié au state).
+- `.Provider` vs forme courte : React 19 → **forme courte retenue**.
+- **Typer un Context qui transporte un objet** : `createContext<T | null>(null)` + garde + `throw` ✅ (trou rempli seul). Écran vide + erreur pointant le composant observé et compris.
+- Critères `useOutletContext` / `useContext` posés (portée, Next.js sans React Router, typage vérifié à la création).
+
+**🎓 Décision de Frédéric** : **Shopping Cart non modifié** (correct en `useOutletContext`, projet fini présentable). Terrain retenu : **dark mode de `projet-vite-local`**.
+
+### 2. Dark mode — étape 1 (thème qui bascule, sans couleurs)
+**🎓 Refus fondé** : squelette complet donné après deux exercices à trou → « je veux coder ». Consigne refaite en livrable + contraintes, avec indices à la demande.
+
+Écrit par lui : `contexts/ThemeContext.tsx` (`ThemeProvider` avec `children`, `BoutonTheme` exporté) · `main.tsx` (Provider dans `BrowserRouter`) · bouton dans la `<nav>` d'`App.tsx` ✅.
+Accroches, toutes corrigées : **interface de props réutilisée comme type du Context** (un rôle = une interface) · constante en minuscule (balise lue comme HTML) · `useState` non typé · **signature sans déstructuration** (`ThemeProvider(children: …)`) → question de fond : `props` est un nom libre, l'objet est fourni par React, `children` est une clé réservée · `<button>` vide laissé dans le Provider.
+**Test de persistance entre pages : à confirmer en ouverture.**
+
+### 3. `throw` hors `fetch` 🔴
+**Blocage mental exprimé** : `throw` collé au contexte `fetch`. Cours donné (`return` = sortie normale / `throw` = sortie anormale qui remonte jusqu'à un `try` ou plante ; deux usages : sauter au `catch`, refuser une situation impossible). Exemple `calculerRemise`. **À pratiquer, pas encore compris en situation.**
+
+---
+
+**Niveaux** : chaîne `min-w-0` 🟢 · `useState` et valeur de départ 🟢 · Context API (trois gestes) 🟢 compris / 🟡 en écriture · Context typé `T | null` + garde 🟡 · composant Provider avec `children` 🟡 (écrit avec indices) · interface de props vs interface de donnée 🟡 (rechute) · signature d'un composant = un objet 🟡 (rechute) · `throw` hors `fetch` 🔴.
+
+**📌 Constaté** : `index.css` de `projet-vite-local` = CSS de démonstration Vite **hors layer**, avec un dark mode automatique (`prefers-color-scheme`) et des variables déjà nommées par rôle.
+
+**⚠️ Mes erreurs**
+1. **Message d'ouverture du Context API surchargé** — cinq sujets dans une réponse. Récurrence du dosage.
+2. **Squelette complet donné alors qu'il était prêt à écrire seul** après deux trous réussis.
+3. Durée de séance mal comptée (« 2h dépassées » alors qu'il revenait de pause).
+
+**🔄 Cycle de reprise** : Context API → N+2 (étape 2 du dark mode) · interface de props vs donnée.
+**🔄 Rotation** : **entrent** — `throw` hors `fetch` (priorité) · Context typé avec `null` + garde. **Sortent** — chaîne `min-w-0` · `useState` et valeur de départ.
+
+**⏭️ Prochaine étape**
+1. Ouverture : confirmer le test de persistance du thème entre pages.
+2. **Dark mode étape 2** : faire réagir `dark:` à une classe (vérifier la syntaxe sur la page « Dark mode » de Tailwind) · classe `dark` posée sur `<html>` depuis le Provider · valeurs sombres des variables par rôle · `localStorage` + lazy initializer.
+3. **Étape 3 : hook personnalisé `useTheme`.**
+4. Plus tard, à décider : dark mode dans `projet-examen-blanc` (tokens pour Shopping Cart, conversion ou `dark:` pour les autres).
