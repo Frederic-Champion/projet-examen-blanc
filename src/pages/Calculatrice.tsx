@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useReducer } from "react";
 
 interface ToucheProps {
   label: string;
@@ -6,17 +6,18 @@ interface ToucheProps {
   className?: string;
 }
 
-function Touche({ onClick, label, className = "" }: ToucheProps) {
+const Touche = memo(function Touche({ onClick, label, className = "" }: ToucheProps) {
+  console.log("rendu", label);
   return (
     <button
-      className={`rounded-md border p-1 hover:bg-blue-300 ${className} text-white`}
+      className={`rounded-md border p-1 hover:bg-blue-300 ${className}`}
       type="button"
       onClick={onClick}
     >
       {label}
     </button>
   );
-}
+})
 
 function operation(a: number, b: number, op: string) {
   switch (op) {
@@ -38,93 +39,97 @@ function formateResultat(resultat: number | string) {
   return String(Number(resultat.toFixed(10)));
 }
 
+interface Etat {
+  affichage: string;
+  memoire: string;
+  operateur: string;
+  nouveauNombre: boolean;
+  historique: string;
+}
+
+type Action =
+  | { type: "chiffre"; chiffre: string }
+  | { type: "decimal" }
+  | { type: "operateur"; operateur: string }
+  | { type: "calculer" }
+  | { type: "effacer" }
+  | { type: "supprimer" };
+
+const ETAT_INITIAL: Etat = { affichage: "0", memoire: "", operateur: "", nouveauNombre: false, historique: "" };
+
+function reducer(etat: Etat, action: Action): Etat {
+  switch (action.type) {
+    case "chiffre":
+      if (!etat.nouveauNombre) {
+        return { ...etat, affichage: etat.affichage === "0" ? action.chiffre : etat.affichage + action.chiffre };
+      } else {
+        return { ...etat, affichage: action.chiffre, nouveauNombre: false, historique: "" };
+      }
+    case "decimal":
+      if (etat.affichage.includes(".")) return etat;
+      if (etat.nouveauNombre) return { ...etat, affichage: "0" + ".", nouveauNombre: false };
+      return { ...etat, affichage: etat.affichage + "." };
+
+    case "operateur":
+      if (etat.operateur !== "" && !etat.nouveauNombre) {
+        const resultat = operation(Number(etat.memoire), Number(etat.affichage), etat.operateur);
+        return {
+          ...etat,
+          affichage: formateResultat(resultat),
+          memoire: formateResultat(resultat),
+          operateur: action.operateur,
+          nouveauNombre: true,
+        };
+      } else
+        return { ...etat, memoire: etat.affichage, historique: "", operateur: action.operateur, nouveauNombre: true };
+
+    case "calculer": {
+      if (!etat.operateur) return etat;
+      const a = Number(etat.memoire);
+      const b = Number(etat.affichage);
+
+      return {
+        historique: `${etat.memoire} ${etat.operateur} ${etat.affichage}`,
+        affichage: formateResultat(operation(a, b, etat.operateur)),
+        memoire: "",
+        operateur: "",
+        nouveauNombre: true,
+      };
+    }
+    case "effacer":
+      return ETAT_INITIAL;
+    case "supprimer":
+      if (etat.memoire && etat.nouveauNombre) return etat;
+      return { ...etat, affichage: etat.affichage.length === 1 ? "0" : etat.affichage.slice(0, -1) };
+  }
+}
+
 function Calculatrice() {
-  const [affichage, setAffichage] = useState("0");
-  const [memoire, setMemoire] = useState("");
-  const [operateur, setOperateur] = useState("");
-  const [nouveauNombre, setNouveauNombre] = useState(false);
-  const [historique, setHistorique] = useState("");
-
-  function tapeChiffre(chiffre: string) {
-    if (!nouveauNombre) {
-      setAffichage(affichage === "0" ? chiffre : affichage + chiffre);
-    } else {
-      setAffichage(chiffre);
-      setNouveauNombre(false);
-      setHistorique("");
-    }
-  }
-
-  function tapeDecimal(dot: string) {
-    if (affichage.includes(".")) return;
-    if (nouveauNombre) {
-      setAffichage("0" + dot);
-      setNouveauNombre(false);
-      return;
-    }
-    setAffichage(affichage + dot);
-  }
-
-  function tapeOperateur(op: string) {
-    if (operateur !== "" && !nouveauNombre) {
-      const resultat = operation(Number(memoire), Number(affichage), operateur);
-      setAffichage(formateResultat(resultat));
-      setMemoire(formateResultat(resultat));
-    } else {
-      setMemoire(affichage);
-      setHistorique("");
-    }
-    setOperateur(op);
-    setNouveauNombre(true);
-  }
-
-  function calcul() {
-    if (!operateur) return;
-    const a = Number(memoire);
-    const b = Number(affichage);
-
-    setHistorique(`${memoire} ${operateur} ${affichage}`);
-    setAffichage(formateResultat(operation(a, b, operateur)));
-    setMemoire("");
-    setOperateur("");
-    setNouveauNombre(true);
-  }
-
-  function efface() {
-    setAffichage("0");
-    setMemoire("");
-    setOperateur("");
-    setNouveauNombre(false);
-    setHistorique("");
-  }
-
-  function supprime() {
-    if (memoire && nouveauNombre) return;
-    setAffichage(affichage.length === 1 ? "0" : affichage.slice(0, -1));
-  }
+  const [etat, dispatch] = useReducer(reducer, ETAT_INITIAL);
+  const { affichage, memoire, operateur, nouveauNombre, historique } = etat;
 
   const saisie = `${memoire} ${operateur} ${nouveauNombre ? "" : affichage}`;
 
-  const touches: ToucheProps[] = [
-    { label: "C", onClick: efface },
-    { label: "⌫", onClick: supprime },
-    { label: "/", onClick: () => tapeOperateur("/") },
-    { label: "*", onClick: () => tapeOperateur("*") },
-    { label: "7", onClick: () => tapeChiffre("7") },
-    { label: "8", onClick: () => tapeChiffre("8") },
-    { label: "9", onClick: () => tapeChiffre("9") },
-    { label: "-", onClick: () => tapeOperateur("-") },
-    { label: "4", onClick: () => tapeChiffre("4") },
-    { label: "5", onClick: () => tapeChiffre("5") },
-    { label: "6", onClick: () => tapeChiffre("6") },
-    { label: "+", className: "row-span-2", onClick: () => tapeOperateur("+") },
-    { label: "1", onClick: () => tapeChiffre("1") },
-    { label: "2", onClick: () => tapeChiffre("2") },
-    { label: "3", onClick: () => tapeChiffre("3") },
-    { label: "0", onClick: () => tapeChiffre("0") },
-    { label: ".", onClick: () => tapeDecimal(".") },
-    { label: "=", className: "col-span-2", onClick: calcul },
-  ];
+  const touches: ToucheProps[] =  useMemo(() => [
+    { label: "C", onClick: () => dispatch({type: "effacer"}) },
+    { label: "⌫", onClick: () => dispatch({type: "supprimer"}) },
+    { label: "/", onClick: () => dispatch({type: "operateur", operateur: "/"}) },
+    { label: "*", onClick: () => dispatch({type: "operateur", operateur: "*"}) },
+    { label: "7", onClick: () => dispatch({type: "chiffre", chiffre : "7"})},
+    { label: "8", onClick: () => dispatch({type: "chiffre", chiffre : "8"})},
+    { label: "9", onClick: () => dispatch({type: "chiffre", chiffre : "9"})},
+    { label: "-", onClick: () => dispatch({type: "operateur", operateur: "-"}) },
+    { label: "4", onClick: () => dispatch({type: "chiffre", chiffre : "4"})},
+    { label: "5", onClick: () => dispatch({type: "chiffre", chiffre : "5"})},
+    { label: "6", onClick: () => dispatch({type: "chiffre", chiffre : "6"})},
+    { label: "+", className: "row-span-2", onClick: () => dispatch({type: "operateur", operateur: "+"}) },
+    { label: "1", onClick: () => dispatch({type: "chiffre", chiffre : "1"})},
+    { label: "2", onClick: () => dispatch({type: "chiffre", chiffre : "2"})},
+    { label: "3", onClick: () => dispatch({type: "chiffre", chiffre : "3"})},
+    { label: "0", onClick: () => dispatch({type: "chiffre", chiffre : "0"})},
+    { label: ".", onClick: () => dispatch({type: "decimal"}) },
+    { label: "=", className: "col-span-2", onClick: () => dispatch({type: "calculer"}) },
+  ], [dispatch]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -132,27 +137,25 @@ function Calculatrice() {
       if (touche) {
         touche.onClick();
       }
-      if (e.key === ",") tapeDecimal(".");
-      if (e.key === "Backspace") supprime();
-      if (e.key === "Enter") calcul();
-      if (e.key === "Escape" || e.key === "c") efface();
+      if (e.key === ",") dispatch({type: "decimal"});
+      if (e.key === "Backspace") dispatch({type: "supprimer"});
+      if (e.key === "Enter") dispatch({type: "calculer"});
+      if (e.key === "Escape" || e.key === "c") dispatch({type: "effacer"});
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [affichage, memoire, operateur, nouveauNombre]);
-
-  // useCallback et useMemo pas encore étudié à ce moment précis donc normal.
+  }, [touches]);
 
   return (
-    <div className="grid min-h-screen place-items-center bg-indigo-50" >
-      <div className="w-72 rounded-lg border-2">
-        <h1 className="px-4 py-1 text-xl font-semibold">💻 Calculatrice</h1>
-        <div className="bg-gray-300 px-4 py-1 text-end">
-          <p className="text-gray-600">{historique || saisie}</p>
-          <p className="text-4xl font-semibold">{affichage}</p>
+    <div className="m-auto mt-16 w-72 border rounded-2xl ">
+      <div>
+        <h1 className="px-4 py-1 text-xl font-semibold">💻 Calculatrice en useReducer</h1>
+        <div className="flex flex-col items-end p-4">
+          <p className="text-gray-500 min-h-4">{historique || saisie}</p>
+          <p className="text-xl font-semibold">{affichage}</p>
         </div>
 
-        <div className="grid auto-rows-16 grid-cols-4 gap-2 bg-gray-500 p-4">
+        <div className="grid grid-cols-4 auto-rows-16 gap-2 p-4">
           {touches.map((t) => (
             <Touche key={t.label} {...t} />
           ))}
