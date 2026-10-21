@@ -16,10 +16,10 @@ function NavigationCalculatrice() {
           Retour Accueil
         </NavLink>
         <NavLink className={lienClasse} to={"1"}>
-          Calculatrice
+          Calculatrice en useReducer
         </NavLink>
         <NavLink className={lienClasse} to={"2"}>
-          Calculatrice page Blanche
+          Calculatrice en useState
         </NavLink>
       </div>
       <Outlet />
@@ -30,13 +30,13 @@ function NavigationCalculatrice() {
 const CALCULATRICES = [
   {
     path: "1",
-    titre: "Calculatrice",
-    description: "Machine à états, cas limites, parsing d'entrée.",
+    titre: "Calculatrice en `useReducer` mémoïsation (`memo`, `useMemo`)",
+    description: "Calculatrice reprise entièrement pour intégrer useReducer et Memo",
   },
   {
     path: "2",
-    titre: "Calculatrice Page Blanche",
-    description: "Exercice calculatrice refait seul",
+    titre: "Calculatrice",
+    description: "Machine à états, cas limites, parsing d'entrée.",
   },
 ];
 
