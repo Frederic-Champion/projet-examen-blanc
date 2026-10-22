@@ -2761,3 +2761,70 @@ Tableau des actions donné dès la consigne (fonction actuelle → action → do
 1. **Dark mode en Context sur le Shopping Cart** (`projet-examen-blanc`, branche) + **audit accessibilité** (contraste, clavier).
 2. En ouverture : une observation courte sur la mémoïsation (console ou React DevTools).
 3. Puis portails + ErrorBoundary (+ propagation, `<dialog>`) → **Todo List** → Next.js.
+
+## Session 131 — Dépendances (cours complet), reprise mémoïsation en observation, dark mode du Shopping Cart en Context
+
+**Durée** : ~3h (jeudi, en deux blocs avec pause repas). Énergie bonne.
+
+**🎹 Raccourci** : `Ctrl+Entrée` **acté 🟢**. Nouveau, sur un besoin exprimé (retirer des délimiteurs) : **Remove Brackets** (`Ctrl+Alt+Retour arrière`, vérifié en S112, abandonné faute d'occasion) pour `()` `{}` `[]`, et **`Emmet: Remove Tag`** pour les balises : pas de raccourci par défaut, `Alt+Maj+M` proposé (symétrique de Wrap). **Assignation et comportement sur un fragment `<>` : à confirmer.**
+
+**Ressenti en ouverture** : mémoïsation 4/10, « je ne sais pas ce que je dois mettre dans le tableau de dépendances ».
+
+---
+
+### Révision éclair (2 items)
+- **Prédire — flottants** 🟢 2,5/3 : `false` / `true` justes avec la bonne raison. **Type de `toFixed` manqué** : renvoie une **chaîne** (`"0.30"`), d'où le `Number()` autour. Valeur exacte : `0.30000000000000004`. Greffe « flottants » de la calculatrice : **faite**.
+- **Écrire — dépendances d'un `useMemo`** : blocage révélateur, il cherchait **l'origine** des données (API, input, parent) pour décider. **4ᵉ accroche sur les dépendances → cours complet donné directement.** Règle : une valeur entre si elle est **lue** dans le calcul **et** peut **changer** d'un rendu à l'autre. Tableau posé : prop, state, `const` dérivée → dedans · constante hors composant, setter, `dispatch`, fonction importée, paramètres du callback → dehors. **L'origine d'une prop ne compte pas.** Geste en trois temps : lister les noms, regarder où ils sont déclarés, trier. → `[lignes, tauxTVA]` **juste**, exclusions justes. « C'est mieux maintenant. »
+
+### 1. Reprise mémoïsation (N+2) — format observation
+Enfant `memo` + trois façons de fournir un tableau (constante hors composant / spread / `useMemo`), prédiction puis console. **2/3** : étape 1 prédite fausse, **erreur diagnostiquée seul** en observant. Précision : le parent se re-rend bien, c'est le gardien qui bloque (même référence).
+**Sans `memo` mais avec `useMemo` → 10 rendus (5 × 2 StrictMode)** 🟢 : un fournisseur sans gardien ne sert à rien.
+**Question de fond** : quand `useMemo` seul, quand avec `memo` ? → deux rôles : **1. éviter un calcul lourd** (valeur utilisée dans le composant, seul) · **2. garder la même référence** (valeur passée à un enfant `memo` ou dans des dépendances). Test : *où va la valeur ?* `useCallback` n'a que le rôle 2 → **seul, il ne sert jamais à rien**. Demande explicite : **reprendre `useCallback` + `memo` ensemble**.
+
+### 2. Dark mode du Shopping Cart en Context ✅ (`projet-examen-blanc`, branche `DarkMode-ShoopingCart`)
+**Questions de conception, posées avant de coder** :
+- *Pourquoi le Shopping Cart seul ?* → la classe est globale par nature, seule la **couverture visuelle** est limitée : seul le Shopping Cart a des tokens par rôle.
+- **🎓 Décision de Frédéric** : bouton dans le **header du Shopping Cart**, pas dans la barre d'`App.tsx` (il promettrait un effet que les autres pages n'ont pas).
+- *Pourquoi pas le Provider autour des `<Route>` ?* → `<Routes>` n'accepte que des `<Route>`. Idée juste derrière : **Provider le plus bas possible tant qu'il couvre ses lecteurs** → le layout. Classe posée sur la **`div` racine du layout**, pas sur `<html>` (aucune trace en quittant la section).
+
+**CSS** : `:root` compris comme « racine du dossier » → c'est la balise `<html>`. Après indice, **`.dark` trouvé seul**. Token `--color-shop-fond` ajouté. Valeurs sombres **données à sa demande**. Astuce : la palette Tailwind v4 est en `oklch`, pas en hex (survol IntelliSense / DevTools Calculé). Double `@import` d'Oswald retiré.
+
+**Context + Provider + hook écrits seul et justes** : union de valeurs, `null` + garde, lazy initializer avec garde positive, `(prev) =>`, `{children}` dedans, clé `localStorage` distincte de `projet-vite-local` (même origine `localhost:5173`). En S123, le hook demandait un squelette.
+
+**Accroches, toutes corrigées** :
+- **Classe inversée** (`theme === "light" ? "dark" : …`), masquée par une icône inversée elle aussi. Étourderie. Classe `"light"` inutile retirée.
+- **Provider dans le layout lu par le layout lui-même** → garde levée (cause déduite, version cassée non vue). Règle S126 recroisée. **Choix de Frédéric** : composant enfant `DivDarkTheme`, préféré à la coupe `LayoutPage` / `LayoutContenu` (un rôle par `div`, plus lisible pour lui). Valide.
+- **ESLint `react-refresh/only-export-components`** : un fichier exportant un composant et un hook désactive le Fast Refresh. → dossier `theme-context/` en trois fichiers (`useTheme.ts` avec interface, Context et hook · `ProviderDarkTheme.tsx` · `Bouton-DarkTheme.tsx`). **0 erreur, 0 avertissement.**
+- Test 5 : couleurs en dur de la bande latérale passées en tokens.
+
+**🔎 Découverte** : `eslint.config.js` de `projet-vite-local` vise `files: ['**/*.{js,jsx}']` et n'a pas `typescript-eslint` → **aucun fichier `.tsx` n'est vérifié depuis la migration TS**. Explique l'absence d'erreur sur le même code.
+
+**PR + fusion faites en fin de séance.**
+
+---
+
+**Niveaux** : flottants 🟢 · `toFixed` renvoie une chaîne 🟡 · **tri des dépendances 🟢 (règle comprise, appliquée une fois — à confirmer à froid)** · `memo` + référence 🟢 (observé) · `useMemo` rôle 1 / rôle 2 🟡 · `useCallback` 🟡 (pas repratiqué) · `:root` = `<html>` 🟡 · redéfinir des tokens sous `.dark` 🟢 · **Context + Provider + hook 🟢 (écrits seul, 3ᵉ terrain)** · Provider au plus bas / lecture sous le Provider 🟡 · `only-export-components` 🟡 (neuf) · une classe « A ou rien » sans classe inutile 🟢.
+
+**⚠️ Mes erreurs** : item 2 de révision sans préciser que `lignes` et `tauxTVA` sont des props venues du parent (relevé par lui) · couleurs sombres proposées **sans mesure de contraste** (à vérifier à l'audit).
+
+**🔄 Cycle de reprise** : Context + hook → **cycle fermé** (S126, S128, S131, écrit seul) · tri des dépendances → à froid, N+2 · **`useCallback` + `memo` → N+2 ≈ S133, format observation (demande explicite)**.
+
+**🔄 Rotation** : **entrent** — `toFixed` renvoie une chaîne · `:root` = `<html>` · `<Routes>` n'accepte que des `<Route>` · un `.tsx` de composants n'exporte que des composants · `useMemo` rôle 1 / rôle 2. **Sort** — flottants (greffe faite). **Restent** — `memo` / `useMemo` / `useCallback` · tri des dépendances · `return` seul sur sa ligne · annotation de `ETAT_INITIAL` · `etat` vs `action` · élargissement des littéraux · `toSorted()` · `localeCompare` · shorthand vs `clé: valeur` · reducer pur · état initial « en chargement » · règle → formule · `cn()` · ordre `(état, action)` · `throw` hors `fetch` · `color-scheme`.
+
+**📌 Registre** : toujours 5 lignes périmées depuis S129 (Context API, hooks personnalisés, `useReducer`, `useMemo` / `useCallback` / `React.memo`) → mise à jour en fin de chapitre React. **Ajout** : ESLint de `projet-vite-local` non branché sur TS.
+
+---
+
+### 🗺️ Avant Next.js — état
+1. Calculatrice `useReducer` + mémoïsation ✅ · greffe flottants ✅ · **greffe `e.key` vs `e.code` ⏳**
+2. Dark mode Shopping Cart ✅ · PR ✅ · **greffe audit accessibilité ⏳** (Lighthouse, clavier, contraste)
+3. Portails + ErrorBoundary (+ propagation, `<dialog>`) ⏳
+4. Todo List (Odin) (+ `reduce` accumulateur objet, dates) ⏳
+5. Créneaux courts : event loop · `@keyframes` · récursion ⏳
+6. **Next.js**
+
+**⏭️ Prochaine étape**
+1. **Ouverture** : reprise `useCallback` + `memo` (observation) · reconfiguration ESLint de `projet-vite-local` si séance sur ce projet.
+2. **Audit accessibilité** du Shopping Cart, avec `e.key` vs `e.code` en révision éclair.
+3. **Portails + ErrorBoundary**, séance fraîche.
+4. Todo List → Next.js.
