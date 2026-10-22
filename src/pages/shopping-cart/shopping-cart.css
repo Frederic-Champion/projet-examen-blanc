@@ -6,6 +6,7 @@
 
 @theme {
   /* Couleurs — nommées par rôle */
+  --color-shop-fond: #f5f5f4;            /* couleur du backGround principal */
   --color-shop-primaire: #2563eb;        /* liens actifs, focus, boutons */
   --color-shop-primaire-survol: #60a5fa; /* hover des éléments primaires */
   --color-shop-surface: #e7e5e4;         /* barre de recherche, footer, cartes */
@@ -23,6 +24,18 @@
   /* Ombres */
   --shadow-shop-flottant: rgba(0, 0, 0, 0.24) 1px 2px 4px 1px; /* listes, mini-panier */
 }
+
+.dark {
+  --color-shop-fond: #1c1917;            /* stone-900 : gris très foncé, pas noir */
+  --color-shop-surface: #423c3a;         /* manuel : se détache du fond */
+  --color-shop-texte: #e7e5e4;           /* stone-200 : blanc cassé */
+  --color-shop-texte-doux: #a8a29e;      /* stone-400 */
+  --color-shop-primaire: #60a5fa;        /* blue-400 : un bleu plus clair reste lisible sur fond sombre */
+  --color-shop-primaire-survol: #93c5fd; /* blue-300 */
+  --color-shop-prix: #fb6f5c;            /* ton rouge-orangé, éclairci */
+  --shadow-shop-flottant: rgba(0, 0, 0, 0.6) 1px 2px 6px 1px; /* une ombre doit être plus marquée sur fond sombre */
+}
+
 
 @layer base {
   /* Chrome, Edge, Safari : les flèches sont deux pseudo-éléments */

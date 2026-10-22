@@ -40,7 +40,7 @@ function BoutiquePage() {
               <img className="h-32 w-full object-contain md:h-48" src={produit.image} alt={produit.title} />
             </Link>
 
-            <div className="flex flex-1 flex-col gap-4 bg-stone-50 p-2 md:p-4">
+            <div className="flex flex-1 flex-col gap-4 bg-stone-50 dark:bg-stone-800 p-2 md:p-4">
               <h3 className="line-clamp-2 md:text-lg md:font-semibold">{produit.title}</h3>
 
               <div className="mt-auto flex items-center justify-between">
