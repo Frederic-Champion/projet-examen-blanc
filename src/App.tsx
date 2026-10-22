@@ -1,6 +1,6 @@
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router";
 import { House, Undo2 } from "lucide-react";
-import Brouillon from "./pages/Brouillon";
+import { Brouillon } from "./pages/Brouillon";
 import Accueil, { PageIntrouvable } from "./pages/Accueil";
 import { CalculatriceAccueil, NavigationCalculatrice } from "./pages/Calculatrice-Accueil";
 import Calculatrice from "./pages/Calculatrice";
@@ -49,7 +49,7 @@ function App() {
           <Route path="/catalogue/:id" element={<FicheMonture />} />
           <Route path="/memory-card" element={<MemoryCard />} />
           <Route path="/shopping-cart" element={<LayoutPage />}>
-            <Route index element={ <AccueilPage />}/>
+            <Route index element={<AccueilPage />} />
             <Route path="boutique" element={<BoutiquePage />} />
             <Route path="boutique/:id" element={<FicheProduitPage />} />
             <Route path="panier" element={<PanierPage />} />

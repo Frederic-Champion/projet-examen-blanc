@@ -40,7 +40,7 @@ function PanierPage() {
     <div className="mx-auto w-full max-w-7xl p-4">
       <h2 className="pb-2 font-shop-titre text-3xl md:py-8">Votre Panier</h2>
       <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-3">
-        <section className="rounded-lg bg-white p-2 shadow-shop-flottant md:col-span-2 md:p-6">
+        <section className="rounded-lg bg-white dark:bg-shop-surface p-2 shadow-shop-flottant md:col-span-2 md:p-6">
           <ul className="flex flex-col">
             {panier.map((a) => (
               <li key={a.produit.id} className="flex items-center gap-2 border-b border-gray-200 py-4 md:gap-4">
@@ -83,7 +83,7 @@ function PanierPage() {
           </ul>
         </section>
         <section className="flex flex-col">
-          <div className="flex flex-col gap-2 rounded-lg bg-white p-6 shadow-shop-flottant">
+          <div className="flex flex-col gap-2 rounded-lg bg-white dark:bg-shop-surface p-6 shadow-shop-flottant">
             <div className="flex justify-between">
               <p>Total panier :</p>
               <p>{formatEuro(total)}</p>
@@ -102,7 +102,7 @@ function PanierPage() {
               Paiement
             </Bouton>
             <Link
-              className="mt-4 rounded-lg border bg-white px-4 py-2 text-center text-shop-texte-doux hover:bg-black hover:text-white"
+              className="mt-4 rounded-lg border bg-white dark:bg-stone-800 px-4 py-2 text-center text-shop-texte-doux hover:bg-black hover:text-white"
               to={"/shopping-cart/boutique"}
             >
               ... ou continuer mes achats

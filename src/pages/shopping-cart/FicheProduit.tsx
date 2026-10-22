@@ -55,12 +55,12 @@ function FicheProduitPage() {
     <div className="mx-auto w-full max-w-6xl p-4">
       <Link
         to="/shopping-cart/boutique"
-        className="rounded-lg border bg-white px-4 py-2 text-center text-shop-texte-doux hover:bg-black hover:text-white"
+        className="rounded-lg border bg-white dark:bg-stone-800 px-4 py-2 text-center text-shop-texte-doux hover:bg-black hover:text-white"
       >
         Retour
       </Link>
       <div className="mt-8 md:mt-16 flex flex-col md:grid md:grid-cols-2 gap-12">
-        <div className="flex h-64 md:h-96 items-center justify-center rounded-lg bg-white p-6 shadow">
+        <div className="flex h-64 md:h-96 items-center justify-center rounded-lg bg-white dark:bg-shop-surface p-6 shadow">
           <img className="h-full w-full object-contain" src={produit.image} alt={produit.title} />
         </div>
         <div>
