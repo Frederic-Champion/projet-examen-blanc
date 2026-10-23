@@ -2828,3 +2828,73 @@ Enfant `memo` + trois façons de fournir un tableau (constante hors composant / 
 2. **Audit accessibilité** du Shopping Cart, avec `e.key` vs `e.code` en révision éclair.
 3. **Portails + ErrorBoundary**, séance fraîche.
 4. Todo List → Next.js.
+
+## Session 132 — ESLint de `projet-vite-local` réparé, reprise `useCallback` + `memo`, audit accessibilité complet du Shopping Cart
+
+**Durée** : ~3h (vendredi, en deux blocs avec pause repas). Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+M` assigné à `Emmet: Remove Tag`, en cours. **Comportement sur un fragment `<>` : jamais confirmé, à demander.**
+
+**Ressenti en ouverture** : `useCallback` + `memo` 6/10.
+
+---
+
+### Révision éclair (2 items)
+- **Prédire — `e.key` vs `e.code`** 🟡 : intuition juste (« l'un suit AZERTY, l'autre QWERTY »), valeurs inexactes (`q` au lieu de `"KeyQ"`). **Cours complet demandé et donné** : `e.key` = caractère produit (disposition, `Maj`, noms des touches spéciales) · `e.code` = emplacement physique nommé d'après le QWERTY, toujours préfixé · piège des chiffres en AZERTY (`"&"` / `"Digit1"`) · repère : **`e.key` par défaut, `e.code` quand la position sous les doigts compte (jeux)**. Greffe de la calculatrice : **faite**.
+- **Prédire — `return` seul sur sa ligne** : `undefined` ✅ (2ᵉ fois d'affilée). `undefined + 10` annoncé « erreur » → **`NaN`** (même confusion qu'en S130). Repère : `undefined` dans un calcul → `NaN` silencieux · suivi d'un `.` ou de `()` → `TypeError`.
+
+### 1. ESLint de `projet-vite-local` reconfiguré ✅
+- `npm audit fix` lancé **sans `--force`** : bon réflexe.
+- **`npm install -D typescript-eslint` refusé (ERESOLVE)** : le projet était en **TypeScript 7** (portage natif en Go), hors de la plage acceptée par typescript-eslint (`<6.1.0`). **Source vérifiée** : TS 7 non pris en charge, demande fermée comme « non prévue ». **Pas de `--force` relancé, réflexe juste.** Cours court : **peer dependency** · `~` (correctifs seulement) vs `^` (mineures comprises).
+- TypeScript redescendu à `~6.0.2` (version de `projet-examen-blanc`), puis `typescript-eslint` installé, config alignée sur celle de `projet-examen-blanc` (`files: ['**/*.{ts,tsx}']` + `tseslint.configs.recommended`).
+- **11 problèmes révélés, triés puis tous corrigés** :
+  - **`exhaustive-deps`** : effet lisant `location.pathname` sans le déclarer → corrigé **seul**, règle des dépendances appliquée sur du vrai code (pas un exercice). 🟢
+  - **`only-export-components`** (×2) : Contexts et hooks sortis dans un `.ts`. Il a réuni les deux Contexts (magasin + thème) dans un seul fichier → remarque « on regroupe ce qui change ensemble », choix laissé.
+  - **`no-unused-vars`** (×8, exercices de typage) : traités.
+
+### 2. Reprise `useCallback` + `memo` (N+2) — format observation
+**3/3 en prédiction**, plus rapide qu'en S131. Question bonus (3 clics, `total` change à l'écran) : 6 rendus annoncés et observés… sur une version **sans `memo`** (étape 3 non annulée). Une fois `memo` remis : **0**. Phrase retenue : **un enfant `memo` ne se re-rend que si ses propres props changent**. Repère consolidé : `useMemo` fournit un tableau ou un objet, `useCallback` une fonction, `memo` est le gardien.
+DevTools du navigateur de VS Code : `⋮` → **Dock side** existe (vérifié par lui).
+
+### 3. Audit accessibilité du Shopping Cart ✅ (greffe faite)
+**Lighthouse** (une page à la fois, mode Instantané pour tester un état) :
+- **Accueil 91 → 100** : `aria-label` sur les boutons-icônes de navigation · footer passé de `text-shop-texte-doux` à `text-shop-texte`. Remarque : foncer le token lui-même aurait gardé la hiérarchie visuelle.
+- **Boutique 100** · `label` de `<Bouton>` enrichi avec le nom du produit (`` `Ajouter ${produit.title} au panier` ``). Question posée : `label` vs `aria-label` → prop inventée sur un composant / attribut DOM sur une balise.
+- **Panier 96 → 100** : token `--color-shop-prix` foncé avec le **sélecteur de contraste des DevTools** (courbe = frontière du seuil, calculée contre le fond, seuil 4,5:1 ou 3:1 selon la taille). Bonne pratique : **on corrige le token, pas l'élément.**
+- **Thème sombre** : bouton Paiement à **3,67** → **mon erreur de palette** (un même token `primaire` servait de texte clair et de fond de bouton, deux besoins opposés en sombre). **Trois tokens créés par rôle** : `--color-shop-bouton`, `--color-shop-bouton-survol` (fonce au survol), `--color-shop-sur-bouton`. **100 % sur toutes les pages, dans les deux thèmes.**
+- Lien « Accueil » en double (atelier / boutique) : bonne pratique « liens identiques, même fonction » → `aria-label` distinct.
+
+**Test au clavier** : parcours complet réussi.
+- **Focus invisible sur les cartes** : hypothèse `overflow-hidden` sur l'`<article>` qui coupe le contour → **confirmée par lui dans le code**. Cours `focus:` vs **`focus-visible:`**, `outline-offset` négatif, alternative `focus-within:`. **Choix de Frédéric** : garder l'indicateur par défaut de Chrome (accessible par conception). Défendable.
+- **Bande latérale fermée encore focusable** (`translate-x-full` déplace le dessin, ne retire rien de la page) → attribut **`inert`**. 🔴 1ᵉʳ jet `!afficherBande && !bandeOuverte` (faux sur le cas testé) → **loi de De Morgan** : `!(A && B)` = `!A || !B`. Corrigé. `const` de condition non créée (2 occurrences, choix assumé).
+- Erreurs console du Panier : disparues.
+
+**Questions de fond** : catégories Lighthouse (Performances seulement en build de production · SEO avec Next.js · Bonnes pratiques utiles dès maintenant · Lighthouse CI avec les tests) · **branches** : elles servent à **isoler**, pas à marquer un gros changement (`main` toujours stable, historique propre, PR). Audit commité **directement sur `main`** → règle posée : **branche systématique dans `projet-examen-blanc`**, commit direct toléré dans l'atelier.
+
+**`@keyframes`** : cours rédigé en fin de séance, **non lu, notion non ouverte**. Branche déjà créée.
+
+---
+
+**Niveaux** : `e.key` vs `e.code` 🟡 (cours donné, à rejouer) · `undefined` dans un calcul → `NaN` 🔴 (2ᵉ) · `return` seul sur sa ligne 🟢 (2ᵉ réussite) · peer dependency / `~` vs `^` 🟡 · règle des dépendances sur du vrai code 🟢 · **`memo` + `useCallback` 🟢 (observation)** · `label` (prop) vs `aria-label` (attribut) 🟢 · contraste et tokens par rôle 🟢 · `focus` vs `focus-visible` 🟡 · `overflow-hidden` qui coupe l'outline 🟢 (vérifié seul) · `inert` 🟡 · De Morgan 🔴 → corrigé · branches = isolation 🟢.
+
+**🔄 Cycle de reprise** : `useCallback` + `memo` → N+5 ≈ S135 · règle des dépendances → tenue sur du vrai code.
+
+**🔄 Rotation** : **entrent** — `e.key` vs `e.code` · `undefined` + nombre → `NaN` · De Morgan (`!(A && B)`) · `focus-visible` vs `focus` · `inert` · peer dependency / `~` vs `^`. **Restent** — `memo` / `useMemo` / `useCallback` (priorité baissée) · tri des dépendances · `return` seul sur sa ligne (à confirmer une fois) · `toFixed` renvoie une chaîne · `:root` = `<html>` · `<Routes>` n'accepte que des `<Route>` · `.tsx` de composants n'exporte que des composants · `useMemo` rôle 1 / rôle 2 · annotation de `ETAT_INITIAL` · `etat` vs `action` · élargissement des littéraux · `toSorted()` · `localeCompare` · shorthand vs `clé: valeur` · reducer pur · état initial « en chargement » · règle → formule · `cn()` · ordre `(état, action)` · `throw` hors `fetch` · `color-scheme`.
+
+**📌 Registre** : `e.key` vs `e.code` → greffe faite · audit accessibilité → fait · ESLint de `projet-vite-local` → réparé. Toujours 5 lignes périmées depuis S129 (Context API, hooks personnalisés, `useReducer`, `useMemo` / `useCallback` / `React.memo`) → mise à jour en fin de chapitre React.
+**Petits restes** : `bg-stone-50 dark:bg-stone-800` en dur dans les cartes de la Boutique · indicateur de focus personnalisé (`focus-visible:` sur `Bouton`), facultatif.
+
+---
+
+### 🗺️ Avant Next.js — état
+1. Calculatrice `useReducer` + mémoïsation ✅ · flottants ✅ · `e.key` vs `e.code` ✅
+2. Dark mode Shopping Cart ✅ · PR ✅ · audit accessibilité ✅
+3. Portails + ErrorBoundary (+ propagation, `<dialog>`) ⏳
+4. Todo List (Odin) (+ `reduce` accumulateur objet, dates) ⏳
+5. Créneaux courts : **`@keyframes` (prochain, branche créée)** · event loop · récursion ⏳
+6. **Next.js**
+
+**⏭️ Prochaine étape**
+1. **`@keyframes` sur Memory Card** (secousse quand la partie est perdue) - cours complet à faire.
+2. **Portails + ErrorBoundary**, séance fraîche.
+3. Todo List → Next.js.
