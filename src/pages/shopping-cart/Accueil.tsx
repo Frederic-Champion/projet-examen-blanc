@@ -17,7 +17,7 @@ function AccueilPage() {
           </h1>
         </div>
       </div>
-      <footer className="bg-shop-surface text-shop-texte-doux font-bold">
+      <footer className="bg-shop-surface text-shop-texte-text font-bold">
         <div className="flex justify-center gap-2 py-4">
           <p>Réalisé par Frédéric</p>
           {/* Link à installer au moment de la publication en ligne */}

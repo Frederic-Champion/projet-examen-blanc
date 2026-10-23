@@ -36,17 +36,17 @@ function BoutiquePage() {
             key={produit.id}
             className="flex flex-col overflow-hidden rounded-lg border border-transparent bg-shop-surface shadow-shop-flottant transition-all duration-300 hover:-translate-y-1 hover:border-white hover:shadow-xl/30"
           >
-            <Link to={`/shopping-cart/boutique/${produit.id}`} className="block p-6">
+            <Link to={`/shopping-cart/boutique/${produit.id}`} className="block p-6 focus-visible:-outline-offset-2">
               <img className="h-32 w-full object-contain md:h-48" src={produit.image} alt={produit.title} />
             </Link>
 
-            <div className="flex flex-1 flex-col gap-4 bg-stone-50 dark:bg-stone-800 p-2 md:p-4">
+            <div className="flex flex-1 flex-col gap-4 bg-stone-50 p-2 md:p-4 dark:bg-stone-800">
               <h3 className="line-clamp-2 md:text-lg md:font-semibold">{produit.title}</h3>
 
               <div className="mt-auto flex items-center justify-between">
                 <p className="text-xl font-bold text-shop-prix">{formatEuro(produit.price)}</p>
                 <Bouton
-                  label="Ajouter"
+                  label={`Ajouter ${produit.title} au panier`}
                   className="flex size-11 items-center justify-center rounded-full text-3xl"
                   onClick={() => ajouterPanier(produit, 1)}
                 >

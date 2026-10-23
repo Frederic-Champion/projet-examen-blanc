@@ -7,8 +7,9 @@ import clsx from "clsx";
 import { formatEuro } from "../../utils/format";
 import { cn } from "../../utils/cn";
 import { SelecteurQuantite } from "./SelecteurQuantite";
-import { BoutonTheme } from "./Bouton-DarkTheme";
-import { ThemeProvider, useTheme } from "./theme-context/ProviderDarkTheme";
+import { ThemeProvider } from "./theme-context/ProviderDarkTheme";
+import { useTheme } from "./theme-context/useTheme";
+import { BoutonTheme } from "./theme-context/Bouton-DarkTheme";
 
 function DivDarkTheme({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
@@ -86,15 +87,15 @@ function LayoutPage() {
             <div className="flex gap-4 justify-self-end">
               <BoutonTheme />
               <nav className="flex gap-4 justify-self-end">
-                <NavLink end className={lienActif} to="/shopping-cart">
+                <NavLink end aria-label="Accueil" className={lienActif} to="/shopping-cart">
                   <Home />
                   <p className="hidden md:block">Accueil</p>
                 </NavLink>
-                <NavLink className={lienActif} to="/shopping-cart/boutique">
+                <NavLink aria-label="Boutique" className={lienActif} to="/shopping-cart/boutique">
                   <Store />
                   <p className="hidden md:block">Boutique</p>
                 </NavLink>
-                <NavLink className={lienActif} to="/shopping-cart/panier">
+                <NavLink aria-label="Panier" className={lienActif} to="/shopping-cart/panier">
                   <span className="relative flex gap-2">
                     <ShoppingCart />
                     {nombreArticles > 0 && (
@@ -114,6 +115,7 @@ function LayoutPage() {
             />
           </main>
           <aside
+            inert={!(afficherBande && bandeOuverte)}
             className={cn(
               "fixed inset-y-0 right-0 z-20 hidden w-36 translate-x-full flex-col border border-gray-400 bg-stone-100 dark:bg-shop-surface p-2 text-center transition-transform duration-300 2xl:flex",
               afficherBande && bandeOuverte && "translate-x-0",

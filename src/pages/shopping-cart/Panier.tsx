@@ -66,7 +66,7 @@ function PanierPage() {
                       }
                     />
 
-                    <p className="ml-auto shrink-0 text-center font-semibold whitespace-nowrap text-[#1D2633] tabular-nums md:w-32 md:text-2xl">
+                    <p className="ml-auto shrink-0 text-center font-semibold whitespace-nowrap text-shop-text tabular-nums md:w-32 md:text-2xl">
                       {formatEuro(a.produit.price * a.quantite)}
                     </p>
                     <button
