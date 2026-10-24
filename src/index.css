@@ -1,5 +1,6 @@
-@custom-variant dark (&:where(.dark, .dark *));
-
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@200..700&display=swap");
 @import "tailwindcss";
 @import "./pages/shopping-cart/shopping-cart.css";
+@import "./pages/memory-card/Memory-card.css";
+
+@custom-variant dark (&:where(.dark, .dark *));

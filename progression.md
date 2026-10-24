@@ -2898,3 +2898,65 @@ DevTools du navigateur de VS Code : `⋮` → **Dock side** existe (vérifié pa
 1. **`@keyframes` sur Memory Card** (secousse quand la partie est perdue) - cours complet à faire.
 2. **Portails + ErrorBoundary**, séance fraîche.
 3. Todo List → Next.js.
+
+## Session 133 — `@keyframes` (cours + secousse de Memory Card) + organisation du CSS en Tailwind v4
+
+**Durée** : ~1h30 (samedi, 50 min le midi + 40 min le soir). Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+M` (Emmet : Remove Tag) **fonctionne sur un fragment `<>`**, peu utilisé pour l'instant. Reconduit.
+
+---
+
+### Révision éclair (2 items)
+- **Prédire — coercion / argument manquant** 🟡 : `"90"` converti par `-` 🟢 · `+ undefined` → `NaN` 🟢 · **argument manquant annoncé comme une erreur** 🔴 : JS ne lève jamais d'erreur, le paramètre vaut `undefined`, donc `250 - undefined` → `NaN` (c'est TS qui arrêterait). Il a bien vu que le résultat était un `number`.
+- **Écrire — De Morgan** 🟢 2/2. **Sort de rotation.**
+
+### 1. `@keyframes` — notion neuve, ouverte
+- Cours : `transition` (2 états, déclenchée par un changement) vs `animation` (N étapes, part à l'application de la classe) · scénario (`@keyframes`) + lecture (`animation`) · forme longue puis forme courte · en Tailwind v4, token `--animate-*` dans `@theme` → classe `animate-*`. *Syntaxe Tailwind reconstruite de mémoire, non vérifiée.*
+- **Neuf** : `animation-timing-function` et les courbes (`linear`, `ease-in`, `ease-out`, `ease-in-out`) 🟡.
+- **🌟 Vérification sur MDN de sa propre initiative** (ordre différent du mien) → ordre libre dans la forme courte, valeurs reconnues par leur type ; **seule règle : 1ʳᵉ durée = durée, 2ᵉ = délai** 🟡.
+- **1ᵉʳ jet, trois erreurs** : nom du scénario ≠ nom lu par le token · **`translate-x` (classe Tailwind) écrit dans un `@keyframes`** · `2` sans unité. **Corrigés seul**, avec la propriété moderne `translate` 🟢. Test `hover:animate-memory-secousse` ✅.
+- **Secousse complète écrite seul, amortie (10px puis 5px)** 🟢.
+- Question : `@apply` dans un `@keyframes` → déconseillé (CSS pur attendu, classes v4 passant par des variables internes). *Possibilité technique non vérifiée.*
+- **Reste à faire** : nom du scénario non préfixé (`secousse` → `memory-secousse`, aux deux endroits), signalé deux fois.
+
+### 2. Organisation du CSS en Tailwind v4 — flou de fond exprimé
+**Constat de Frédéric** : le fonctionnement du fichier CSS est flou **depuis le début de Tailwind** ; il ne sait pas l'organiser.
+- **Carte des cinq endroits** (importer / `@theme` / `@custom-variant` / `@layer base` / sélecteur normal pour remplacer une valeur) : « éclaircit légèrement » 🟡.
+- `@theme` = `:root` + fabrication des classes 🟢 · `@layer base` pour un style vrai pour 100 % des balises (`button { cursor: pointer }`) 🟢.
+- **`@layer theme` et les étages** (*cascade layers*) : 1ʳᵉ explication non comprise → reformulé (« le tiroir où Tailwind range tes variables, inutile à écrire soi-même »). **Compréhension non confirmée** 🔴.
+- **Organisation en projet réel** : le style d'une page vit dans son JSX, aucun CSS par page · un seul fichier (`index.css` / `app/globals.css`), coupé **par rôle** s'il grossit · pas de préfixe (une seule marque) · CSS Modules = autre école. Le fichier par exercice et le préfixe ne se justifient que dans l'atelier.
+- **Décision** : `memory-card.css` créé sur le modèle de `shopping-cart.css`.
+- Remarques sur `index.css` : `@import` à placer avant `@custom-variant` *(appliqué ? à demander)* · le `@layer base` de `shopping-cart.css` s'applique à toute l'app.
+
+**📌 Demande explicite** : **séance dédiée** « organiser son CSS en Tailwind v4 », sur ses propres fichiers, avec **une page prête comparant trois cas : CSS classique / Tailwind forme longue / Tailwind forme courte**.
+
+---
+
+**Niveaux** : argument manquant → `undefined` 🔴 · De Morgan 🟢 · `@keyframes` + token `--animate-*` 🟢 (écrit seul après correction) · CSS pur dans un `@keyframes` vs classes Tailwind 🟡 · courbes de vitesse 🟡 · ordre de la forme courte 🟡 · `@theme` vs `:root` 🟢 · carte du fichier CSS 🟡 · étages / `@layer theme` 🔴 · organisation CSS en projet réel 🟡.
+
+**🎓 Règle posée par Frédéric** : les entrées de `progression.md` sont **toujours livrées dans un bloc de code markdown prêt à coller**, avec la même structure d'une séance à l'autre.
+
+**⚠️ Mes erreurs**
+1. Entrée de séance livrée d'abord en texte mis en forme au lieu du bloc prêt à coller.
+
+**🔄 Cycle de reprise** : `@keyframes` → N+2 (déclenchement à la défaite) · `useCallback` + `memo` → N+5 ≈ S135.
+
+**🔄 Rotation** : **entrent** — argument manquant → `undefined`, pas d'erreur · CSS pur dans un `@keyframes` · deux durées dans la forme courte (durée puis délai) · `@theme` vs `:root`. **Sort** — De Morgan. **Restent** — `undefined` + nombre → `NaN` (juste cette fois) · `e.key` vs `e.code` · `focus-visible` vs `focus` · `inert` · peer dependency / `~` vs `^` · `memo` / `useMemo` / `useCallback` · tri des dépendances · `return` seul sur sa ligne · `toFixed` renvoie une chaîne · `:root` = `<html>` · `<Routes>` n'accepte que des `<Route>` · `.tsx` de composants n'exporte que des composants · `useMemo` rôle 1 / rôle 2 · annotation de `ETAT_INITIAL` · `etat` vs `action` · élargissement des littéraux · `toSorted()` · `localeCompare` · shorthand vs `clé: valeur` · reducer pur · état initial « en chargement » · règle → formule · `cn()` · ordre `(état, action)` · `throw` hors `fetch` · `color-scheme`.
+
+---
+
+### 🗺️ Avant Next.js — état
+1. Calculatrice `useReducer` + mémoïsation ✅
+2. Dark mode Shopping Cart + audit accessibilité ✅
+3. **`@keyframes` sur Memory Card** 🔄 (scénario fait, déclenchement à faire)
+4. Portails + ErrorBoundary (+ propagation, `<dialog>`) ⏳
+5. Todo List (Odin) (+ `reduce` accumulateur objet, dates) ⏳
+6. Créneaux courts : event loop · récursion ⏳
+7. **Next.js**
+
+**⏭️ Prochaine étape**
+1. Préfixer le nom du scénario (`memory-secousse`).
+2. **Déclencher la secousse à la défaite** → coller le composant Memory Card (`onAjouter` + JSX de la grille) en ouverture. Problème à traiter : rejouer une animation déjà jouée.
+3. **Séance dédiée organisation CSS** (page comparative CSS classique / Tailwind forme longue / forme courte).
+4. Puis portails + ErrorBoundary.

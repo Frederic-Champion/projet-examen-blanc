@@ -7,7 +7,7 @@ import Calculatrice from "./pages/Calculatrice";
 import CalculatricePageBlanche from "./pages/Calculatrice-pageBlanche";
 import CvApplication from "./pages/CvApplication";
 import Catalogue, { FicheMonture } from "./pages/Catalogue";
-import { MemoryCard } from "./pages/Memory-Card";
+import { MemoryCard } from "./pages/memory-card/Memory-Card";
 import { LayoutPage } from "./pages/shopping-cart/Layout";
 import { AccueilPage } from "./pages/shopping-cart/Accueil";
 import { BoutiquePage } from "./pages/shopping-cart/Boutique";

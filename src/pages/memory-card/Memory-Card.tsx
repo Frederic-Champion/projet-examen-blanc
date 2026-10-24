@@ -78,7 +78,7 @@ function MemoryCard() {
           {dataMontre.map((m) => (
             <button
               onClick={() => onAjouter(m.id)}
-              className="cursor-pointer border shadow-xl hover:bg-pink-100"
+              className="cursor-pointer border shadow-xl hover:bg-pink-100 hover:animate-memory-secousse"
               key={m.id}
             >
               <p className="font-semibold">{m.title}</p>
