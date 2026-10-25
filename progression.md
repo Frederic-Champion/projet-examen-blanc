@@ -2960,3 +2960,64 @@ DevTools du navigateur de VS Code : `⋮` → **Dock side** existe (vérifié pa
 2. **Déclencher la secousse à la défaite** → coller le composant Memory Card (`onAjouter` + JSX de la grille) en ouverture. Problème à traiter : rejouer une animation déjà jouée.
 3. **Séance dédiée organisation CSS** (page comparative CSS classique / Tailwind forme longue / forme courte).
 4. Puis portails + ErrorBoundary.
+
+## Session 134 — Memory Card : secousse à la défaite, minuteur en `useEffect` + `@layer` / `@apply` enfin clarifiés
+
+**Durée** : ~2h20 (dimanche matin). Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+M` (Emmet : Remove Tag) — usage non renseigné cette séance, reconduit.
+
+---
+
+### 1. Secousse à la défaite — trouvée seul (20 min avant la séance) ✅
+- **State `defaite` + classe conditionnelle** : mécanisme compris seul (une animation part quand la classe apparaît). Fonctionne **grâce aux règles du jeu** (une réussite sépare toujours deux défaites, donc la classe disparaît et réapparaît) — le problème « rejouer une animation » ne se pose pas ici, expliqué.
+- **Variante carte fautive seule** (question de curiosité) : `useState<number | null>` remplace le booléen, comparaison dans le `.map()`, `key` stable qui suit la carte malgré le mélange 🟢.
+- **🌟 Initiative** : mélange retardé d'1 s par `setTimeout`, pour que la carte fautive tremble **à sa place**. Décision d'expérience utilisateur.
+- **Bug introduit par le délai** (clics pris en compte pendant la seconde, puis effacés) → **`disabled={carteFausse !== null}` trouvé seul** 🟢, avec `disabled:cursor-not-allowed disabled:opacity-70 disabled:grayscale` de lui-même. Explication du bug **imprécise** (« pris en mémoire ») → précisé : **`setTimeout` planifie, il ne bloque pas** 🟡.
+- **Minuteur déplacé dans un `useEffect`** qui observe `carteFausse` : « c'est quoi le problème avec `setTimeout` ? » → expliqué (trace active, aucun bug visible ici, mais danger si le minuteur navigue ou joue un son). Puis **écrit seul et juste du premier coup** : garde, identifiant rangé, `clearTimeout`, **`[carteFausse]` seul** (setters, ref et `melanger` exclus) 🟢.
+- **Neuf** : `motion-safe:` (préférence « réduire les animations ») 🟡. `cn()` réutilisé spontanément 🟢.
+- **Debugger** : voulait s'entraîner seul, ne retrouvait pas où poser un point d'arrêt (avait ouvert la page HTML `memory-card` au lieu du `.tsx`). Procédure redonnée (`Ctrl+P` dans Sources). **Utilisation effective non confirmée.**
+- Question : liste des animations courantes (fade-in, slide-in, scale-in, spin, pulse, ping, bounce, shake ; `transform` + `opacity` uniquement).
+
+**🏁 `@keyframes` sur Memory Card terminé.** *(PR de la branche : à demander.)*
+
+### 2. Révision éclair (3 items)
+- **Prédire — `toFixed` + coercion** 🟢 3/3 (`"0.30"`, `string`, `"0.301"`). **Sort de rotation.**
+- **Prédire — `e.key` / `e.code`** : `e.key` 3/3 🟢 · `e.code` idée juste, format non connu (`"KeyQ"`, `"Digit1"`). **Sort de rotation, décision de Frédéric** (le principe compte, les noms se vérifient dans la doc).
+- **Écrire — `throw` + `try` / `catch`** 🔴 : fonction juste. **Appel sans `try`** → page blanche + `Uncaught Error` (constaté à l'écran). **Puis `try` / `catch` placé dans la fonction elle-même** → la fonction s'attrape seule et renvoie la valeur invalide. **Correction demandée et donnée.** Repère : `throw` dans la fonction qui **détecte**, `try` / `catch` chez celui qui **décide**.
+
+### 3. Organisation du CSS en Tailwind v4 — flou de fond levé ✅
+- **Page comparative publiée** (« Atlas CSS Tailwind » : six cas en CSS classique / Tailwind forme longue / forme courte, étages, réflexe, fichier rangé). Retour : bon support de rappel, **mais le vrai doute était ailleurs**.
+- **Vrai doute : quand écrire `@apply` et `@layer`.** Expliqué :
+  - **`@layer base`** : toujours pour du CSS écrit à la main sur des balises — sinon, hors étage, il écrase les classes (exemple : `button { cursor: pointer }` hors étage annulerait `disabled:cursor-not-allowed`) 🟢.
+  - **`@layer theme`** : facultatif, pour ranger le remplacement `.dark { --… }` (portfolio rigoureux, Shopping Cart hors étage : les deux valides, une variable n'entre en conflit avec aucune classe) 🟢.
+  - **`@layer components`** : HTML pur (le bloc du portfolio était **juste** dans son contexte : factoriser sans composant, classes basculées par `classList`) · en React, seulement pour du **HTML non contrôlé** (Markdown, CMS, bibliothèque) 🟢.
+  - **`@layer utilities`** : jamais. `@utility` (v4) mentionné, *non vérifié*.
+  - **`@apply`** : vocabulaire Tailwind dans un fichier CSS, surtout avec `@layer base`. En React, le composant remplace `.btn`.
+- **Retour de Frédéric** : « ça éclaire les zones d'ombre que j'ai depuis des semaines sur Tailwind ».
+
+---
+
+**Niveaux** : classe conditionnelle pour déclencher une animation 🟢 · `number | null` à la place d'un booléen 🟢 · `disabled` + variantes `disabled:` 🟢 · `setTimeout` planifie / ne bloque pas 🟡 · minuteur dans un effet + nettoyage 🟢 · tri des dépendances 🟢 (vrai code, seul) · `motion-safe:` 🟡 · `toFixed` 🟢 · `e.key` / `e.code` 🟢 principe · **`throw` / `try` / `catch` : placement 🔴** · `@layer base` vs hors étage 🟢 · `@layer components` (HTML pur / non contrôlé) 🟢 · `@apply` 🟢 · organisation CSS Tailwind 🟢 (compris, à confirmer à l'usage).
+
+**Registre** : **`@keyframes` soldée** (enseignée et pratiquée) · flou « organisation du CSS » levé.
+
+**🔄 Cycle de reprise** : `@keyframes` + `animate` → N+5 ≈ S139 (ressenti « pas du tout acquis », demande explicite de recroiser) · `useCallback` + `memo` → ≈ S135.
+
+**🔄 Rotation** : **entrent** — `throw` / `try` / `catch` : où placer le `catch` (priorité) · `setTimeout` planifie, ne bloque pas · `animate` + `@keyframes` (demande explicite) · `motion-safe:` · `@layer base` vs hors étage. **Sortent** — `toFixed` renvoie une chaîne · `e.key` vs `e.code`. **Restent** — argument manquant → `undefined` · CSS pur dans un `@keyframes` · deux durées dans la forme courte · `@theme` vs `:root` · `undefined` + nombre → `NaN` · `focus-visible` vs `focus` · `inert` · peer dependency / `~` vs `^` · `memo` / `useMemo` / `useCallback` · `return` seul sur sa ligne · `:root` = `<html>` · `<Routes>` n'accepte que des `<Route>` · `.tsx` de composants n'exporte que des composants · `useMemo` rôle 1 / rôle 2 · annotation de `ETAT_INITIAL` · `etat` vs `action` · élargissement des littéraux · `toSorted()` · `localeCompare` · shorthand vs `clé: valeur` · reducer pur · état initial « en chargement » · règle → formule · `cn()` · ordre `(état, action)` · `color-scheme`.
+
+---
+
+### 🗺️ Avant Next.js — état
+1. Calculatrice `useReducer` + mémoïsation ✅
+2. Dark mode Shopping Cart + audit accessibilité ✅
+3. `@keyframes` sur Memory Card ✅
+4. **Portails + ErrorBoundary** (+ propagation, `<dialog>`) ⏳
+5. Todo List (Odin) (+ `reduce` accumulateur objet, dates) ⏳
+6. Créneaux courts : event loop (le « `setTimeout` ne bloque pas » d'aujourd'hui en est l'entrée) · récursion ⏳
+7. **Next.js**
+
+**⏭️ Prochaine étape**
+1. Ouverture : reprise **`useCallback` + `memo`** (N+5) + révision `throw` / `try` / `catch` sur un autre code.
+2. **Portails + ErrorBoundary**, séance fraîche.
+3. Puis Todo List → Next.js.

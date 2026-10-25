@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { cn } from "../../utils/cn";
 
 interface Montre {
   id: number;
@@ -25,6 +26,7 @@ function MemoryCard() {
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
   const ref = useRef<number[]>([]);
+  const [carteFausse, setCarteFausse] = useState<number | null>(null);
 
   // API montres femmes : "https://dummyjson.com/products/category/womens-watches"
   // API montres hommes : "https://dummyjson.com/products/category/mens-watches"
@@ -52,18 +54,28 @@ function MemoryCard() {
   }, []);
 
   function onAjouter(id: number) {
-    setDataMontre((prev) => melanger(prev));
     const egal = ref.current.some((m) => m === id);
     if (egal) {
-      setScore(0);
-      ref.current = [];
+      setCarteFausse(id);
     } else {
+      setDataMontre((prev) => melanger(prev));
       const points = score + 1;
       setBest(Math.max(points, best));
       setScore(points);
       ref.current = [...ref.current, id];
     }
   }
+
+  useEffect(() => {
+    if (carteFausse === null) return;
+    const echec = setTimeout(() => {
+      setCarteFausse(null);
+      setDataMontre((prev) => melanger(prev));
+      setScore(0);
+      ref.current = [];
+    }, 1000);
+    return () => clearTimeout(echec);
+  }, [carteFausse]);
 
   if (chargement) return <p>Chargement</p>;
   if (erreur) return <p>Il y a une erreur : {erreur}</p>;
@@ -78,11 +90,15 @@ function MemoryCard() {
           {dataMontre.map((m) => (
             <button
               onClick={() => onAjouter(m.id)}
-              className="cursor-pointer border shadow-xl hover:bg-pink-100 hover:animate-memory-secousse"
+              disabled={carteFausse !== null}
+              className={cn(
+                "cursor-pointer border shadow-xl hover:bg-pink-100 disabled:cursor-not-allowed disabled:opacity-70 disabled:grayscale-100",
+                carteFausse === m.id && "motion-safe:animate-memory-secousse",
+              )}
               key={m.id}
             >
               <p className="font-semibold">{m.title}</p>
-              <img src={m.thumbnail} alt={m.title} />
+              <img className="m-auto" src={m.thumbnail} alt={m.title} />
             </button>
           ))}
         </div>
