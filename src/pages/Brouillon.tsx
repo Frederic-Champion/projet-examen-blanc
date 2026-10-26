@@ -1,31 +1,16 @@
-import { memo, useMemo, useState } from "react";
-
-const VERRES = ["Unifocal", "Progressif", "Mi-distance"];
-
-const ListeVerres = memo(function ListeVerres({ verres }: { verres: string[] }) {
-  console.log("🔵 rendu de ListeVerres");
-  return (
-    <ul>
-      {verres.map((v) => (
-        <li key={v}>{v}</li>
-      ))}
-    </ul>
-  );
-});
-
 export function Brouillon() {
-  const [note, setNote] = useState("");
-  
+  return <div>Brouillon</div>;
+}
 
-  // ÉTAPE 1
-  const verres = useMemo(() => {
-    return [...VERRES];
-  }, []);
+function verifierCorrection(sphere: number): number {
+  if (sphere < -20 || sphere > 20) {
+    throw new Error(`Correction hors limites : ${sphere}`);
+  }
+  return sphere;
+}
 
-  return (
-    <div className="p-4">
-      <input value={note} onChange={(e) => setNote(e.target.value)} className="border" />
-      <ListeVerres verres={verres} />
-    </div>
-  );
+try {
+  verifierCorrection(25);
+} catch (e) {
+  if (e instanceof Error) console.log(e.message);
 }

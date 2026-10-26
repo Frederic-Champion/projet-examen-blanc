@@ -1,5 +1,5 @@
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "./ProviderDarkTheme";
+import { useTheme } from "./useTheme";
 
 export function BoutonTheme() {
   const { theme, switchTheme } = useTheme();

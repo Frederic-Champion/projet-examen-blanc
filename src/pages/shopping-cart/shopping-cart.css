@@ -6,13 +6,16 @@
 
 @theme {
   /* Couleurs — nommées par rôle */
-  --color-shop-fond: #f5f5f4;            /* couleur du backGround principal */
-  --color-shop-primaire: #2563eb;        /* liens actifs, focus, boutons */
+  --color-shop-fond: #f5f5f4; /* couleur du backGround principal */
+  --color-shop-primaire: #2563eb; /* liens actifs, focus, boutons */
   --color-shop-primaire-survol: #60a5fa; /* hover des éléments primaires */
-  --color-shop-surface: #e7e5e4;         /* barre de recherche, footer, cartes */
-  --color-shop-texte: #1c1917;           /* texte principal */
-  --color-shop-texte-doux: #78716c;      /* prix barrés, placeholders, mentions */
-  --color-shop-prix: #F9533E;            /* couleurs des tarifs */
+  --color-shop-surface: #e7e5e4; /* barre de recherche, footer, cartes */
+  --color-shop-texte: #1c1917; /* texte principal */
+  --color-shop-texte-doux: #78716c; /* prix barrés, placeholders, mentions */
+  --color-shop-prix: #d53521; /* couleurs des tarifs */
+  --color-shop-bouton: #2563eb; /* blue-600 : fond des boutons d'action */
+  --color-shop-bouton-survol: #1d4ed8; /* blue-700 : survol des boutons */
+  --color-shop-sur-bouton: #ffffff; /* texte et icônes posés sur un bouton */
 
   /* Typographie */
   --font-shop-titre: "Bebas Neue", sans-serif;
@@ -26,16 +29,18 @@
 }
 
 .dark {
-  --color-shop-fond: #1c1917;            /* stone-900 : gris très foncé, pas noir */
-  --color-shop-surface: #423c3a;         /* manuel : se détache du fond */
-  --color-shop-texte: #e7e5e4;           /* stone-200 : blanc cassé */
-  --color-shop-texte-doux: #a8a29e;      /* stone-400 */
-  --color-shop-primaire: #60a5fa;        /* blue-400 : un bleu plus clair reste lisible sur fond sombre */
+  --color-shop-fond: #1c1917; /* stone-900 : gris très foncé, pas noir */
+  --color-shop-surface: #423c3a; /* manuel : se détache du fond */
+  --color-shop-texte: #e7e5e4; /* stone-200 : blanc cassé */
+  --color-shop-texte-doux: #a8a29e; /* stone-400 */
+  --color-shop-primaire: #2d75cf; /* blue-400 : un bleu plus clair reste lisible sur fond sombre */
   --color-shop-primaire-survol: #93c5fd; /* blue-300 */
-  --color-shop-prix: #fb6f5c;            /* ton rouge-orangé, éclairci */
+  --color-shop-prix: #17e129; /* ton rouge-orangé, éclairci */
   --shadow-shop-flottant: rgba(0, 0, 0, 0.6) 1px 2px 6px 1px; /* une ombre doit être plus marquée sur fond sombre */
+  --color-shop-bouton: #2563eb; /* reste foncé : le texte blanc doit ressortir */
+  --color-shop-bouton-survol: #1d4ed8;
+  --color-shop-sur-bouton: #ffffff;
 }
-
 
 @layer base {
   /* Chrome, Edge, Safari : les flèches sont deux pseudo-éléments */

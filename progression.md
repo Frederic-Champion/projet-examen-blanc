@@ -2828,3 +2828,196 @@ Enfant `memo` + trois façons de fournir un tableau (constante hors composant / 
 2. **Audit accessibilité** du Shopping Cart, avec `e.key` vs `e.code` en révision éclair.
 3. **Portails + ErrorBoundary**, séance fraîche.
 4. Todo List → Next.js.
+
+## Session 132 — ESLint de `projet-vite-local` réparé, reprise `useCallback` + `memo`, audit accessibilité complet du Shopping Cart
+
+**Durée** : ~3h (vendredi, en deux blocs avec pause repas). Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+M` assigné à `Emmet: Remove Tag`, en cours. **Comportement sur un fragment `<>` : jamais confirmé, à demander.**
+
+**Ressenti en ouverture** : `useCallback` + `memo` 6/10.
+
+---
+
+### Révision éclair (2 items)
+- **Prédire — `e.key` vs `e.code`** 🟡 : intuition juste (« l'un suit AZERTY, l'autre QWERTY »), valeurs inexactes (`q` au lieu de `"KeyQ"`). **Cours complet demandé et donné** : `e.key` = caractère produit (disposition, `Maj`, noms des touches spéciales) · `e.code` = emplacement physique nommé d'après le QWERTY, toujours préfixé · piège des chiffres en AZERTY (`"&"` / `"Digit1"`) · repère : **`e.key` par défaut, `e.code` quand la position sous les doigts compte (jeux)**. Greffe de la calculatrice : **faite**.
+- **Prédire — `return` seul sur sa ligne** : `undefined` ✅ (2ᵉ fois d'affilée). `undefined + 10` annoncé « erreur » → **`NaN`** (même confusion qu'en S130). Repère : `undefined` dans un calcul → `NaN` silencieux · suivi d'un `.` ou de `()` → `TypeError`.
+
+### 1. ESLint de `projet-vite-local` reconfiguré ✅
+- `npm audit fix` lancé **sans `--force`** : bon réflexe.
+- **`npm install -D typescript-eslint` refusé (ERESOLVE)** : le projet était en **TypeScript 7** (portage natif en Go), hors de la plage acceptée par typescript-eslint (`<6.1.0`). **Source vérifiée** : TS 7 non pris en charge, demande fermée comme « non prévue ». **Pas de `--force` relancé, réflexe juste.** Cours court : **peer dependency** · `~` (correctifs seulement) vs `^` (mineures comprises).
+- TypeScript redescendu à `~6.0.2` (version de `projet-examen-blanc`), puis `typescript-eslint` installé, config alignée sur celle de `projet-examen-blanc` (`files: ['**/*.{ts,tsx}']` + `tseslint.configs.recommended`).
+- **11 problèmes révélés, triés puis tous corrigés** :
+  - **`exhaustive-deps`** : effet lisant `location.pathname` sans le déclarer → corrigé **seul**, règle des dépendances appliquée sur du vrai code (pas un exercice). 🟢
+  - **`only-export-components`** (×2) : Contexts et hooks sortis dans un `.ts`. Il a réuni les deux Contexts (magasin + thème) dans un seul fichier → remarque « on regroupe ce qui change ensemble », choix laissé.
+  - **`no-unused-vars`** (×8, exercices de typage) : traités.
+
+### 2. Reprise `useCallback` + `memo` (N+2) — format observation
+**3/3 en prédiction**, plus rapide qu'en S131. Question bonus (3 clics, `total` change à l'écran) : 6 rendus annoncés et observés… sur une version **sans `memo`** (étape 3 non annulée). Une fois `memo` remis : **0**. Phrase retenue : **un enfant `memo` ne se re-rend que si ses propres props changent**. Repère consolidé : `useMemo` fournit un tableau ou un objet, `useCallback` une fonction, `memo` est le gardien.
+DevTools du navigateur de VS Code : `⋮` → **Dock side** existe (vérifié par lui).
+
+### 3. Audit accessibilité du Shopping Cart ✅ (greffe faite)
+**Lighthouse** (une page à la fois, mode Instantané pour tester un état) :
+- **Accueil 91 → 100** : `aria-label` sur les boutons-icônes de navigation · footer passé de `text-shop-texte-doux` à `text-shop-texte`. Remarque : foncer le token lui-même aurait gardé la hiérarchie visuelle.
+- **Boutique 100** · `label` de `<Bouton>` enrichi avec le nom du produit (`` `Ajouter ${produit.title} au panier` ``). Question posée : `label` vs `aria-label` → prop inventée sur un composant / attribut DOM sur une balise.
+- **Panier 96 → 100** : token `--color-shop-prix` foncé avec le **sélecteur de contraste des DevTools** (courbe = frontière du seuil, calculée contre le fond, seuil 4,5:1 ou 3:1 selon la taille). Bonne pratique : **on corrige le token, pas l'élément.**
+- **Thème sombre** : bouton Paiement à **3,67** → **mon erreur de palette** (un même token `primaire` servait de texte clair et de fond de bouton, deux besoins opposés en sombre). **Trois tokens créés par rôle** : `--color-shop-bouton`, `--color-shop-bouton-survol` (fonce au survol), `--color-shop-sur-bouton`. **100 % sur toutes les pages, dans les deux thèmes.**
+- Lien « Accueil » en double (atelier / boutique) : bonne pratique « liens identiques, même fonction » → `aria-label` distinct.
+
+**Test au clavier** : parcours complet réussi.
+- **Focus invisible sur les cartes** : hypothèse `overflow-hidden` sur l'`<article>` qui coupe le contour → **confirmée par lui dans le code**. Cours `focus:` vs **`focus-visible:`**, `outline-offset` négatif, alternative `focus-within:`. **Choix de Frédéric** : garder l'indicateur par défaut de Chrome (accessible par conception). Défendable.
+- **Bande latérale fermée encore focusable** (`translate-x-full` déplace le dessin, ne retire rien de la page) → attribut **`inert`**. 🔴 1ᵉʳ jet `!afficherBande && !bandeOuverte` (faux sur le cas testé) → **loi de De Morgan** : `!(A && B)` = `!A || !B`. Corrigé. `const` de condition non créée (2 occurrences, choix assumé).
+- Erreurs console du Panier : disparues.
+
+**Questions de fond** : catégories Lighthouse (Performances seulement en build de production · SEO avec Next.js · Bonnes pratiques utiles dès maintenant · Lighthouse CI avec les tests) · **branches** : elles servent à **isoler**, pas à marquer un gros changement (`main` toujours stable, historique propre, PR). Audit commité **directement sur `main`** → règle posée : **branche systématique dans `projet-examen-blanc`**, commit direct toléré dans l'atelier.
+
+**`@keyframes`** : cours rédigé en fin de séance, **non lu, notion non ouverte**. Branche déjà créée.
+
+---
+
+**Niveaux** : `e.key` vs `e.code` 🟡 (cours donné, à rejouer) · `undefined` dans un calcul → `NaN` 🔴 (2ᵉ) · `return` seul sur sa ligne 🟢 (2ᵉ réussite) · peer dependency / `~` vs `^` 🟡 · règle des dépendances sur du vrai code 🟢 · **`memo` + `useCallback` 🟢 (observation)** · `label` (prop) vs `aria-label` (attribut) 🟢 · contraste et tokens par rôle 🟢 · `focus` vs `focus-visible` 🟡 · `overflow-hidden` qui coupe l'outline 🟢 (vérifié seul) · `inert` 🟡 · De Morgan 🔴 → corrigé · branches = isolation 🟢.
+
+**🔄 Cycle de reprise** : `useCallback` + `memo` → N+5 ≈ S135 · règle des dépendances → tenue sur du vrai code.
+
+**🔄 Rotation** : **entrent** — `e.key` vs `e.code` · `undefined` + nombre → `NaN` · De Morgan (`!(A && B)`) · `focus-visible` vs `focus` · `inert` · peer dependency / `~` vs `^`. **Restent** — `memo` / `useMemo` / `useCallback` (priorité baissée) · tri des dépendances · `return` seul sur sa ligne (à confirmer une fois) · `toFixed` renvoie une chaîne · `:root` = `<html>` · `<Routes>` n'accepte que des `<Route>` · `.tsx` de composants n'exporte que des composants · `useMemo` rôle 1 / rôle 2 · annotation de `ETAT_INITIAL` · `etat` vs `action` · élargissement des littéraux · `toSorted()` · `localeCompare` · shorthand vs `clé: valeur` · reducer pur · état initial « en chargement » · règle → formule · `cn()` · ordre `(état, action)` · `throw` hors `fetch` · `color-scheme`.
+
+**📌 Registre** : `e.key` vs `e.code` → greffe faite · audit accessibilité → fait · ESLint de `projet-vite-local` → réparé. Toujours 5 lignes périmées depuis S129 (Context API, hooks personnalisés, `useReducer`, `useMemo` / `useCallback` / `React.memo`) → mise à jour en fin de chapitre React.
+**Petits restes** : `bg-stone-50 dark:bg-stone-800` en dur dans les cartes de la Boutique · indicateur de focus personnalisé (`focus-visible:` sur `Bouton`), facultatif.
+
+---
+
+### 🗺️ Avant Next.js — état
+1. Calculatrice `useReducer` + mémoïsation ✅ · flottants ✅ · `e.key` vs `e.code` ✅
+2. Dark mode Shopping Cart ✅ · PR ✅ · audit accessibilité ✅
+3. Portails + ErrorBoundary (+ propagation, `<dialog>`) ⏳
+4. Todo List (Odin) (+ `reduce` accumulateur objet, dates) ⏳
+5. Créneaux courts : **`@keyframes` (prochain, branche créée)** · event loop · récursion ⏳
+6. **Next.js**
+
+**⏭️ Prochaine étape**
+1. **`@keyframes` sur Memory Card** (secousse quand la partie est perdue) - cours complet à faire.
+2. **Portails + ErrorBoundary**, séance fraîche.
+3. Todo List → Next.js.
+
+## Session 133 — `@keyframes` (cours + secousse de Memory Card) + organisation du CSS en Tailwind v4
+
+**Durée** : ~1h30 (samedi, 50 min le midi + 40 min le soir). Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+M` (Emmet : Remove Tag) **fonctionne sur un fragment `<>`**, peu utilisé pour l'instant. Reconduit.
+
+---
+
+### Révision éclair (2 items)
+- **Prédire — coercion / argument manquant** 🟡 : `"90"` converti par `-` 🟢 · `+ undefined` → `NaN` 🟢 · **argument manquant annoncé comme une erreur** 🔴 : JS ne lève jamais d'erreur, le paramètre vaut `undefined`, donc `250 - undefined` → `NaN` (c'est TS qui arrêterait). Il a bien vu que le résultat était un `number`.
+- **Écrire — De Morgan** 🟢 2/2. **Sort de rotation.**
+
+### 1. `@keyframes` — notion neuve, ouverte
+- Cours : `transition` (2 états, déclenchée par un changement) vs `animation` (N étapes, part à l'application de la classe) · scénario (`@keyframes`) + lecture (`animation`) · forme longue puis forme courte · en Tailwind v4, token `--animate-*` dans `@theme` → classe `animate-*`. *Syntaxe Tailwind reconstruite de mémoire, non vérifiée.*
+- **Neuf** : `animation-timing-function` et les courbes (`linear`, `ease-in`, `ease-out`, `ease-in-out`) 🟡.
+- **🌟 Vérification sur MDN de sa propre initiative** (ordre différent du mien) → ordre libre dans la forme courte, valeurs reconnues par leur type ; **seule règle : 1ʳᵉ durée = durée, 2ᵉ = délai** 🟡.
+- **1ᵉʳ jet, trois erreurs** : nom du scénario ≠ nom lu par le token · **`translate-x` (classe Tailwind) écrit dans un `@keyframes`** · `2` sans unité. **Corrigés seul**, avec la propriété moderne `translate` 🟢. Test `hover:animate-memory-secousse` ✅.
+- **Secousse complète écrite seul, amortie (10px puis 5px)** 🟢.
+- Question : `@apply` dans un `@keyframes` → déconseillé (CSS pur attendu, classes v4 passant par des variables internes). *Possibilité technique non vérifiée.*
+- **Reste à faire** : nom du scénario non préfixé (`secousse` → `memory-secousse`, aux deux endroits), signalé deux fois.
+
+### 2. Organisation du CSS en Tailwind v4 — flou de fond exprimé
+**Constat de Frédéric** : le fonctionnement du fichier CSS est flou **depuis le début de Tailwind** ; il ne sait pas l'organiser.
+- **Carte des cinq endroits** (importer / `@theme` / `@custom-variant` / `@layer base` / sélecteur normal pour remplacer une valeur) : « éclaircit légèrement » 🟡.
+- `@theme` = `:root` + fabrication des classes 🟢 · `@layer base` pour un style vrai pour 100 % des balises (`button { cursor: pointer }`) 🟢.
+- **`@layer theme` et les étages** (*cascade layers*) : 1ʳᵉ explication non comprise → reformulé (« le tiroir où Tailwind range tes variables, inutile à écrire soi-même »). **Compréhension non confirmée** 🔴.
+- **Organisation en projet réel** : le style d'une page vit dans son JSX, aucun CSS par page · un seul fichier (`index.css` / `app/globals.css`), coupé **par rôle** s'il grossit · pas de préfixe (une seule marque) · CSS Modules = autre école. Le fichier par exercice et le préfixe ne se justifient que dans l'atelier.
+- **Décision** : `memory-card.css` créé sur le modèle de `shopping-cart.css`.
+- Remarques sur `index.css` : `@import` à placer avant `@custom-variant` *(appliqué ? à demander)* · le `@layer base` de `shopping-cart.css` s'applique à toute l'app.
+
+**📌 Demande explicite** : **séance dédiée** « organiser son CSS en Tailwind v4 », sur ses propres fichiers, avec **une page prête comparant trois cas : CSS classique / Tailwind forme longue / Tailwind forme courte**.
+
+---
+
+**Niveaux** : argument manquant → `undefined` 🔴 · De Morgan 🟢 · `@keyframes` + token `--animate-*` 🟢 (écrit seul après correction) · CSS pur dans un `@keyframes` vs classes Tailwind 🟡 · courbes de vitesse 🟡 · ordre de la forme courte 🟡 · `@theme` vs `:root` 🟢 · carte du fichier CSS 🟡 · étages / `@layer theme` 🔴 · organisation CSS en projet réel 🟡.
+
+**🎓 Règle posée par Frédéric** : les entrées de `progression.md` sont **toujours livrées dans un bloc de code markdown prêt à coller**, avec la même structure d'une séance à l'autre.
+
+**⚠️ Mes erreurs**
+1. Entrée de séance livrée d'abord en texte mis en forme au lieu du bloc prêt à coller.
+
+**🔄 Cycle de reprise** : `@keyframes` → N+2 (déclenchement à la défaite) · `useCallback` + `memo` → N+5 ≈ S135.
+
+**🔄 Rotation** : **entrent** — argument manquant → `undefined`, pas d'erreur · CSS pur dans un `@keyframes` · deux durées dans la forme courte (durée puis délai) · `@theme` vs `:root`. **Sort** — De Morgan. **Restent** — `undefined` + nombre → `NaN` (juste cette fois) · `e.key` vs `e.code` · `focus-visible` vs `focus` · `inert` · peer dependency / `~` vs `^` · `memo` / `useMemo` / `useCallback` · tri des dépendances · `return` seul sur sa ligne · `toFixed` renvoie une chaîne · `:root` = `<html>` · `<Routes>` n'accepte que des `<Route>` · `.tsx` de composants n'exporte que des composants · `useMemo` rôle 1 / rôle 2 · annotation de `ETAT_INITIAL` · `etat` vs `action` · élargissement des littéraux · `toSorted()` · `localeCompare` · shorthand vs `clé: valeur` · reducer pur · état initial « en chargement » · règle → formule · `cn()` · ordre `(état, action)` · `throw` hors `fetch` · `color-scheme`.
+
+---
+
+### 🗺️ Avant Next.js — état
+1. Calculatrice `useReducer` + mémoïsation ✅
+2. Dark mode Shopping Cart + audit accessibilité ✅
+3. **`@keyframes` sur Memory Card** 🔄 (scénario fait, déclenchement à faire)
+4. Portails + ErrorBoundary (+ propagation, `<dialog>`) ⏳
+5. Todo List (Odin) (+ `reduce` accumulateur objet, dates) ⏳
+6. Créneaux courts : event loop · récursion ⏳
+7. **Next.js**
+
+**⏭️ Prochaine étape**
+1. Préfixer le nom du scénario (`memory-secousse`).
+2. **Déclencher la secousse à la défaite** → coller le composant Memory Card (`onAjouter` + JSX de la grille) en ouverture. Problème à traiter : rejouer une animation déjà jouée.
+3. **Séance dédiée organisation CSS** (page comparative CSS classique / Tailwind forme longue / forme courte).
+4. Puis portails + ErrorBoundary.
+
+## Session 134 — Memory Card : secousse à la défaite, minuteur en `useEffect` + `@layer` / `@apply` enfin clarifiés
+
+**Durée** : ~2h20 (dimanche matin). Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+M` (Emmet : Remove Tag) — usage non renseigné cette séance, reconduit.
+
+---
+
+### 1. Secousse à la défaite — trouvée seul (20 min avant la séance) ✅
+- **State `defaite` + classe conditionnelle** : mécanisme compris seul (une animation part quand la classe apparaît). Fonctionne **grâce aux règles du jeu** (une réussite sépare toujours deux défaites, donc la classe disparaît et réapparaît) — le problème « rejouer une animation » ne se pose pas ici, expliqué.
+- **Variante carte fautive seule** (question de curiosité) : `useState<number | null>` remplace le booléen, comparaison dans le `.map()`, `key` stable qui suit la carte malgré le mélange 🟢.
+- **🌟 Initiative** : mélange retardé d'1 s par `setTimeout`, pour que la carte fautive tremble **à sa place**. Décision d'expérience utilisateur.
+- **Bug introduit par le délai** (clics pris en compte pendant la seconde, puis effacés) → **`disabled={carteFausse !== null}` trouvé seul** 🟢, avec `disabled:cursor-not-allowed disabled:opacity-70 disabled:grayscale` de lui-même. Explication du bug **imprécise** (« pris en mémoire ») → précisé : **`setTimeout` planifie, il ne bloque pas** 🟡.
+- **Minuteur déplacé dans un `useEffect`** qui observe `carteFausse` : « c'est quoi le problème avec `setTimeout` ? » → expliqué (trace active, aucun bug visible ici, mais danger si le minuteur navigue ou joue un son). Puis **écrit seul et juste du premier coup** : garde, identifiant rangé, `clearTimeout`, **`[carteFausse]` seul** (setters, ref et `melanger` exclus) 🟢.
+- **Neuf** : `motion-safe:` (préférence « réduire les animations ») 🟡. `cn()` réutilisé spontanément 🟢.
+- **Debugger** : voulait s'entraîner seul, ne retrouvait pas où poser un point d'arrêt (avait ouvert la page HTML `memory-card` au lieu du `.tsx`). Procédure redonnée (`Ctrl+P` dans Sources). **Utilisation effective non confirmée.**
+- Question : liste des animations courantes (fade-in, slide-in, scale-in, spin, pulse, ping, bounce, shake ; `transform` + `opacity` uniquement).
+
+**🏁 `@keyframes` sur Memory Card terminé.** *(PR de la branche : à demander.)*
+
+### 2. Révision éclair (3 items)
+- **Prédire — `toFixed` + coercion** 🟢 3/3 (`"0.30"`, `string`, `"0.301"`). **Sort de rotation.**
+- **Prédire — `e.key` / `e.code`** : `e.key` 3/3 🟢 · `e.code` idée juste, format non connu (`"KeyQ"`, `"Digit1"`). **Sort de rotation, décision de Frédéric** (le principe compte, les noms se vérifient dans la doc).
+- **Écrire — `throw` + `try` / `catch`** 🔴 : fonction juste. **Appel sans `try`** → page blanche + `Uncaught Error` (constaté à l'écran). **Puis `try` / `catch` placé dans la fonction elle-même** → la fonction s'attrape seule et renvoie la valeur invalide. **Correction demandée et donnée.** Repère : `throw` dans la fonction qui **détecte**, `try` / `catch` chez celui qui **décide**.
+
+### 3. Organisation du CSS en Tailwind v4 — flou de fond levé ✅
+- **Page comparative publiée** (« Atlas CSS Tailwind » : six cas en CSS classique / Tailwind forme longue / forme courte, étages, réflexe, fichier rangé). Retour : bon support de rappel, **mais le vrai doute était ailleurs**.
+- **Vrai doute : quand écrire `@apply` et `@layer`.** Expliqué :
+  - **`@layer base`** : toujours pour du CSS écrit à la main sur des balises — sinon, hors étage, il écrase les classes (exemple : `button { cursor: pointer }` hors étage annulerait `disabled:cursor-not-allowed`) 🟢.
+  - **`@layer theme`** : facultatif, pour ranger le remplacement `.dark { --… }` (portfolio rigoureux, Shopping Cart hors étage : les deux valides, une variable n'entre en conflit avec aucune classe) 🟢.
+  - **`@layer components`** : HTML pur (le bloc du portfolio était **juste** dans son contexte : factoriser sans composant, classes basculées par `classList`) · en React, seulement pour du **HTML non contrôlé** (Markdown, CMS, bibliothèque) 🟢.
+  - **`@layer utilities`** : jamais. `@utility` (v4) mentionné, *non vérifié*.
+  - **`@apply`** : vocabulaire Tailwind dans un fichier CSS, surtout avec `@layer base`. En React, le composant remplace `.btn`.
+- **Retour de Frédéric** : « ça éclaire les zones d'ombre que j'ai depuis des semaines sur Tailwind ».
+
+---
+
+**Niveaux** : classe conditionnelle pour déclencher une animation 🟢 · `number | null` à la place d'un booléen 🟢 · `disabled` + variantes `disabled:` 🟢 · `setTimeout` planifie / ne bloque pas 🟡 · minuteur dans un effet + nettoyage 🟢 · tri des dépendances 🟢 (vrai code, seul) · `motion-safe:` 🟡 · `toFixed` 🟢 · `e.key` / `e.code` 🟢 principe · **`throw` / `try` / `catch` : placement 🔴** · `@layer base` vs hors étage 🟢 · `@layer components` (HTML pur / non contrôlé) 🟢 · `@apply` 🟢 · organisation CSS Tailwind 🟢 (compris, à confirmer à l'usage).
+
+**Registre** : **`@keyframes` soldée** (enseignée et pratiquée) · flou « organisation du CSS » levé.
+
+**🔄 Cycle de reprise** : `@keyframes` + `animate` → N+5 ≈ S139 (ressenti « pas du tout acquis », demande explicite de recroiser) · `useCallback` + `memo` → ≈ S135.
+
+**🔄 Rotation** : **entrent** — `throw` / `try` / `catch` : où placer le `catch` (priorité) · `setTimeout` planifie, ne bloque pas · `animate` + `@keyframes` (demande explicite) · `motion-safe:` · `@layer base` vs hors étage. **Sortent** — `toFixed` renvoie une chaîne · `e.key` vs `e.code`. **Restent** — argument manquant → `undefined` · CSS pur dans un `@keyframes` · deux durées dans la forme courte · `@theme` vs `:root` · `undefined` + nombre → `NaN` · `focus-visible` vs `focus` · `inert` · peer dependency / `~` vs `^` · `memo` / `useMemo` / `useCallback` · `return` seul sur sa ligne · `:root` = `<html>` · `<Routes>` n'accepte que des `<Route>` · `.tsx` de composants n'exporte que des composants · `useMemo` rôle 1 / rôle 2 · annotation de `ETAT_INITIAL` · `etat` vs `action` · élargissement des littéraux · `toSorted()` · `localeCompare` · shorthand vs `clé: valeur` · reducer pur · état initial « en chargement » · règle → formule · `cn()` · ordre `(état, action)` · `color-scheme`.
+
+---
+
+### 🗺️ Avant Next.js — état
+1. Calculatrice `useReducer` + mémoïsation ✅
+2. Dark mode Shopping Cart + audit accessibilité ✅
+3. `@keyframes` sur Memory Card ✅
+4. **Portails + ErrorBoundary** (+ propagation, `<dialog>`) ⏳
+5. Todo List (Odin) (+ `reduce` accumulateur objet, dates) ⏳
+6. Créneaux courts : event loop (le « `setTimeout` ne bloque pas » d'aujourd'hui en est l'entrée) · récursion ⏳
+7. **Next.js**
+
+**⏭️ Prochaine étape**
+1. Ouverture : reprise **`useCallback` + `memo`** (N+5) + révision `throw` / `try` / `catch` sur un autre code.
+2. **Portails + ErrorBoundary**, séance fraîche.
+3. Puis Todo List → Next.js.
