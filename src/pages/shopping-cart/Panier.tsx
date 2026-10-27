@@ -1,7 +1,7 @@
 import { Link, useOutletContext } from "react-router";
-import type { FetchDataContext } from "./type";
+import type { Article, FetchDataContext } from "./type";
 import { formatEuro } from "../../utils/format";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { EtatMessage } from "./EtatMessage";
 import { FaceSlightlySmiling, ShoppingCart, Trash } from "lucide-react";
 import { Bouton } from "./Bouton";
@@ -10,6 +10,18 @@ import { SelecteurQuantite } from "./SelecteurQuantite";
 function PanierPage() {
   const { panier, supprimerPanier, modifierPanier } = useOutletContext<FetchDataContext>();
   const [paiement, setPaiement] = useState(false);
+  const refModale = useRef<HTMLDialogElement>(null);
+  const [aRetirer, setARetirer] = useState<Article | null>(null);
+
+  function demandeSuppression(a: Article) {
+    setARetirer(a);
+    refModale.current?.showModal();
+  }
+  function confirmationSuppression() {
+    if (!aRetirer) return;
+    supprimerPanier(aRetirer?.produit.id);
+    refModale.current?.close();
+  }
 
   if (paiement)
     return (
@@ -40,7 +52,7 @@ function PanierPage() {
     <div className="mx-auto w-full max-w-7xl p-4">
       <h2 className="pb-2 font-shop-titre text-3xl md:py-8">Votre Panier</h2>
       <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-3">
-        <section className="rounded-lg bg-white dark:bg-shop-surface p-2 shadow-shop-flottant md:col-span-2 md:p-6">
+        <section className="rounded-lg bg-white p-2 shadow-shop-flottant md:col-span-2 md:p-6 dark:bg-shop-surface">
           <ul className="flex flex-col">
             {panier.map((a) => (
               <li key={a.produit.id} className="flex items-center gap-2 border-b border-gray-200 py-4 md:gap-4">
@@ -66,13 +78,13 @@ function PanierPage() {
                       }
                     />
 
-                    <p className="ml-auto shrink-0 text-center font-semibold whitespace-nowrap text-shop-text tabular-nums md:w-32 md:text-2xl">
+                    <p className="text-shop-text ml-auto shrink-0 text-center font-semibold whitespace-nowrap tabular-nums md:w-32 md:text-2xl">
                       {formatEuro(a.produit.price * a.quantite)}
                     </p>
                     <button
                       className="ml-auto flex cursor-pointer items-center justify-center rounded-full p-2 text-xl hover:bg-shop-primaire-survol"
                       aria-label="supprimer du panier"
-                      onClick={() => supprimerPanier(a.produit.id)}
+                      onClick={() => demandeSuppression(a)}
                     >
                       <Trash className="size-6" />
                     </button>
@@ -83,7 +95,7 @@ function PanierPage() {
           </ul>
         </section>
         <section className="flex flex-col">
-          <div className="flex flex-col gap-2 rounded-lg bg-white dark:bg-shop-surface p-6 shadow-shop-flottant">
+          <div className="flex flex-col gap-2 rounded-lg bg-white p-6 shadow-shop-flottant dark:bg-shop-surface">
             <div className="flex justify-between">
               <p>Total panier :</p>
               <p>{formatEuro(total)}</p>
@@ -102,13 +114,32 @@ function PanierPage() {
               Paiement
             </Bouton>
             <Link
-              className="mt-4 rounded-lg border bg-white dark:bg-stone-800 px-4 py-2 text-center text-shop-texte-doux hover:bg-black hover:text-white"
+              className="mt-4 rounded-lg border bg-white px-4 py-2 text-center text-shop-texte-doux hover:bg-black hover:text-white dark:bg-stone-800"
               to={"/shopping-cart/boutique"}
             >
               ... ou continuer mes achats
             </Link>
           </div>
         </section>
+        <dialog className="m-auto rounded-shop backdrop:bg-black/50 bg-shop-surface p-4 shadow-shop-flottant" ref={refModale}>
+          <div className="flex flex-col gap-4">
+            <p className="text-shop-texte">
+              Retirer <span className="italic">"{aRetirer?.produit.title}"</span> du panier ?
+            </p>
+            <div className="flex justify-between">
+              <Bouton className="mx-6 grow" label="supprimer l'article" onClick={confirmationSuppression}>
+                Retirer
+              </Bouton>
+              <Bouton
+                className="bg- white mx-6 grow rounded-lg border text-center text-shop-texte-doux hover:bg-black hover:text-white dark:bg-stone-800"
+                label="retour"
+                onClick={() => refModale.current?.close()}
+              >
+                Annuler
+              </Bouton>
+            </div>
+          </div>
+        </dialog>
       </div>
     </div>
   );
