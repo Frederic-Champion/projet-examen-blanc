@@ -121,8 +121,15 @@ function PanierPage() {
             </Link>
           </div>
         </section>
-        <dialog className="m-auto rounded-shop backdrop:bg-black/50 bg-shop-surface p-4 shadow-shop-flottant" ref={refModale}>
-          <div className="flex flex-col gap-4">
+        <dialog
+          onClick={(e) => {
+            if (e.target !== e.currentTarget) return;
+            refModale.current?.close();
+          }}
+          className="m-auto bg-transparent backdrop:bg-black/50"
+          ref={refModale}
+        >
+          <div className="bg-shop-surface shadow-shop-flottant flex flex-col gap-4 rounded-shop p-4">
             <p className="text-shop-texte">
               Retirer <span className="italic">"{aRetirer?.produit.title}"</span> du panier ?
             </p>
