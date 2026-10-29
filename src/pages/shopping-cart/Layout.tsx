@@ -10,6 +10,8 @@ import { SelecteurQuantite } from "./SelecteurQuantite";
 import { ThemeProvider } from "./theme-context/ProviderDarkTheme";
 import { useTheme } from "./theme-context/useTheme";
 import { BoutonTheme } from "./theme-context/Bouton-DarkTheme";
+import { ErrorBoundary } from "react-error-boundary";
+import { Bouton } from "./Bouton";
 
 function DivDarkTheme({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
@@ -17,15 +19,26 @@ function DivDarkTheme({ children }: { children: React.ReactNode }) {
   return <div className={theme === "light" ? "" : "dark"}>{children}</div>;
 }
 
+function lirePanier(): Article[] {
+  try {
+    const donnees = JSON.parse(localStorage.getItem("panier") ?? "[]");
+
+    const valide =
+      Array.isArray(donnees) &&
+      donnees.every((a) => typeof a?.quantite === "number" && typeof a?.produit?.price === "number");
+
+    return valide ? donnees : [];
+  } catch {
+    return [];
+  }
+}
+
 function LayoutPage() {
   const location = useLocation();
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
   const [produits, setProduits] = useState<Produit[]>([]);
-  const [panier, setPanier] = useState<Article[]>(() => {
-    const memoire = localStorage.getItem("panier");
-    return JSON.parse(memoire ?? "[]");
-  });
+  const [panier, setPanier] = useState(lirePanier);
   const [bandeOuverte, setBandeOuverte] = useState(false);
 
   useEffect(() => {
@@ -110,14 +123,25 @@ function LayoutPage() {
             </div>
           </header>
           <main className="flex flex-1 flex-col">
-            <Outlet
-              context={{ chargement, erreur, produits, ajouterPanier, panier, supprimerPanier, modifierPanier }}
-            />
+            <ErrorBoundary
+              fallbackRender={() => (
+                <div>
+                  <p>Une erreur s'est produite.</p>
+                  <Bouton onClick={() => setPanier([])}>Réessayer</Bouton>
+                </div>
+              )}
+              resetKeys={[location.pathname, panier]}
+            >
+              <Outlet
+                context={{ chargement, erreur, produits, ajouterPanier, panier, supprimerPanier, modifierPanier }}
+              />
+            </ErrorBoundary>
           </main>
+
           <aside
             inert={!(afficherBande && bandeOuverte)}
             className={cn(
-              "fixed inset-y-0 right-0 z-20 hidden w-36 translate-x-full flex-col border border-gray-400 bg-stone-100 dark:bg-shop-surface p-2 text-center transition-transform duration-300 2xl:flex",
+              "fixed inset-y-0 right-0 z-20 hidden w-36 translate-x-full flex-col border border-gray-400 bg-stone-100 p-2 text-center transition-transform duration-300 2xl:flex dark:bg-shop-surface",
               afficherBande && bandeOuverte && "translate-x-0",
             )}
           >
@@ -149,7 +173,7 @@ function LayoutPage() {
                   <Link to={`/shopping-cart/boutique/${a.produit.id}`} title={a.produit.title}>
                     <img className="size-20 shrink-0 object-contain" src={a.produit.image} alt={a.produit.title} />
                   </Link>
-                  <p className="shrink-0 text-center font-semibold text-[#1D2633] dark:text-shop-texte tabular-nums">
+                  <p className="shrink-0 text-center font-semibold text-[#1D2633] tabular-nums dark:text-shop-texte">
                     {formatEuro(a.produit.price * a.quantite)}
                   </p>
                   <SelecteurQuantite
