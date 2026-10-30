@@ -13,6 +13,7 @@ import { AccueilPage } from "./pages/shopping-cart/Accueil";
 import { BoutiquePage } from "./pages/shopping-cart/Boutique";
 import { PanierPage } from "./pages/shopping-cart/Panier";
 import { FicheProduitPage } from "./pages/shopping-cart/FicheProduit";
+import { TodoList } from "./pages/todo-list/Todo-list";
 
 function App() {
   const naviguer = useNavigate();
@@ -54,6 +55,7 @@ function App() {
             <Route path="boutique/:id" element={<FicheProduitPage />} />
             <Route path="panier" element={<PanierPage />} />
           </Route>
+          <Route path="/todo-list" element={<TodoList />} />
         </Routes>
       </main>
     </div>

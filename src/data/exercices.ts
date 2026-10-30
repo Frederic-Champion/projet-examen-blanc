@@ -36,6 +36,11 @@ export const EXERCICES: Exercice[] = [
     titre: "Odin - Shopping Cart",
     description: "Troisième exercice du Projet Odin React",
   },
+    {
+    path: "/todo-list",
+    titre: "Odin - Todo-List en React",
+    description: "Projet réutilisant react dans son ensemble",
+  },
 
 
 ];

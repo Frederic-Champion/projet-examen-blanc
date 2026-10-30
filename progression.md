@@ -3177,16 +3177,19 @@ _Source vérifiée : MDN, `showModal()` et `::backdrop`._
 ---
 
 ### 1. Incident Git deux machines (midi)
+
 - **`projet-examen-blanc`** : `npm install` a **réécrit le `package-lock.json`** (paquets propres à chaque système, ex. `1.2.3` → `1.2.15`), ce qui bloquait le pull. Cause probable : **versions de npm / Node différentes** entre les deux PC. **Comparaison `node -v` / `npm -v` non faite → à demander.**
 - **`projet-vite-local`** : pull refusé à cause de **4 fichiers de code modifiés et jamais commités sur le fixe**. Commit, pull, 2 conflits (`BoutonTheme.tsx` résolu en Accept Both → import en double à supprimer ; `Brouillon-TSX.tsx`). **Résolu.** Frustration forte en cours de résolution.
 - **Cause racine** : fin de séance sans commit + push sur le PC utilisé.
-- **Rituel proposé** : `git pull` → **`npm ci`** (installe exactement le lock, ne le réécrit jamais) → `npm run dev`. `npm install` réservé à l'ajout d'un paquet. *Adoption à confirmer.*
+- **Rituel proposé** : `git pull` → **`npm ci`** (installe exactement le lock, ne le réécrit jamais) → `npm run dev`. `npm install` réservé à l'ajout d'un paquet. _Adoption à confirmer._
 
 ### 2. Révision éclair (2 items)
+
 - **Prédire — argument manquant** 🟢 3/3 (`NaN`, `"100 €"`, `number`). Raté en S133 → **sort de rotation.**
 - **Prédire — `memo` + objet littéral** : 3 rendus ✅. 🔴 **Raison fausse, 2ᵉ séance d'affilée** : `useCallback` posé sur une fonction qui n'est **pas transmise** à l'enfant. La prop en cause était l'**objet `client` recréé à chaque rendu**. Correction la plus simple : sortir l'objet du composant. **Geste posé : lire la balise de l'enfant `memo`, et pour chaque prop se demander « même référence qu'au rendu précédent ? ».**
 
 ### 3. Fin de `<dialog>` (midi)
+
 - **Le `<dialog>` reste dans l'`<article>`** (vérifié seul) : le portail **déplace** dans le DOM, le dialog est seulement **peint** dans le top layer.
 - **Tests clavier** : focus rendu à « Supprimer » ✅ · Tab ne revient jamais dans la page (va dans l'interface du navigateur) ✅ · Échap ferme ✅. Le portail n'offre rien de tout ça.
 - **Critère posé** : modale bloquante → `<dialog>` + `showModal()` · élément flottant non bloquant qui doit échapper à ses ancêtres → portail · bibliothèque (shadcn/ui) → elle choisit. **Ce ne sont pas deux versions du même outil.**
@@ -3194,6 +3197,7 @@ _Source vérifiée : MDN, `showModal()` et `::backdrop`._
 - `::backdrop` défini (pseudo-élément fabriqué par le navigateur). Aucun des deux ne ferme au clic sur le fond par défaut → propagation.
 
 ### 4. Confirmation de suppression sur le Shopping Cart (soir, branche) ✅
+
 - **Conception** : un seul `<dialog>` pour la page + state `aRetirer: Article | null` (un `useRef` par ligne = hook dans un `.map()`, interdit).
 - **Écrit seul** 🟢 : ref + state **déclarés avant les early returns** · `demandeSuppression` / `confirmationSuppression` en fonctions nommées · type `Article` trouvé · tokens du shop · `m-auto` · `<Bouton>`.
 - **Erreur TS** (`number | undefined`) : **garde dans le handler** trouvée après un indice 🟢.
@@ -3210,6 +3214,7 @@ _Source vérifiée : MDN, `showModal()` et `::backdrop`._
 ---
 
 ### 🗺️ Avant Next.js — état
+
 1. Calculatrice `useReducer` + mémoïsation ✅
 2. Dark mode Shopping Cart + audit accessibilité ✅
 3. `@keyframes` sur Memory Card ✅ · PR ✅
@@ -3219,6 +3224,7 @@ _Source vérifiée : MDN, `showModal()` et `::backdrop`._
 7. **Next.js**
 
 **⏭️ Prochaine étape (décidée avec lui)**
+
 1. **Propagation des événements** : fermer le dialog du panier au clic sur le fond, pas au clic dans la boîte. Puis PR + fusion.
 2. **ErrorBoundary** si le temps le permet (décision composant classe / bibliothèque, doc vérifiée avant).
 
@@ -3248,7 +3254,7 @@ _Source vérifiée : MDN, `showModal()` et `::backdrop`._
 
 ### 2. ErrorBoundary — ouvert
 
-- **Décision prise ensemble : `react-error-boundary`** (option A). La classe écrite à la main empilerait `class` / `this` / `extends` / `static`. Classes prévues avec le projet Library. *Sources : articles concordants + ancienne doc officielle ; page react.dev non lue directement.*
+- **Décision prise ensemble : `react-error-boundary`** (option A). La classe écrite à la main empilerait `class` / `this` / `extends` / `static`. Classes prévues avec le projet Library. _Sources : articles concordants + ancienne doc officielle ; page react.dev non lue directement._
 - **Attrapé / non attrapé** : rendu ✅ · `onClick` ❌ · code différé ❌ (b et c justes). Repère : erreur de rendu → ErrorBoundary · erreur d'action ou d'attente → `try` / `catch`.
 - 🔴 **Assertion `!` non comprise** : lue comme une garde. Deux `!` distingués (`!verre` JS = test · `verre!` TS = effacé), **sans succès, agacement**. Laissé de côté au profit de l'observation à l'écran.
 - **Exercice préparé seul** (`Exercice-ErrorBoundary.tsx`) : structure juste, ErrorBoundary autour de la carte seulement. 🔴 **`({ verre }: Verre | undefined)`** — annotation portée sur ce qui est extrait, **6ᵉ occurrence**.
@@ -3263,6 +3269,7 @@ _Source vérifiée : MDN, `showModal()` et `::backdrop`._
 **🆕 Notions ouvertes ce jour** : propagation · ErrorBoundary (`react-error-boundary`).
 
 **⚠️ Mes erreurs**
+
 1. **Consignes jugées « très mauvaises, de pire en pire »** par Frédéric. Celle de l'ErrorBoundary était longue et faisait écrire un code volontairement fautif sans le dire clairement. **Engagement : une consigne = livrable · résultat attendu à l'écran · tests. Rien d'autre.**
 2. Item 2 de révision sans dire quoi prédire précisément.
 3. Explication de l'assertion `!` reprise deux fois sans changer d'angle.
@@ -3274,6 +3281,7 @@ _Source vérifiée : MDN, `showModal()` et `::backdrop`._
 ---
 
 ### 🗺️ Avant Next.js — état
+
 1. Calculatrice `useReducer` + mémoïsation ✅
 2. Dark mode Shopping Cart + audit accessibilité ✅
 3. `@keyframes` sur Memory Card ✅
@@ -3283,7 +3291,71 @@ _Source vérifiée : MDN, `showModal()` et `::backdrop`._
 7. **Next.js**
 
 **⏭️ Prochaine étape**
+
 1. Confirmer : PR de la branche dialog · tests 1 et 2 de l'ErrorBoundary.
 2. **ErrorBoundary, partie 3** : bouton « Réessayer » (`resetErrorBoundary`), puis un ErrorBoundary dans le Shopping Cart.
 3. Reprise `<dialog>` + portails sur terrain neuf.
 4. Puis Todo List → Next.js.
+
+## Session 138 — ErrorBoundary terminé (reset, Shopping Cart, validation du `localStorage`) + reprise `<dialog>` sans squelette
+
+**Durée** : 2h (jeudi, 1h10 le midi + 50 min le soir). Énergie bonne, frustration passagère le midi (extraction de la bande latérale).
+
+**🎹 Raccourci** : `Alt+Maj+M` — peu utilisé, reconduit.
+
+**Confirmés en ouverture** : PR de la branche dialog faite · tests 1 et 2 de l'ErrorBoundary passés.
+
+---
+
+### Révision éclair (2 items)
+
+- **Écrire — signature de composant** 🟢 : `({ client, onModifier }: { client: Client; onModifier: … })`. **L'annotation porte enfin sur ce qui arrive, du premier coup, après 6 occurrences.** Seul écart : `() => void` au lieu de `(nom: string) => void`.
+- **Écrire — tri sans mutation** 🟢 : `toSorted` + `localeCompare`. Nommage (`trier` = verbe → `triees`).
+
+### 1. ErrorBoundary — fin du cycle
+
+- **`resetKeys`** : 1ᵉʳ jet `resetKeys={verre}` → tableau attendu, `[id]` (la source plutôt que la valeur déduite). Questions posées : pourquoi un tableau (plusieurs valeurs possibles, même raison que les dépendances d'un effet) · `{[id]}` = accolades JSX + crochets du tableau. 🟢
+- **`fallbackRender` + `resetErrorBoundary`** : structure juste, rattachée au motif `NavLink`. 🔴 **`onReset` sur un `<button>`** (événement de formulaire, échec silencieux, famille `onSubmit` sur un bouton) → `onClick`. Test « Réessayer replante tant que la cause est là » compris. 🟢
+- Points donnés sans exercice : placement par zone (pas un seul en haut) · dev / prod · `onError` + Sentry · `useErrorBoundary` (mentionné).
+- **Shopping Cart** : question de fond fondée (« à quoi ça sert, les fetch sont déjà traités ? ») → cas réel du **panier `localStorage` d'une ancienne version**. Schéma « disjoncteur par pièce » pour le rôle autour de `<Outlet />`. **Initiative de sa part : vider le panier dans le bouton** → corrigé en `setPanier([])` (le state est déjà chargé, `localStorage.clear()` effaçait tout) + `resetKeys={[location.pathname, panier]}`.
+- **Test réel** (panier cassé dans l'onglet Application) → page blanche malgré l'ErrorBoundary : le `reduce` et le `.map()` de l'`<aside>` sont **exécutés par `LayoutPage`**. Règle : **un ErrorBoundary protège les composants qu'il enveloppe, pas le code calculé par le parent dans son JSX.** Expliquée le soir avec un schéma en deux temps. 🟡
+- **Extraction `BandePanier` refusée par lui** (retour en arrière). **Solution pro retenue : valider à l'entrée** → fonction pure `lirePanier()` (`try` / `catch` autour de `JSON.parse`, `Array.isArray`, `every`) passée en lazy initializer. **Test passé** : panier cassé remplacé par `[]`. Solutions entreprise données par ordre : valider à l'entrée (Zod, clé versionnée) → ErrorBoundary par zone → ErrorBoundary racine + suivi. Ne pas semer des `?.` pour masquer.
+- **Neuf** : `Array.isArray` 🟡 (cours détaillé demandé : `JSON.parse` renvoie ce que le texte décrit ; `typeof` ne distingue pas tableau / objet / `null`) · `every` 🟡.
+
+### 2. Reprise `<dialog>` — terrain neuf, sans squelette ✅
+
+Ref typée, `showModal()` / `close()`, `backdrop:`, fermeture au clic sur le fond en `&&`, bouton masqué après annulation. **6 tests passés dans Chrome.** Échap ne fonctionne pas dans l'**aperçu de VS Code**, qui intercepte la touche → repère : clavier et accessibilité se testent dans un vrai navigateur.
+
+### 3. `===` vs `!==` dans le test du fond — enfin compris ✅
+
+Bloqué depuis S137. Deux explications par tableau n'avaient pas suffi. **Ce qui a débloqué** : sa lecture supposait le fond **en dehors** du dialog ; or **le fond appartient au dialog** (un clic dessus est rapporté comme un clic sur le dialog lui-même), tandis que la boîte est couverte d'enfants. Vérification proposée par `console.log(e.target)`. Repère annexe : `&&` / `if` → condition pour **agir** · early return → condition pour **partir**.
+
+---
+
+**Niveaux** : annotation d'un paramètre déstructuré 🟢 (enfin) · type fonction avec paramètre 🟡 · `toSorted` / `localeCompare` 🟢 · `resetKeys` 🟢 · `fallbackRender` 🟢 · `onReset` vs `onClick` 🔴 → corrigé · placement d'un ErrorBoundary 🟢 · ce que protège un ErrorBoundary (composants vs code du parent) 🟡 · valider à l'entrée 🟢 (appliqué, compris) · `Array.isArray` / `every` 🟡 · **`<dialog>` 🟢 (sans squelette, terrain neuf)** · fermeture au clic sur le fond 🟢 · `target === currentTarget` sur un dialog 🟢 (compris) · state = donnée, pas phrase 🟡.
+
+**⚠️ Mes erreurs**
+
+1. **Extraction de `BandePanier` proposée trop vite**, en fin de créneau et sur un code non vu en entier → rejetée, retour en arrière. La validation à l'entrée était la solution la plus simple et la plus pro : elle aurait dû venir en premier.
+2. Explications de `===` / `!==` reprises deux fois sous le même angle avant de chercher où était le malentendu.
+
+**🔄 Cycle de reprise** : ErrorBoundary → N+2 · `<dialog>` → N+5 ≈ S143 · propagation → N+2 ≈ S139 · portails → à recroiser.
+
+**🔄 Rotation** : **entrent** — ErrorBoundary ne protège pas le code du parent · `onReset` (formulaire) vs `onClick` · `Array.isArray` / `every` · state = donnée, pas phrase · tests clavier hors aperçu VS Code. **Sortent** — annotation d'un paramètre déstructuré (à confirmer une fois, plus en priorité) · `toSorted` / `localeCompare`. **Restent** — `!` assertion vs négation · `::backdrop` appartient au dialog · vider l'état opposé dans `try` / `catch` · `show()` vs `showModal()` · `npm ci` vs `npm install` · le reste de la liste S136.
+
+---
+
+### 🗺️ Avant Next.js — état
+
+1. Calculatrice `useReducer` + mémoïsation ✅
+2. Dark mode Shopping Cart + audit accessibilité ✅
+3. `@keyframes` sur Memory Card ✅
+4. Portails ✅ · `<dialog>` ✅ · propagation ✅ · **ErrorBoundary ✅**
+5. **Todo List (Odin)** (+ `reduce` accumulateur objet, dates) ⏳
+6. Créneaux courts : event loop · récursion ⏳
+7. **Next.js**
+
+**⏭️ Prochaine étape**
+
+1. **Todo List (The Odin Project)** : énoncé à vérifier sur theodinproject.com avant de cadrer, en React + TS, sur branche.
+2. En ouverture : reprises propagation et ErrorBoundary (N+2).
