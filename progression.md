@@ -3359,3 +3359,82 @@ Bloqué depuis S137. Deux explications par tableau n'avaient pas suffi. **Ce qui
 
 1. **Todo List (The Odin Project)** : énoncé à vérifier sur theodinproject.com avant de cadrer, en React + TS, sur branche.
 2. En ouverture : reprises propagation et ErrorBoundary (N+2).
+
+## Session 139 — Reprises propagation / ErrorBoundary + cadrage de la Todo List (mobile first) + question `class` / `this`
+
+**Durée** : ~3h (vendredi, 1h + 1h35 avec pause, puis 25 min de relecture de code en solo). Énergie bonne.
+
+**🎹 Raccourci** : `Alt+Maj+M` (Emmet : Remove Tag) — peu utilisé, reconduit.
+
+**Deux machines** : toujours sur le portable. Comparaison `node -v` / `npm -v` + adoption de `npm ci` → **dimanche**, au retour sur le fixe.
+
+**Ressenti en ouverture** : propagation / ErrorBoundary 5-6/10 → **sous-évalué** (les deux reprises 🟢).
+
+---
+
+### Révision éclair (2 items)
+
+- **Prédire — `!` assertion vs négation + `Array.isArray`** 🟢 : `false` / `false` / `"object"` justes. **Distinction des deux `!` expliquée seul** (assertion TS effacée à la compilation, négation JS exécutée). Bloqué en S137. Précision : le `!` retire `null` **et** `undefined`.
+- **Déboguer — vider l'état opposé dans `try` / `catch`** : 1ᵉʳ cas trouvé (`setErreur(null)`), cas inverse trouvé en une question → principe « repartir d'un état propre au début du calcul ». **Passé au vert sur décision de Frédéric.**
+
+### 1. Reprises (N+2) — 🟢 toutes les deux
+
+- **Propagation** : ordre bouton → article → section ✅ · `e.target === e.currentTarget &&` ✅. Précision : un clic dans la `section` hors article déclenche son propre handler.
+- **ErrorBoundary** (fiches clients, `mutuelle!`) : `key` sur l'ErrorBoundary (élément le plus extérieur du `.map()`) ✅ · `fallback` en `<li>` pour garder un `<ul>` valide ✅ · test sans ErrorBoundary (toute l'app démontée) ✅ · `!` = silence de TS, `TypeError` à l'exécution ✅.
+- **Props de `react-error-boundary` expliquées à sa demande** (autocomplétion) : `fallback` / `fallbackRender` / `FallbackComponent` (une seule des trois) · `onError` (suivi d'erreurs) · `resetKeys` (reset automatique quand une valeur change, **seulement en état d'erreur**) · **`onReset`** (réparer la cause avant de retenter ; utile surtout avec `FallbackComponent`) 🟡 expliqué, non pratiqué · `children` = la zone protégée. Snippets VS Code ≠ props.
+
+### 2. Tests, CI, CD, Sentry — questions de fond
+
+Trois moments différents, complémentaires : tests (avant) · CI (vérifs automatiques à chaque PR) · CD (mise en ligne automatique, Vercel) · Sentry (erreurs des vrais utilisateurs).
+**🎓 Décision** : **CI simple (GitHub Actions : lint + typecheck + tests) et Sentry en fin de Phase 2**, au déploiement du SaaS.
+
+### 3. Todo List — cadrage
+
+- **Énoncé vérifié sur theodinproject.com** : projet du module « Organiser son code JavaScript » (JS pur, factories/classes, webpack).
+- **🎓 Décision** : adaptation **React + TS** (synthèse du bloc React). Point 1 → **fonction factory** `creerTodo`, pas de classes · point 4 « séparer la logique du DOM » → reducer + fonctions pures · point 8 → `localStorage` validé (motif `lirePanier`). Pas de tests, pas de déploiement. `date-fns` ou `Date` natif : à décider ensemble au moment des dates (ressenti « moyen chaud »).
+- **Inspirations retenues** : Apheiro (React, design épuré) + Cambuchi (couleur par priorité, modale de confirmation).
+- **Fait** : page + `<Route>`. ⚠️ Travail commencé **sur `main`** → `git switch -c todo-list` proposé. **Branche créée ? Entrée d'accueil faite ? À demander.**
+- **Mise en page conçue par lui, mobile first** : un seul panneau visible sur mobile avec **glissement projets ↔ tâches**, deux colonnes à `md`. Remarques retenues : `<select>` redondant avec la colonne de projets · **projet par défaut (une tâche appartient toujours à un projet) ≠ vue « Toutes » (filtre)** · cocher / déplier / supprimer à prévoir · calendrier et couleurs en **bonus** (« Paramètre des couleurs » : question ouverte).
+- **Outils prévus, tous connus** : union `"projets" | "taches"` · panneaux toujours rendus + `translate-x` · `inert` sur le panneau caché · `md:grid` · Retour en `md:hidden` · `<dialog>` pour « Nouvelle tâche ».
+- **Mobile first — question de fond** : en Tailwind, le **code** est toujours mobile first (doc officielle vérifiée : classes sans préfixe = toutes tailles, `sm:` ≠ « mobile ») · la **conception** dépend du produit (outil métier souvent pensé ordinateur) · méthode pro : aperçu étroit (~375 px, mode appareil des DevTools), puis élargir jusqu'à ce que ça casse et ajouter le préfixe là. Composant par composant.
+
+### 4. `class` / `this` — question de Frédéric
+
+Croisés dans du vieux React (`extends Component`) et en lisant du code, sans comprendre → sentiment d'un **« gros manque »** et d'un frein au recrutement (lire du code de 5 ans).
+Recalibrage : `class` = ES6 (2015), pas du « JS classique » ; il lit déjà le reste du JS. Composants classes = React d'avant 2019, encore présents en entreprise.
+⚠️ Explication donnée en un bloc (classe JS + `this` + héritage + composant classe React) → **« je me sens perdu »**.
+**🎓 Décision** : **séance dédiée rapidement, avant Library** : savoir **lire** une classe JS (une idée à la fois, forme longue d'abord), puis lire un composant classe React par traduction (`this.state` ↔ `useState`, cycle de vie ↔ `useEffect`). Library reste pour l'**écrire**.
+
+---
+
+**Niveaux** : `!` assertion vs négation 🟢 · `Array.isArray` 🟢 · vider l'état opposé 🟢 (décision) · propagation 🟢 · `target` / `currentTarget` 🟢 · ErrorBoundary 🟢 (placement, `key`, `fallback`) · `onReset` 🟡 (expliqué) · tests / CI / CD / Sentry 🟢 (compris) · mobile first : code vs conception 🟢 · `class` / `this` 🔴 (jamais enseigné).
+
+**⚠️ Mes erreurs**
+1. **Classes et `this` expliqués d'un bloc** (quatre notions dans un message) → perdu. Récurrence du dosage.
+2. Squelette lu comme un écran de bureau alors qu'il était pensé mobile first.
+
+**🔄 Cycle de reprise** : propagation + ErrorBoundary → **N+5 ≈ S144**.
+
+**🔄 Rotation** : **entrent** — **`Map` et `Set`** (demande explicite) · **`FormData`** (oublié) · `onReset` vs `resetKeys`. **Sort** — vider l'état opposé dans `try` / `catch`. **À confirmer une fois** — `!` assertion vs négation. **Restent** — ErrorBoundary ne protège pas le code du parent · `onReset` (formulaire) vs `onClick` · `Array.isArray` / `every` · state = donnée, pas phrase · `::backdrop` appartient au dialog · `show()` vs `showModal()` · `npm ci` vs `npm install` · le reste de la liste S136.
+
+---
+
+### 🗺️ Avant Next.js — état
+1. Calculatrice `useReducer` + mémoïsation ✅
+2. Dark mode Shopping Cart + audit accessibilité ✅
+3. `@keyframes` sur Memory Card ✅
+4. Portails ✅ · `<dialog>` ✅ · propagation ✅ · ErrorBoundary ✅
+5. **Todo List (Odin)** 🔄 (cadrée, mise en page conçue) (+ `reduce` accumulateur objet, dates)
+6. **Séance `class` / `this` (lecture)** ⏳ — avancée à sa demande
+7. Créneaux courts : event loop · récursion ⏳
+8. **Next.js**
+
+**⏭️ Prochaine étape — demain (1h minimum, 2h si possible)**
+1. Vérifier : branche `todo-list` + entrée d'accueil.
+2. **Glissement des panneaux** (mobile ~375 px puis `md`), données en dur.
+3. **`types.ts`** : `Priorite`, `Todo`, `Projet`, `EtatTodo`, `ETAT_INITIAL` + la phrase « comment une tâche sait à quel projet elle appartient ».
+4. **Séance `class` / `this`** au prochain créneau frais (dimanche ou lundi).
+
+## Session 139 bis — Lecture solo : `this` et `class`
+
+**Durée** : 2h (samedi, en solo). Lecture seule (javascript.info, Grafikart, MDN), pas de code. Objectif : préparer le terrain de la séance dédiée. **Ressenti : tout reste obscur, « très abstrait ».** Notion classée **non vue** au registre (règle S94) : séance complète à faire ensemble.
