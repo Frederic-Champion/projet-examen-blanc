@@ -1,0 +1,15 @@
+| Geste                               | Écran mobile                                                                              | Écran PC                                                | Retenu                                                          |
+| ----------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------- |
+| J'ouvre l'app pour la première fois | Liste des projets, avec « Général »                                                       | Projets à gauche, tâches de « Général » à droite (vide) | La liste des projets · la liste des tâches (vide)               |
+| Je crée un projet                   | Modale de saisie, puis le projet apparaît dans la liste                                   | idem                                                    | La liste des projets (+1)                                       |
+| Je crée une tâche                   | Modale (titre, description, date, priorité), puis la tâche apparaît dans le projet choisi | idem                                                    | La liste des tâches (+1) · le projet auquel appartient la tâche |
+| Je coche une tâche                  | La tâche apparaît barrée                                                                  | idem                                                    | Fait / pas fait, pour cette tâche                               |
+| Je déplie une tâche                 | La carte s'agrandit : description, date, priorité                                         | idem                                                    | Quelle tâche est dépliée                                        |
+| Je modifie une tâche dépliée        | Champs modifiables, puis Enregistrer                                                      | idem                                                    | La tâche modifiée dans la liste                                 |
+| Je supprime une tâche               | Elle disparaît                                                                            | idem                                                    | La liste des tâches (−1)                                        |
+| Mobile : je reviens aux projets     | Le panneau glisse vers les projets                                                        | Sans objet (deux colonnes)                              | Quel panneau est visible                                        |
+| Je recharge la page                 | Tout revient comme avant                                                                  | idem                                                    | Projets + tâches relus depuis `localStorage`                    |
+| Je supprime un projet               | Confirmation, puis le projet et ses tâches disparaissent, retour sur « Général »          | idem                                                    | Projets (−1) · tâches (sans les siennes) · projet choisi        |
+
+
+type 
