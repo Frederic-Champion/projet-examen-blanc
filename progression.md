@@ -622,3 +622,51 @@ Ref typée, `showModal()` / `close()`, clic sur le fond en `target === currentTa
 1. Todo List : **liste des actions du reducer** (5-6), en partant des deux exemples donnés (`AJOUTER_PROJET`, `BASCULER_FAIT`). Si la visualisation bloque encore : **coder d'abord le squelette visuel avec des données en dur**, puis en déduire state et actions.
 2. Créneau court **event loop** (trou réel révélé ce jour).
 3. `bind` à froid · `@keyframes`.
+
+## Session 144 — Todo List : modèle de données, reducer complet, premières briques de la page
+
+**Durée** : ~3h (vendredi). Énergie bonne. Pas d'arrêt net, malgré une longue explication de `projetChoisi`.
+
+**🎹 Raccourci** : `Alt+Maj+M` — peu utilisé, reconduit.
+
+---
+
+### Révision éclair (2 items)
+
+- **Prédire — `bind`** 🟢 : `1`, `2`, `TypeError` + raison juste. **Reprise N+2 de `bind` tenue, à froid.**
+- **Déboguer — `@keyframes`** 🔴 : délai corrigé après lecture MDN, mais `opacity-0` (classe Tailwind dans un scénario CSS) non vu ; `alternate` perdu. **Décision de Frédéric : `@keyframes` sort de la rotation jusqu'à un usage réel** (une animation dans la Todo List, par exemple).
+
+### Reprises
+
+- **Propagation** (N+5) 🟢 3/3, marge intérieure comprise. **Cycle fermé.**
+- **ErrorBoundary** (N+5) 🟡 : principe retrouvé **après relecture** ; piège manqué (un `reduce` dans le parent fait planter toute la page, l'ErrorBoundary ne protège que ce qu'il enveloppe). Image donnée : le disjoncteur ne coupe que la pièce qui lui est branchée. Parade : valider à l'entrée.
+
+### Todo List — modèle de données et reducer
+
+- **Question de Frédéric en ouverture : plusieurs `useReducer` ?** Possible, mais pas ici : supprimer un projet touche projets **et** tâches → **ce qui change ensemble vit dans le même reducer**. Intuition juste de sa part.
+- **Types d'abord ou code d'abord ?** Les deux existent en entreprise ; le **modèle de données** se pose tôt, les types restent un **brouillon qui bouge** pendant le code. Frédéric veut « la façon pro », pas « sa façon » → il avait déjà préparé `types.ts` seul, ce qui est la façon pro.
+- **Décisions** : un seul reducer · modèle **à plat** (`projets` + `taches`, chaque tâche porte `idProjet`, comme une base de données) · `priorite` en union de valeurs · échéance stockée en **chaîne `"AAAA-MM-JJ"`** (format de `<input type="date">`, survit à `localStorage`) · projet par défaut à **`id` fixe dans une constante** (`ID_PROJET_DEFAUT`), `nom` affiché « Général » · garde dans le reducer contre la suppression du projet par défaut (l'interface empêchera aussi).
+- **Ce qui va dans le reducer — règle retenue (formulée par lui)** : « ça touche une donnée → reducer, c'est de l'affichage → `useState` local », **sauf** si une action du reducer doit modifier cet affichage en même temps (→ reducer). Tâche dépliée et panneau mobile restent locaux.
+- **`fait` vs déplié** : débloqué par « est-ce que ça décrit la tâche, ou ma façon de la regarder ? » + image de la fiche client papier. Le nombre (plusieurs cochées / plusieurs dépliées) ne départage rien.
+- **`projetChoisi` : 3 explications sans succès**, débloqué par un tableau clic par clic (« marque-page ») et **renommé par lui `projetAffiche`** (« afficher à l'écran ! »). Le nom faisait obstacle.
+- **Reducer écrit seul, complet** 🟢 : 7 actions avec leurs données, objet complet renvoyé (erreur `Projet[] is missing…` lue et corrigée), `map` + copie `{ ...t, fait: !t.fait }` pour cocher, `supprimerProjet` changeant les trois clés. Spread superflu devant `filter` / `map` retiré.
+- **Page** : `useReducer` branché, `ETAT_INITIAL` annoté avec le projet par défaut, liste des projets (`key={p.id}`), **modale d'ajout de projet fonctionnelle** (`<dialog>`, `crypto.randomUUID()`, `dispatch`).
+- **Bugs connus, à reprendre** : `"General"` encore en dur dans `supprimerProjet` (garde inopérante, marque-page cassé) → `ID_PROJET_DEFAUT` (**fait**, à confirmer) · case à cocher `checked` sans `onChange` (avertissement) → reportée au branchement de `cocher` · champ du nom non vidé après validation.
+
+---
+
+**Niveaux** : `bind` 🟢 (à froid) · `@keyframes` 🔴 (sorti de rotation jusqu'à usage réel) · propagation 🟢 · ErrorBoundary / code du parent 🟡 · plusieurs reducers 🟢 (compris) · reducer : objet complet renvoyé 🟢 · copie d'objet avec propriété modifiée dans un `map` 🟢 · state reducer vs `useState` local 🟡 (règle formulée, à appliquer seul) · modèle à plat 🟢 (compris) · constante pour un `id` fixe 🟡 (posée, pas encore utilisée partout).
+
+**⚠️ Mes erreurs**
+1. « On fait à ta façon » : présenté comme une préférence alors qu'il demandait la pratique pro. Correctif : répondre par la norme, dire ensuite si son choix y correspond.
+2. Critère « survivre au F5 » donné comme question 1 → l'a embrouillé. La règle « une donnée est en jeu » suffisait.
+3. **`projetChoisi` expliqué trois fois sous le même angle** avant le tableau clic par clic : la règle des trois échecs aurait dû s'appliquer plus tôt. Le mot choisi par moi bloquait la compréhension.
+
+**🔄 Cycle de reprise** : `bind` → N+5 ≈ S147 · propagation → **fermé** · ErrorBoundary → recroiser (code du parent) · `class` / `extends` → N+5 ≈ S146, puis Library · `@keyframes` → en attente d'usage réel.
+
+**🔄 Rotation** : **entrent** — ErrorBoundary ne protège pas le code du parent (priorité haute) · règle reducer / `useState` local · `{ ...objet, cle: valeur }` dans un `map`. **Sortent** — `@keyframes` (décision) · propagation (cycle fermé). **Restent** — `FormData` · `setTimeout` / file d'attente · tri des dépendances (à froid) · `??` vs `||` · `Map` / `Set` (≈ 18 novembre).
+
+**⏭️ Prochaine étape**
+1. Todo List : confirmer `ID_PROJET_DEFAUT` partout · clic sur un projet → `choisirProjet` · tâches **du projet affiché** (`filter`) · vider le champ après validation.
+2. Modale « Nouvelle tâche » (formulaire → `ajouterTache`) — terrain naturel de `FormData`.
+3. Créneau court **event loop**.
