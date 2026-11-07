@@ -670,3 +670,41 @@ Ref typée, `showModal()` / `close()`, clic sur le fond en `target === currentTa
 1. Todo List : confirmer `ID_PROJET_DEFAUT` partout · clic sur un projet → `choisirProjet` · tâches **du projet affiché** (`filter`) · vider le champ après validation.
 2. Modale « Nouvelle tâche » (formulaire → `ajouterTache`) — terrain naturel de `FormData`.
 3. Créneau court **event loop**.
+
+## Session 145 — Composant `<Dialog />` réutilisable (Todo List)
+
+**Durée** : 1h (samedi midi, dont 15 min seul avant d'ouvrir la conversation). Pas de révision éclair (manque de temps, décision de Frédéric). **Séance mal vécue : énervement sur mes explications.**
+
+**🎹 Raccourci** : `Alt+Maj+M` — non renseigné, reconduit.
+
+---
+
+### `<Dialog />` réutilisable — conçu par lui
+
+- **Question de Frédéric** : créer un composant `<Dialog />` ? → oui, troisième occurrence (ajout de projet, ajout de tâche, confirmation de suppression).
+- **Sa conception** : la page garde ses refs (`refProjet`, `refTache`) et appelle `showModal()` ; le composant reçoit `ref`, `title`, `textBtnClose`, `textBtnValid`, `functionReducer`, `children`, et porte les boutons Valider / Retour + la fermeture au clic sur le fond. **Fonctionne, modale « Ajouter un projet » réécrite avec.** 🟢
+- **`ref` en prop** : possible tel quel en **React 19** (avant : `forwardRef`). Donné de mémoire → à vérifier : version de `react` dans `package.json` + blog react.dev « React 19 », section « ref as a prop ».
+- Erreurs corrigées en route : prop fonction absente de la déstructuration · `{functionReducer};` (bloc vide, pas d'appel) → `functionReducer();` · `myref` déclaré deux fois (paramètre + `const`).
+- **Version déclarative** (`ouvert` + `onFermer`, `useEffect` + `onClose` pour Échap) : présentée comme la forme des bibliothèques (shadcn/ui). **Décision : sa version reste pour la Todo List** ; la forme déclarative viendra toute faite avec shadcn/ui.
+- Rappel de la règle reducer appliquée seul : `projetASupprimer` (confirmation) = affichage temporaire → `useState` local, la donnée ne change qu'au `dispatch`.
+
+---
+
+**Niveaux** : composant réutilisable avec `children` + props fonction 🟢 · prop fonction : désigner vs appeler 🟡 (rechute `{fn}`) · ref passée en prop (React 19) 🟡 · impératif (ref) vs déclaratif (booléen) 🟡 (compris en fin de séance, pas utilisé).
+
+**⚠️ Mes erreurs**
+1. **Comparaison faussée** : j'ai comparé sa modale d'ajout (boutons intégrés) à ma modale de suppression (boutons dans la page). La différence de lisibilité venait des boutons intégrés, pas de ref vs booléen.
+2. **« Pourquoi c'est mieux » répondu par du mécanisme** (code, trajet clic par clic) au lieu de la réponse simple. Trois tours avant la bonne forme.
+3. Mal compris son intention (« attribuer des refs différentes » = passer la ref de la page), deux allers-retours.
+
+**📏 Règle de travail posée par Frédéric** (à remonter dans les instructions §1, « Communication ») :
+> Quand il demande « la version pro » ou « pourquoi c'est mieux » : répondre d'abord en 3-4 lignes simples — **version pro · ce qu'elle apporte · pourquoi c'est utile · ce que ça change pour lui aujourd'hui**. Le détail seulement s'il pose d'autres questions. Ne jamais comparer deux choses différentes à la fois.
+
+**🔄 Cycle de reprise** : inchangé depuis S144 (`bind` ≈ S147 · `class` / `extends` ≈ S146 · ErrorBoundary / code du parent à recroiser).
+
+**🔄 Rotation** : **entre** — prop fonction : `fn` vs `fn()` dans un handler (rechute en position inhabituelle). **Révision éclair de S145 non jouée → à reporter en ouverture S146.**
+
+**⏭️ Prochaine étape**
+1. Todo List : `ID_PROJET_DEFAUT` partout (à confirmer) · clic sur un projet → `choisirProjet` · tâches du projet affiché (`filter`) · vider le champ après validation.
+2. Modale « Nouvelle tâche » avec `<Dialog />` (formulaire → `ajouterTache`, terrain de `FormData`).
+3. Créneau court **event loop**.

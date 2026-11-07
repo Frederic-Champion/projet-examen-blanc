@@ -1,6 +1,7 @@
 import { useReducer, useRef, useState } from "react";
 import type { StateTodo } from "./types";
 import { ID_PROJET_DEFAUT, reducerTodo } from "./componentsReducer";
+import { Dialog } from "./Dialog";
 
 const ETAT_INITIAL: StateTodo = {
   projets: [{ id: ID_PROJET_DEFAUT, nom: "Général" }],
@@ -54,7 +55,17 @@ export function TodoList() {
       <button className="border">Switch liste et taches</button> */}
 
       {/* Composant <Dialog /> a faire plus tard je pense. */}
-      <dialog
+      <Dialog
+        ref={refProjet}
+        title="Ajouter un projet"
+        textBtnClose="Retour"
+        textBtnValid="Valider"
+        functionReducer={() => dispatch({ type: "ajouterProjet", projet: { id: crypto.randomUUID(), nom: input } })}
+      >
+        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Nom du projet" />
+      </Dialog>
+
+      {/* <dialog
         onClick={(e) => e.target === e.currentTarget && refProjet.current?.close()}
         className="m-auto backdrop:bg-transparent"
         ref={refProjet}
@@ -72,7 +83,7 @@ export function TodoList() {
           </button>
           <button onClick={() => refProjet.current?.close()}>Retour</button>
         </div>
-      </dialog>
+      </dialog> */}
     </div>
   );
 }
