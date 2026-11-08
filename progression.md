@@ -708,3 +708,47 @@ Ref typée, `showModal()` / `close()`, clic sur le fond en `target === currentTa
 1. Todo List : `ID_PROJET_DEFAUT` partout (à confirmer) · clic sur un projet → `choisirProjet` · tâches du projet affiché (`filter`) · vider le champ après validation.
 2. Modale « Nouvelle tâche » avec `<Dialog />` (formulaire → `ajouterTache`, terrain de `FormData`).
 3. Créneau court **event loop**.
+
+## Session 146 — Révisions `fn` / `FormData` + reprise `class` / `extends` (cycle fermé) + `<Dialog />` en formulaire
+
+**Durée** : 2h (dimanche matin, PC fixe). Énergie bonne. Un agacement passager (« ne refais pas comme hier ») sur la question `<form>`.
+
+**Deux machines** : `git pull` refusé (`progression.md` modifié localement par un espace involontaire) → `git restore` puis pull · `npm ci` relancé après le pull · rituel fait dans les deux projets.
+
+**🎹 Raccourci** : `Alt+Maj+M` **acté** (utilisé, « très pratique »). Nouveau : **`Alt+Maj+→` / `←` (Expand / Shrink Selection)** — de mémoire, à vérifier dans la Command Palette.
+
+---
+
+### Révision éclair (2 items, celle de S145 reportée)
+
+- **Déboguer — prop fonction `fn` vs `fn()`** 🟢 : deux corrections justes. Effets précisés : `onValider;` ne fait rien sans erreur · `onClick={fn()}` s'exécute au rendu (boucle infinie possible si la fonction modifie un state du parent).
+- **Écrire — `FormData`** 🟡 : juste (`preventDefault`, `e.currentTarget`, `Object.fromEntries` trouvé seul), mais **30 min sur MDN** → fragile, pas revenu à froid. Mini-cours demandé : `FormData` = contenu interne invisible dans la console (`[...dataForm]` pour le voir) · `preventDefault` annule la navigation native (rechargement) · `fromEntries` = inverse d'`Object.entries` (paires → objet). Forme longue réécrite seul juste (`for...of` + `Record<string, FormDataEntryValue>`). **Demande de Frédéric : recroiser dans une semaine, pas avant (≈ 15 novembre).**
+
+### Reprise `class` / `extends` (N+5) — 🟢, cycle fermé
+
+`Ordonnance` / `OrdonnanceEnfant` sans squelette, 4 tests passés, `super(...)` avant `this`, `||` entre deux comparaisons juste. Écart : **`super.estForte()` au lieu de `this.estForte()`** (une méthode héritée se trouve par `this` ; `super.methode()` sert quand l'enfant redéfinit une méthode du même nom) · `=== true` redondant. Prochain terrain : la Library.
+
+### Todo List
+
+- `ID_PROJET_DEFAUT` confirmé partout ✅.
+- **Usages de `<Dialog />` identifiés par lui** : ajouter un projet · ajouter une tâche · modifier une tâche (champs pré-remplis par `defaultValue`) · confirmer une suppression (formulaire sans champ). Même forme pour les quatre. **Boutons gardés dans le composant** (mêmes deux boutons partout, seul le texte change).
+- **`<Dialog />` passé en `<form>`** : `onSubmit` + `preventDefault` + `FormData` transmis à la page + `reset()` · state `input` supprimé · `name` + `required` + `String(data.get(...))` côté page. Deux bugs non vus, **réponse demandée et donnée** : `close()` dans le `onClick` de Valider (Entrée ne fermait pas, champ vide bloqué sans message) → fermeture dans `onSubmit` · **`<button>` de type `submit` par défaut** dans un formulaire → `type="button"` sur Retour. **5 tests passés.**
+- Questions de fond : forme pro = `<form>` dans chaque modale · React Hook Form (bibliothèque, après Next.js, repose sur la même base).
+- **Non fait** : clic sur un projet → `choisirProjet` · filtre des tâches du projet affiché · surbrillance · tâches de test dans `ETAT_INITIAL`. Point « vider le champ » réglé par `reset()`.
+
+---
+
+**Niveaux** : `fn` vs `fn()` 🟢 · `FormData` / `Object.fromEntries` 🟡 · `preventDefault` (pourquoi) 🟢 compris · `class` / `extends` / `super` 🟢 (cycle fermé) · `this.methode()` vs `super.methode()` 🟡 · `<form>` dans un `<dialog>` 🟢 compris · action dans `onSubmit` vs `onClick` 🟡 · type par défaut d'un `<button>` 🔴 → corrigé.
+
+**⚠️ Mes erreurs**
+1. À « faut-il un `<form>` ? », réponse par un plan de séquençage au lieu de la forme pro → recadré. **Règle S145 appliquée ensuite** : version pro · ce qu'elle apporte · pourquoi c'est utile · ce que ça change aujourd'hui, en 4 lignes.
+2. Consigne des points 1-4 envoyée sans avoir anticipé que le passage en `<form>` rendrait le point 4 caduc.
+
+**🔄 Cycle de reprise** : `class` / `extends` → **fermé** (entretien) · `bind` → N+5 ≈ S147 · ErrorBoundary / code du parent → à recroiser · `Map` / `Set` → ≈ 18 novembre · `FormData` + `fromEntries` → ≈ 15 novembre.
+
+**🔄 Rotation** : **entrent** — dans un formulaire : action dans `onSubmit`, jamais dans le `onClick` · type par défaut d'un `<button>` (`submit`) · `this.methode()` vs `super.methode()`. **Sort** — `class` / `extends` (cycle fermé, basse priorité). **Restent** — tri des dépendances (à froid) · `setTimeout` / file d'attente · ErrorBoundary ne protège pas le code du parent · règle reducer / `useState` local.
+
+**⏭️ Prochaine étape**
+1. Todo List : tâches de test dans `ETAT_INITIAL` · clic sur un projet → `choisirProjet` · filtre des tâches du projet affiché (donnée dérivée) · surbrillance du projet affiché.
+2. Modale « Nouvelle tâche » avec `<Dialog />` (4 champs). ⚠️ `String(data.get("priorite"))` donne une `string`, pas l'union `Priorite` : conversion à traiter.
+3. Créneau court **event loop**.

@@ -1,4 +1,4 @@
-import { useReducer, useRef, useState } from "react";
+import { useReducer, useRef } from "react";
 import type { StateTodo } from "./types";
 import { ID_PROJET_DEFAUT, reducerTodo } from "./componentsReducer";
 import { Dialog } from "./Dialog";
@@ -13,7 +13,6 @@ export function TodoList() {
   const [state, dispatch] = useReducer(reducerTodo, ETAT_INITIAL);
   const refProjet = useRef<HTMLDialogElement>(null);
   const refTache = useRef<HTMLDialogElement>(null);
-  const [input, setInput] = useState("");
 
   //Ebauche du return.
   //Translate à faire sur mobile
@@ -60,9 +59,9 @@ export function TodoList() {
         title="Ajouter un projet"
         textBtnClose="Retour"
         textBtnValid="Valider"
-        functionReducer={() => dispatch({ type: "ajouterProjet", projet: { id: crypto.randomUUID(), nom: input } })}
+        functionReducer={(data) => dispatch({ type: "ajouterProjet", projet: { id: crypto.randomUUID(), nom: String(data.get("Projet")) } })}
       >
-        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Nom du projet" />
+        <input required name="Projet" placeholder="Nom du projet" />
       </Dialog>
 
       {/* <dialog
