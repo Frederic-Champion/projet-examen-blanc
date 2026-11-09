@@ -1,5 +1,5 @@
 interface DialogProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   title: string;
   ref: React.RefObject<HTMLDialogElement | null>;
   textBtnClose: string;
@@ -15,6 +15,7 @@ export function Dialog({ title, ref, textBtnClose, textBtnValid, children, funct
       ref={ref}
     >
       <form
+        className="bg-blue-100"
         onSubmit={(e) => {
           e.preventDefault();
           const data = new FormData(e.currentTarget);

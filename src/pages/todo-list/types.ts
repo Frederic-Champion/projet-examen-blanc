@@ -1,12 +1,12 @@
 /*
  * Liste les types rencontré dans la todo list.
  */
-
+export type Priorite = "basse" | "moyenne" | "haute"
 export interface Tache {
   id: string;
   idProjet: string;
   titre: string;
-  priorite: "basse" | "moyenne" | "haute";
+  priorite: Priorite;
   description: string;
   echeance: string;
   fait: boolean

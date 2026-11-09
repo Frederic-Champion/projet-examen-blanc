@@ -23,3 +23,21 @@ export function Brouillon() {
     </div>
   );
 }
+
+
+class Minuteur {
+  constructor() {
+    this.secondes = 0;
+  }
+  tic() {
+    this.secondes++;
+    console.log(this.secondes);
+  }
+}
+
+function executer(action) {
+  action();
+}
+
+const m = new Minuteur();
+executer(m.tic.bind(m));

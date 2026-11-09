@@ -752,3 +752,47 @@ Ref typée, `showModal()` / `close()`, clic sur le fond en `target === currentTa
 1. Todo List : tâches de test dans `ETAT_INITIAL` · clic sur un projet → `choisirProjet` · filtre des tâches du projet affiché (donnée dérivée) · surbrillance du projet affiché.
 2. Modale « Nouvelle tâche » avec `<Dialog />` (4 champs). ⚠️ `String(data.get("priorite"))` donne une `string`, pas l'union `Priorite` : conversion à traiter.
 3. Créneau court **event loop**.
+
+## Session 147 — Todo List : choix du projet, création de tâches, vue « Toutes », filtre, suppression avec confirmation
+
+**Durée** : 3h (dimanche soir 1h20 + lundi matin 1h40). Énergie bonne. Pas d'arrêt net.
+
+**🎹 Raccourci** : `Alt+Maj+→` / `←` (Expand / Shrink Selection) — adoption non renseignée, **à demander**.
+
+---
+
+### Révision éclair (2 items)
+
+- **`bind` à froid** 🟢 : `m.tic.bind(m)` juste, dans le bon sens. **Cycle `bind` fermé (N+5 tenu).** Question de Frédéric : le régler dans la classe → `bind` dans le constructeur (déjà écrit) ou **méthode en flèche comme propriété** (le `this` de l'objet en construction). Champ en flèche : **à pratiquer dans la Library**.
+- **Dépendances d'un `useEffect`** 🟢 (validé par lui) : props incluses, constante hors composant exclue. Écart : `terme` au lieu de `filtre` (l'effet lit `filtre` ; « Ray » / « Ray␣ » relançait la requête pour rien).
+
+### Todo List
+
+- **Choisir un projet** : 1ᵉʳ jet avec un `useState` local (doublon de `state.projetAffiche`) comparant des **noms** à un `id` → test 1 en échec. **Réponse demandée et donnée** : comparer des `id` · `dispatch({ type: "choisirProjet" })`, pas de second propriétaire. Repère : **avant de créer un state, vérifier que la donnée n'existe pas déjà**. 🟡
+- **Ordre corrigé par lui** : le glissement mobile (consigne déjà donnée) repoussé après les tâches — fonctionnel avant mise en page. Objection fondée.
+- **Créer une tâche** 🟢 : 2ᵉ `<Dialog />` sans toucher le composant · `value` (stockée) vs texte de l'`<option>` (affiché) — trouvé seul : sans `value`, le texte est envoyé · `as Priorite` (**réponse demandée**) : légitime car les valeurs viennent des `<option>` écrites dans le JSX · `idProjet` = l'`id` du projet affiché. Case à cocher : `onChange={() => !t.fait}` faisait taire l'avertissement sans rien faire → `dispatch({ type: "cocher" })`. **6 tests passés**, vérification dans React DevTools (installé sur le fixe ✅).
+- **Vue « Toutes »** : conception hésitante (Général = tout / vue séparée, 3 allers-retours). **Choix final : « Toutes » = vue (`ID_VUE_TOUTES`, absente des projets), Général = projet par défaut** · état de départ et retour après suppression sur la vue · tâche créée depuis « Toutes » → Général (ternaire écrit seul).
+- **Filtre** 🟡 : constante **demandée et donnée** (`tachesAffichees = state.taches.filter(… || …)`, donnée dérivée). Ternaire liste vide / liste écrit seul. Corrigés : `<p>` dans un `<ul>` (le ternaire choisit le `<ul>` entier) · `supprimerProjet` envoyé par la poubelle d'une tâche.
+- **Accessibilité** : `aria-label` sur boutons-icônes, case à cocher, champs et `<select>` (un champ porte son **nom**, pas l'action ; un placeholder n'est pas un libellé — `<label>` visible = forme pro, à l'habillage).
+- **Suppression d'un projet avec confirmation** : `<Dialog />` sans champ · **idée de sa part : stocker le projet entier** (`useState<Projet | null>(null)`) pour avoir le nom sans le rechercher · poubelle absente sur Général. **Correction demandée** : garde `if (!projetSupprimer) return` avant le `dispatch` + remise à `null` · template literal écrit en texte JSX (backticks affichés tels quels) → texte + `{valeur}` dans un `<p>` · `children` obligatoire dans ses props. **3 tests passés.**
+- **Reporté à l'habillage (sa décision)** : titre de la vue (« Toutes les tâches » / nom du projet affiché).
+
+---
+
+**Niveaux** : `bind` 🟢 (cycle fermé) · méthode en flèche dans une classe 🟡 (nommée) · tri des dépendances 🟢 · un seul propriétaire par donnée 🟡 (rechute) · comparer des `id` 🟡 · `<Dialog />` réutilisable 🟢 · `value` / texte d'une `<option>` 🟢 · `as` sur garantie structurelle 🟡 · donnée dérivée filtrée 🟡 · `filter` avant `map` 🟡 · HTML valide dans un `<ul>` 🟢 (corrigé) · texte + `{}` en JSX vs template literal 🔴 → corrigé · state `T | null` + garde 🟢.
+
+**⚠️ Mes erreurs**
+1. Consigne du glissement donnée avant la création de tâches, alors que le fonctionnel passe d'abord → recadré par lui.
+2. Vue « Toutes » : trois consignes successives au gré de ses hésitations, dont une présentée comme « la forme la plus propre » → a pesé sur son choix (« tu es convaincant »). **Correctif** : poser les deux options et leurs conséquences en une fois, puis laisser trancher, sans réécrire la consigne à chaque aller-retour.
+
+**🔄 Cycle de reprise** : `bind` → **fermé** · `FormData` + `fromEntries` → ≈ 15 novembre · `Map` / `Set` → ≈ 18 novembre · ErrorBoundary / code du parent → à recroiser.
+
+**🔄 Rotation** : **entrent** — avant de créer un state, vérifier qu'il n'existe pas · texte JSX + `{}` vs template literal · `filter` dans une constante avant le `map` · `as` : qui garantit la valeur ? · un `onChange` qui ne fait rien. **Sort** — `bind` (cycle fermé, basse priorité). **Restent** — `setTimeout` / file d'attente · action dans `onSubmit` vs `onClick` · type par défaut d'un `<button>` · `this.methode()` vs `super.methode()` · règle reducer / `useState` local.
+
+**⏭️ Prochaine étape — Todo List, fonctionnel restant**
+1. **Déplier une tâche** (détails, exigence Odin) — `useState` local.
+2. **Modifier une tâche** — `<Dialog />` pré-rempli (`defaultValue`), action `modifierTache` existante.
+3. **`localStorage`** (exigence Odin) : lecture validée au démarrage + écriture à chaque changement + **erreur personnalisée** `ErreurDonnees`.
+4. Factory `creerTodo` · compteur par projet (`reduce` accumulateur objet) · dates (`Date` natif ou `date-fns`, à décider).
+5. Puis l'habillage : titre de la vue, couleur par priorité, glissement mobile, `<label>` visibles.
+6. Créneau court **event loop** toujours en attente.

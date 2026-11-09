@@ -1,6 +1,7 @@
 import type { ActionReducer, StateTodo } from "./types";
 
 export const ID_PROJET_DEFAUT = "general";
+export const ID_VUE_TOUTES = "toutes"
 
 export function reducerTodo(state: StateTodo, action: ActionReducer): StateTodo {
   switch (action.type) {
@@ -16,7 +17,7 @@ export function reducerTodo(state: StateTodo, action: ActionReducer): StateTodo 
         ...state,
         taches: state.taches.filter((t) => t.idProjet !== action.id),
         projets: state.projets.filter((p) => p.id !== action.id),
-        projetAffiche: ID_PROJET_DEFAUT,
+        projetAffiche: ID_VUE_TOUTES,
       };
     case "choisirProjet":
       return { ...state, projetAffiche: action.afficher };
