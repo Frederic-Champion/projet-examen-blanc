@@ -1,8 +1,9 @@
-import { useReducer, useRef, useState } from "react";
-import type { Priorite, Projet, StateTodo } from "./types";
+import { useEffect, useReducer, useRef, useState } from "react";
+import type { Projet, StateTodo, Tache } from "./types";
 import { ID_PROJET_DEFAUT, ID_VUE_TOUTES, reducerTodo } from "./componentsReducer";
 import { Dialog } from "./Dialog";
-import { Trash } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
+import { creerTodo, lireChampsTache } from "./Todo-utils";
 
 const ETAT_INITIAL: StateTodo = {
   projets: [{ id: ID_PROJET_DEFAUT, nom: "Général" }],
@@ -10,17 +11,27 @@ const ETAT_INITIAL: StateTodo = {
   projetAffiche: ID_VUE_TOUTES,
 };
 
+function lireEtat(etatParDefaut: StateTodo): StateTodo {
+  const sauvegarde = localStorage.getItem("todo-list");
+  return sauvegarde === null ? etatParDefaut : JSON.parse(sauvegarde);
+}
+
 export function TodoList() {
-  const [state, dispatch] = useReducer(reducerTodo, ETAT_INITIAL);
+  const [state, dispatch] = useReducer(reducerTodo, ETAT_INITIAL, lireEtat);
   const refProjet = useRef<HTMLDialogElement>(null);
   const refTache = useRef<HTMLDialogElement>(null);
   const refSuppression = useRef<HTMLDialogElement>(null);
+  const refModifier = useRef<HTMLDialogElement>(null);
   const [projetSupprimer, setProjetSupprimer] = useState<Projet | null>(null);
+  const [tacheAModifier, setTacheAModifier] = useState<Tache | null>(null);
 
   const tachesAffichees = state.taches.filter(
     (t) => state.projetAffiche === ID_VUE_TOUTES || t.idProjet === state.projetAffiche,
   );
 
+  useEffect(() => {
+    localStorage.setItem("todo-list", JSON.stringify(state));
+  }, [state]);
   //Ebauche du return.
   //Translate à faire sur mobile
   return (
@@ -67,17 +78,30 @@ export function TodoList() {
         ) : (
           <ul>
             {tachesAffichees.map((t) => (
-              <li key={t.id}>
-                <h3>{t.titre}</h3>
-                <p>{t.priorite}</p>
-                <p>{t.echeance}</p>
-                <p>{t.description}</p>
+              <li className="flex" key={t.id}>
                 <input
                   aria-label={`Marquer ${t.titre} comme faite`}
                   type="checkbox"
                   checked={t.fait}
                   onChange={() => dispatch({ type: "cocher", id: t.id })}
                 />
+                <details className="flex-1">
+                  <summary className="flex">
+                    <h3>{t.titre}</h3>
+                    <p>{t.echeance}</p>
+                  </summary>
+                  <p>{t.priorite}</p>
+                  <p>{t.description}</p>
+                </details>
+                <button
+                  aria-label="Modifier"
+                  onClick={() => {
+                    setTacheAModifier(t);
+                    refModifier.current?.showModal();
+                  }}
+                >
+                  <Pencil />
+                </button>
                 <button
                   aria-label={`Supprimer la tâche ${t.titre}`}
                   onClick={() => dispatch({ type: "supprimerTache", id: t.id })}
@@ -116,15 +140,7 @@ export function TodoList() {
         functionReducer={(data) =>
           dispatch({
             type: "ajouterTache",
-            tache: {
-              titre: String(data.get("Tache")),
-              id: crypto.randomUUID(),
-              priorite: String(data.get("priorite")) as Priorite,
-              description: String(data.get("description")),
-              echeance: String(data.get("date")),
-              idProjet: state.projetAffiche !== ID_VUE_TOUTES ? state.projetAffiche : ID_PROJET_DEFAUT,
-              fait: false,
-            },
+            tache: creerTodo(data, state.projetAffiche !== ID_VUE_TOUTES ? state.projetAffiche : ID_PROJET_DEFAUT),
           })
         }
       >
@@ -149,6 +165,51 @@ export function TodoList() {
         }}
       >
         <p>Le projet {projetSupprimer?.nom} va être supprimé avec toutes ses tâches.</p>
+      </Dialog>
+      <Dialog
+        ref={refModifier}
+        textBtnClose="Retour"
+        textBtnValid="Modifier"
+        title="Modifier les informations"
+        functionReducer={(data) => {
+          if (!tacheAModifier) return;
+          dispatch({
+            type: "modifierTache",
+            tache: {
+              ...tacheAModifier,
+              ...lireChampsTache(data),
+            },
+          });
+          setTacheAModifier(null);
+        }}
+      >
+        <div key={tacheAModifier?.id}>
+          <input
+            required
+            aria-label="Titre de la tâche"
+            name="Tache"
+            placeholder="Titre de la tache"
+            defaultValue={tacheAModifier?.titre}
+          />
+          <select aria-label="Priorité" name="priorite" defaultValue={tacheAModifier?.priorite}>
+            <option value="basse">Faible</option>
+            <option value="moyenne">Moyenne</option>
+            <option value="haute">Forte</option>
+          </select>
+          <input
+            aria-label="Échéance"
+            name="date"
+            type="date"
+            placeholder="Quel date"
+            defaultValue={tacheAModifier?.echeance}
+          />
+          <textarea
+            aria-label="Description"
+            name="description"
+            placeholder="Description..."
+            defaultValue={tacheAModifier?.description}
+          />
+        </div>
       </Dialog>
     </div>
   );
