@@ -1,9 +1,10 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import type { Projet, StateTodo, Tache } from "./types";
+import type { Priorite, Projet, StateTodo, Tache } from "./types";
 import { ID_PROJET_DEFAUT, ID_VUE_TOUTES, reducerTodo } from "./componentsReducer";
 import { Dialog } from "./Dialog";
 import { Pencil, Trash } from "lucide-react";
-import { creerTodo, lireChampsTache } from "./Todo-utils";
+import { creerTodo, estEnRetard, formaterEcheance, lireChampsTache } from "./Todo-utils";
+import { compareAsc, parseISO } from "date-fns";
 
 const ETAT_INITIAL: StateTodo = {
   projets: [{ id: ID_PROJET_DEFAUT, nom: "Général" }],
@@ -47,14 +48,25 @@ export function TodoList() {
   const [projetSupprimer, setProjetSupprimer] = useState<Projet | null>(null);
   const [tacheAModifier, setTacheAModifier] = useState<Tache | null>(null);
 
-  const tachesAffichees = state.taches.filter(
-    (t) => state.projetAffiche === ID_VUE_TOUTES || t.idProjet === state.projetAffiche,
-  );
+  const tachesAffichees = state.taches
+    .filter((t) => state.projetAffiche === ID_VUE_TOUTES || t.idProjet === state.projetAffiche)
+    .sort((a, b) => {
+      if (a.echeance === "" && b.echeance === "") return 0;
+      if (a.echeance === "") return 1;
+      if (b.echeance === "") return -1;
+      return compareAsc(parseISO(a.echeance), parseISO(b.echeance));
+    })
+    .sort((a, b) => {
+      const ORDRE_PRIORITE: Record<Priorite, number> = { haute: 0, moyenne: 1, basse: 2 };
+      const rangA = ORDRE_PRIORITE[a.priorite];
+      const rangB = ORDRE_PRIORITE[b.priorite];
+      return rangA - rangB;
+    });
 
   const reduceTaches = state.taches.reduce((acc: Record<string, number>, tache) => {
-    acc[tache.idProjet] = (acc[tache.idProjet] ?? 0) + 1 ;
-    return acc
-  },{})
+    acc[tache.idProjet] = (acc[tache.idProjet] ?? 0) + 1;
+    return acc;
+  }, {});
 
   useEffect(() => {
     localStorage.setItem("todo-list", JSON.stringify(state));
@@ -117,9 +129,10 @@ export function TodoList() {
                 <details className="flex-1">
                   <summary className="flex">
                     <h3>{t.titre}</h3>
-                    <p>{t.echeance}</p>
+                    <p>{t.priorite}</p>
+                    <p>{formaterEcheance(t.echeance)}</p>
+                    {estEnRetard(t.echeance, t.fait) && <span>En retard</span>}
                   </summary>
-                  <p>{t.priorite}</p>
                   <p>{t.description}</p>
                 </details>
                 <button
@@ -207,6 +220,7 @@ export function TodoList() {
             tache: {
               ...tacheAModifier,
               ...lireChampsTache(data),
+              idProjet: String(data.get("projet")),
             },
           });
           setTacheAModifier(null);
@@ -224,6 +238,13 @@ export function TodoList() {
             <option value="basse">Faible</option>
             <option value="moyenne">Moyenne</option>
             <option value="haute">Forte</option>
+          </select>
+          <select aria-label="Projet" name="projet" defaultValue={tacheAModifier?.idProjet}>
+            {state.projets.map((p) => (
+              <option value={p.id} key={p.id}>
+                {p.nom}
+              </option>
+            ))}
           </select>
           <input
             aria-label="Échéance"

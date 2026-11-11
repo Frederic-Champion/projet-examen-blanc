@@ -842,3 +842,72 @@ Ref typée, `showModal()` / `close()`, clic sur le fond en `target === currentTa
 3. **Cours complet sur les dates** (`Date` natif ou `date-fns`).
 4. Habillage : `lang="fr"` · titre de la vue · couleur par priorité · chevron du `<details>` · `<label>` visibles · glissement mobile.
 5. Puis la Library.
+
+## Session 149 — Todo List : validation du `localStorage` + `ErreurDonnees`, compteur (`reduce`), cours sur les dates (`date-fns`), tri, changement de projet
+
+**Durée** : 5h15 (mercredi : 9h35-12h05 + 13h30-16h35). Énergie bonne, fatigue en toute fin de séance. Pas d'arrêt net. Deux reproches justifiés sur mes explications (voir plus bas).
+
+**🎹 Raccourci** : `Alt+Maj+→` / `←` (Expand / Shrink Selection) — peu utilisé, reconduit.
+
+---
+
+### Révision éclair (2 items)
+
+- **Prédire — `memo`** 🟡 : « se rend de nouveau » ✅ + objet littéral identifié comme cause ✅. **`verre` jugé faussement comme nouvelle référence** (`VERRES[0]`, constante hors composant = même objet). Piste `useMemo` juste ; règle donnée : objet fixe → constante hors composant · objet calculé → `useMemo`.
+- **Déboguer — `this.methode()` vs `super.methode()`** 🔴 : récursion infinie non vue, piste `bind` (problème de `this` perdu, hors sujet). Réponse demandée. **La syntaxe `super.methode()` lui était inconnue** (seul `super(...)` du constructeur connu) → cours : deux usages de `super` (fonction dans le constructeur / objet devant un point dans une méthode).
+
+### Todo List
+
+**Validation des données lues (`lireEtat`)**
+- `try` / `catch` autour de `JSON.parse` 🟢 (`catch` sans paramètre, bonne forme) · retouche : renvoyer `etatParDefaut` (le paramètre) et pas `ETAT_INITIAL`.
+- Validation de forme par early returns (`Array.isArray`, `typeof`) 🟢 après un indice : 1ᵉʳ jet `typeof stockage === "object"` (insuffisant, `{"a":1}` est un objet).
+- **`ErreurDonnees`** 🟢 après corrections : `throw new Error` au lieu de `ErreurDonnees` (le `instanceof` ne pouvait jamais être vrai) · `name` passé en paramètre au lieu d'être fixé · `e! instanceof` (assertion inutile). Classe en TS expliquée à sa demande : seule différence ici = annotation du paramètre ; propriétés propres à déclarer en tête de classe (non pratiqué). `console.warn` découvert. Double appel de l'initialiseur par `StrictMode` observé dans la console.
+- **`every` décrit, non fait (décision commune)** : la validation vérifie la forme, pas le contenu des tâches. **Démontré en direct** l'après-midi : une ancienne tâche mal formée a fait planter `formaterEcheance` → c'est le trou que comblera Zod.
+
+**Compteur de tâches par projet**
+- `.length` + `filter` dans le `.map()` 🟢 · `<p>` dans un `<button>` → `<span>`.
+- **`reduce` accumulateur objet trouvé seul** 🟡 (`(acc[id] ?? 0) + 1`) — **dette historique rattrapée en contexte**, mais au prix d'un effort très long (recherches MDN plutôt que demander un 2ᵉ indice). Repère donné : au-delà de 15 min, demander un indice.
+- `Record<string, number>` **recopié sans comprendre** → expliqué (clés inconnues à l'avance vs `interface` ; `{}` sans annotation = objet sans clé, TS refuse l'écriture). 🟡
+- `.length` vs `reduce` : en production, `filter` + `.length` pour une petite liste (lisibilité) ; `reduce` = un seul passage.
+
+**Cours sur les dates — `date-fns` adopté (installé)**
+- `Date` natif : nombre de millisecondes · mois à 0 🟢 · `getDate()` (jour du mois) vs `getDay()` (semaine), jamais vu · une date seule (`"2026-11-15"`) est lue en UTC, alors qu'une échéance se compare **en jours**.
+- `date-fns` : `parseISO` (jour local) · `format` + motif + `{ locale: fr }` · `isBefore` + `startOfToday` · `compareAsc`. Doc officielle (date-fns.org) difficile à parcourir pour lui ; README npm lu.
+- ⚠️ **Première explication trop succincte** (outil présenté comme connu) → « recommence » → cours détaillé, qui a fonctionné.
+- `formaterEcheance` 🟢 après correction : **formatage appliqué au stockage** au lieu de l'affichage 🔴 (modale Modifier cassée, `parseISO` impossible) → règle : **stocker la donnée brute, formater à l'affichage** · cas de la chaîne vide ajouté seul.
+- `estEnRetard` 🟢 : `||` entre deux conditions **du premier coup** (dette `??` / `||`) · `parseISO` oublié deux fois (`isBefore`, `sort`) : sa version de `date-fns` accepte une chaîne sans que TS ne réagisse, et le décalage UTC tombe du bon côté en France.
+- `lang="fr"` appliqué dans `index.html` ✅. Le champ date en `mm/dd/yyyy` venait de **l'aperçu de VS Code** (langue anglaise), pas de Chrome.
+
+**Tri des tâches**
+- `compareAsc` dans `sort` 🟢 · tâches sans échéance en bas : comparateur avec cas en tableau → **correction demandée et donnée** · `NaN` traité comme égalité par `sort` (tâche sans date « en bas » par coïncidence).
+- **Choix de Frédéric : priorité, puis date**, via **deux `sort` chaînés** (sa solution, valide grâce à la stabilité de `sort`).
+- Table de traduction `ORDRE_PRIORITE: Record<Priorite, number>` + **crochets avec une clé variable** 🔴 : `Object.values` proposé → **réponse complète donnée alors qu'il demandait un indice** (reproche justifié). Constante laissée dans le `sort` (son choix, pour la lisibilité).
+- Mots plutôt que nombres dans `value` (sens de la donnée, évolutivité) : compris.
+- **Initiative produit** : priorité sortie du `<details>` pour être visible dans la liste. À l'habillage : libellé stocké (`basse`) ≠ libellé affiché (« Faible »).
+
+**Autres**
+- Type de retour `Omit<Tache, "id" | "idProjet" | "fait">` écrit seul 🟢.
+- DRY `creerTodo` / `lireChampsTache` **refusé (son choix, assumé)**.
+- **Changer une tâche de projet** : `<select>` + `.map()` + `value={p.id}` + `defaultValue` 🟢 (après rappel de `value`) · `defaultValue` d'un `select` = recherche par correspondance (compris) · ligne `idProjet: String(data.get("projet"))` donnée (fatigue). 4 tests passés.
+- Confirmation avant suppression d'une tâche : **jugée inutile par lui**.
+
+---
+
+**Niveaux** : `memo` / constante hors composant 🟡 · `super.methode()` 🔴 (syntaxe neuve) · `try` / `catch` + validation de forme 🟢 · `ErreurDonnees` en TS 🟢 · `reduce` accumulateur objet 🟡 (seul, effort long) · `Record` (pourquoi) 🟡 · `Date` natif (mois à 0, `getDate`) 🟢 · `date-fns` : `parseISO` / `format` / `isBefore` / `startOfToday` 🟢 compris, `parseISO` 🟡 (oublié deux fois) · donnée brute vs affichage 🔴 → corrigé · `||` entre deux conditions 🟢 · comparateur de `sort` à plusieurs cas 🟡 · stabilité de `sort` 🟢 (son idée) · crochets avec clé variable 🔴 · `Omit` 🟢 · `<select>` dynamique 🟢.
+
+**🆕 Notions ouvertes ce jour** : `date-fns` · `super.methode()` · tri à plusieurs critères · table de traduction (`Record` + crochets).
+
+**⚠️ Mes erreurs**
+1. **Cours `date-fns` d'abord trop succinct**, comme si l'outil était connu. **Correctif** : un outil neuf = cours complet (ce que reçoit et renvoie chaque fonction, forme longue puis compressée), même s'il paraît simple.
+2. **Indice des crochets mal formulé, puis réponse entière** au lieu d'un meilleur indice. **Correctif** : un indice qui débloque = **suivre une seule valeur concrète** (`a.priorite` vaut `"haute"` → que vaut `ORDRE_PRIORITE["haute"]` ?) et laisser écrire la ligne.
+
+**🔄 Cycle de reprise** : `reduce` accumulateur objet → N+2 ≈ S151 (autre forme) · `date-fns` → N+2 (couleur « En retard » à l'habillage) · `super.methode()` → recroiser · `FormData` + `fromEntries` → ≈ 15 novembre · `Map` / `Set` → ≈ 18 novembre · ErreurBoundary / code du parent → à recroiser.
+
+**🚫 Interdit de tirage levé** : `reduce` accumulateur objet a été porté par un vrai chiffre à l'écran. **Demande de Frédéric : `reduce` entre en rotation sous plusieurs formes, de plus en plus complexes.**
+
+**🔄 Rotation** : **entrent** — `reduce` sous plusieurs formes (priorité haute) · crochets avec une clé variable / table de traduction (priorité haute) · `Record<A, B>` : pourquoi l'annoter · `super.methode()` vs `this.methode()` (reste, priorité haute) · stocker brut / formater à l'affichage · `Date` : mois à 0, `getDate` / `getDay`, date seule lue en UTC · comparateur de `sort` à plusieurs cas · objet fixe → constante hors composant (`memo`). **Sort** — `??` vs `||` (juste en contexte, à confirmer une fois plus tard).
+
+**⏭️ Prochaine étape**
+1. **Habillage de la Todo List** : titre de la vue · couleur par priorité et pour « En retard » · libellés de priorité (stocké → affiché) · chevron du `<details>` · `<label>` visibles · glissement mobile (~375 px puis `md`).
+2. PR de la branche `todo-list`, puis **la Library** (JS pur, classes, champ en flèche).
+3. Créneau court **event loop** (toujours en attente).
