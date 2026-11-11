@@ -11,9 +11,31 @@ const ETAT_INITIAL: StateTodo = {
   projetAffiche: ID_VUE_TOUTES,
 };
 
+class ErreurDonnees extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ErreurDonnées";
+  }
+}
+
 function lireEtat(etatParDefaut: StateTodo): StateTodo {
-  const sauvegarde = localStorage.getItem("todo-list");
-  return sauvegarde === null ? etatParDefaut : JSON.parse(sauvegarde);
+  try {
+    const sauvegarde = localStorage.getItem("todo-list");
+    if (sauvegarde === null) return etatParDefaut;
+    const stockage = JSON.parse(sauvegarde);
+    if (typeof stockage !== "object") throw new ErreurDonnees("Le format de la donnée reçu n'est pas le bon");
+    if (!Array.isArray(stockage.projets)) throw new ErreurDonnees("projets n'est pas de la bonne forme");
+    if (!Array.isArray(stockage.taches)) throw new ErreurDonnees("taches n'est pas de la bonne forme");
+    if (typeof stockage.projetAffiche !== "string") throw new ErreurDonnees("ETAT_INITIAL n'est pas de forme string");
+    return stockage;
+  } catch (e) {
+    if (e instanceof ErreurDonnees) {
+      console.warn(e.message);
+    } else {
+      console.warn("erreur inconnu");
+    }
+    return etatParDefaut;
+  }
 }
 
 export function TodoList() {
@@ -29,6 +51,11 @@ export function TodoList() {
     (t) => state.projetAffiche === ID_VUE_TOUTES || t.idProjet === state.projetAffiche,
   );
 
+  const reduceTaches = state.taches.reduce((acc: Record<string, number>, tache) => {
+    acc[tache.idProjet] = (acc[tache.idProjet] ?? 0) + 1 ;
+    return acc
+  },{})
+
   useEffect(() => {
     localStorage.setItem("todo-list", JSON.stringify(state));
   }, [state]);
@@ -43,7 +70,8 @@ export function TodoList() {
             onClick={() => dispatch({ type: "choisirProjet", afficher: ID_VUE_TOUTES })}
             className={`w-fit rounded-full ${state.projetAffiche === ID_VUE_TOUTES ? "bg-blue-300" : ""}`}
           >
-            Toutes
+            <span>Toutes</span>
+            <span>{state.taches.length}</span>
           </button>
         </li>
         {state.projets.map((p) => (
@@ -52,7 +80,8 @@ export function TodoList() {
               onClick={() => dispatch({ type: "choisirProjet", afficher: p.id })}
               className={`w-fit rounded-full ${state.projetAffiche === p.id ? "bg-blue-300" : ""}`}
             >
-              {p.nom}
+              <span>{p.nom}</span>
+              <span>{reduceTaches[p.id] ?? "0"}</span>
             </button>
             {p.id !== ID_PROJET_DEFAUT && (
               <button

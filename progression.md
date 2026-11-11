@@ -830,13 +830,7 @@ Ref typée, `showModal()` / `close()`, clic sur le fond en `target === currentTa
 1. **Consigne de la factory empilant 4 choses** (deux fonctions, un utility type, le refactor de deux dialogs) — déclencheur direct de l'agacement.
 2. **`key` expliquée trois fois par écrit** avant de passer à l'observation, alors que la règle (§6) dit d'observer dès que l'abstrait ne passe pas.
 3. **Corrections de 3-4 points d'un coup** sur chaque rendu.
-4. Explication fausse sur les backticks en JSX (S147), corrigée par sa prédiction.
 
-**📏 Engagements (à remonter dans les instructions, §1 et §9)**
-- **Une étape = une seule chose nouvelle.** Jamais deux dans la même consigne.
-- **Consigne courte** : ce qu'on produit · ce qu'on voit à l'écran · comment tester.
-- **Correction courte** : ce qui marche, puis **le** point le plus important. Le reste attend.
-- **Explication qui ne passe pas → observation à l'écran immédiatement**, pas de deuxième version écrite.
 
 **🔄 Cycle de reprise** : `FormData` + `fromEntries` → ≈ 15 novembre · `Map` / `Set` → ≈ 18 novembre · ErrorBoundary / code du parent → à recroiser.
 
