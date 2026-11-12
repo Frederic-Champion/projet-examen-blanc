@@ -911,3 +911,50 @@ Ref typée, `showModal()` / `close()`, clic sur le fond en `target === currentTa
 1. **Habillage de la Todo List** : titre de la vue · couleur par priorité et pour « En retard » · libellés de priorité (stocké → affiché) · chevron du `<details>` · `<label>` visibles · glissement mobile (~375 px puis `md`).
 2. PR de la branche `todo-list`, puis **la Library** (JS pur, classes, champ en flèche).
 3. Créneau court **event loop** (toujours en attente).
+
+## Session 150 — Révisions `reduce` / `super` + cours-résumé (date-fns, `<select>`, `sort`) + habillage : mise en page et panneaux mobiles
+
+**Durée** : 3h15 (jeudi, 12h50-15h15 + ~1h15 en fin de journée). Énergie bonne. Agacement passager sur la mise en page du bouton du bas.
+
+**🎹 Raccourci** : `Alt+Maj+→` / `←` — peu utilisé, reconduit.
+
+---
+
+### Révision éclair (2 items)
+
+- **Écrire — `reduce` accumulateur objet (total par vendeur)** 🟡 : structure entièrement juste (accumulateur `{}`, crochets avec clé variable, `?? 0`, `return acc`). **Une clé fausse** : `acc[a.montant]` lu au lieu de `acc[a.vendeur]` → lire et écrire **la même case**. N+1 de la dette, autre forme.
+- **Prédire — `super.methode()` vs `this.methode()`** 🟢 2/2, à froid, le lendemain du cours.
+
+### Point sur les nouveautés + cours-résumé (à sa demande)
+
+Liste des notions neuves de S149-S150 avec niveaux, puis résumé de cours : **`date-fns`** (circuit `parseISO` → `format` / `isBefore` / `compareAsc`, motifs, `locale`, trois pièges) · **`<select>` dynamique** (`value` identifie, texte affiche, `defaultValue` = correspondance) · **stabilité de `sort`** (critère secondaire trié en premier ; forme à comparateur unique plus courante en production).
+
+### Habillage — mené par lui (travail libre)
+
+- **Décision** : l'habillage est son terrain ; je ne cadre que les pièges techniques. Donnés : **ne jamais construire une classe Tailwind par morceaux** (table de classes complètes `Record<Priorite, string>`) · chevron du `<details>` (`list-none`, `group` / `group-open:rotate-90`, expliqué à sa demande 🟢) · `<label>` visibles · travail en mode appareil de Chrome · Lighthouse en fin d'habillage.
+- **Mise en page** : `w-full` vs `flex-1` dans un `flex-col` (axe principal = hauteur) 🟡 · **une marge éloigne, elle n'agrandit pas** 🟢 · `self-stretch` + marges vs `w-full` + marges (débordement) 🟡.
+- **Bouton « Ajouter un projet » en bas, comme un footer** : trois propositions successives (`mt-auto` + `self-end` → `fixed` refusé → chaîne `h-screen` + `flex-1` + `min-h-0` + `overflow-y-auto`, puis correction après capture : barre de navigation `fixed`). **Résolu par lui, autrement.** `min-h-screen` = plancher (la liste ne défile pas) vs `h-screen` 🟡.
+- **Panneaux mobiles — option A retenue** (clic sur un projet → tâches, bouton de retour), **B possible ensuite** (`scroll-snap`, neuf, non vu). Recommandation « tâches d'abord à l'ouverture » donnée ; **état initial sur les projets (son choix)**. Icônes : `ChevronLeft` / `Folder` + un mot.
+- **Écrit seul** : booléen `voirProjet` · `inert` sur le panneau caché + **variante `inert:opacity-0`** (provisoire, pour observer) · **titre de la vue** `find(...)?.nom || "Toutes"` 🟢 · clic sur un projet ou « Toutes » → panneau des tâches.
+- **Corrigés** : panneau projets `fixed inset-0` sans `inert:opacity-0` (superposition) · classe `inert` seule (inexistante en Tailwind) · `inert={!voirProjet && true}` → `inert={!voirProjet}` · bouton « Ajouter une tache » branché sur `refProjet` (copier-coller).
+- **Carte entière cliquable** : bouton de choix en `flex-1` avec le padding **sur le bouton**, poubelle à côté (**un bouton dans un bouton est interdit**) — code donné.
+
+### Décisions
+
+- **Calendrier** : jugé indispensable par lui → appris plus tard avec le **composant Calendar de shadcn/ui** (React DayPicker + `date-fns`, à vérifier) sur le SaaS (rendez-vous), pas dans la Todo List.
+
+---
+
+**Niveaux** : `reduce` accumulateur objet 🟡 (structure 🟢, clé 🔴) · `super.methode()` 🟢 (à froid) · `group` / `group-open:` 🟢 compris · `w-full` / `flex-1` / `self-stretch` en `flex-col` 🟡 · marge vs taille 🟢 · `h-screen` vs `min-h-screen` + `min-h-0` pour un défilement interne 🟡 · `inert` + variante `inert:` 🟢 · `find` + `?.` + `||` pour un libellé 🟢 · bouton dans un bouton 🟢 compris.
+
+**⚠️ Mes erreurs**
+1. **Trois solutions de mise en page à la suite** pour le bouton du bas, chacune interprétant son besoin (« en bas », « ne bouge pas », « comme un footer ») au lieu de le faire préciser. Puis une consigne écrite **sans connaître le layout parent** (barre `fixed`). **Correctif** : avant toute solution de mise en page, demander **le comportement attendu au défilement** et **la chaîne des parents** (capture des Éléments).
+
+**🔄 Cycle de reprise** : `reduce` accumulateur objet → N+2 ≈ S151 (autre forme) · `super.methode()` → N+5 · `date-fns` → couleur « En retard » à l'habillage · `FormData` + `fromEntries` → ≈ 15 novembre · `Map` / `Set` → ≈ 18 novembre.
+
+**🔄 Rotation** : **entrent** — `flex-1` agit sur l'axe principal (hauteur en `flex-col`) · `self-stretch` vs `w-full` avec marges · `min-h-screen` (plancher) vs `h-screen` + `min-h-0` + `overflow-y-auto` · pas de classe Tailwind construite par morceaux · bouton dans un bouton interdit. **Restent en priorité haute** — `reduce` sous plusieurs formes · crochets / table de traduction · `parseISO` avant toute échéance.
+
+**⏭️ Prochaine étape**
+1. **Glissement** : `translate-x` + `transition` à la place de `inert:opacity-0` · panneau des tâches en hauteur fixe (liste qui défile) · boutons de bascule en valeur explicite (`false` / `true`) · deux colonnes à `md`.
+2. Habillage libre (couleurs de priorité, libellés, chevron, `<label>`), puis Lighthouse.
+3. PR de `todo-list`, puis **la Library**. Créneau court **event loop** toujours en attente.

@@ -2,9 +2,10 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import type { Priorite, Projet, StateTodo, Tache } from "./types";
 import { ID_PROJET_DEFAUT, ID_VUE_TOUTES, reducerTodo } from "./componentsReducer";
 import { Dialog } from "./Dialog";
-import { Pencil, Trash } from "lucide-react";
+import { ChevronLeft, Folder, Pencil, Trash } from "lucide-react";
 import { creerTodo, estEnRetard, formaterEcheance, lireChampsTache } from "./Todo-utils";
 import { compareAsc, parseISO } from "date-fns";
+import { cn } from "../../utils/cn";
 
 const ETAT_INITIAL: StateTodo = {
   projets: [{ id: ID_PROJET_DEFAUT, nom: "Général" }],
@@ -47,6 +48,7 @@ export function TodoList() {
   const refModifier = useRef<HTMLDialogElement>(null);
   const [projetSupprimer, setProjetSupprimer] = useState<Projet | null>(null);
   const [tacheAModifier, setTacheAModifier] = useState<Tache | null>(null);
+  const [voirProjet, setVoirProjet] = useState(true);
 
   const tachesAffichees = state.taches
     .filter((t) => state.projetAffiche === ID_VUE_TOUTES || t.idProjet === state.projetAffiche)
@@ -74,88 +76,128 @@ export function TodoList() {
   //Ebauche du return.
   //Translate à faire sur mobile
   return (
-    <div className="pt-16">
-      <h1>Todo-list</h1>
-      <ul className="flex flex-col items-center">
-        <li>
-          <button
-            onClick={() => dispatch({ type: "choisirProjet", afficher: ID_VUE_TOUTES })}
-            className={`w-fit rounded-full ${state.projetAffiche === ID_VUE_TOUTES ? "bg-blue-300" : ""}`}
-          >
-            <span>Toutes</span>
-            <span>{state.taches.length}</span>
-          </button>
-        </li>
-        {state.projets.map((p) => (
-          <li key={p.id}>
+    <div>
+      <div
+        inert={!voirProjet}
+        className="fixed inset-0 mx-4 flex min-h-screen flex-col items-center justify-center gap-8 py-8 text-center inert:opacity-0"
+      >
+        <h1 className="mx-6 w-full rounded-xl border px-4 py-2 text-center">PROJETS</h1>
+        <ul className="flex min-h-0 w-full flex-1 flex-col items-center gap-4 overflow-y-auto">
+          <li className="flex w-full rounded-xl border">
             <button
-              onClick={() => dispatch({ type: "choisirProjet", afficher: p.id })}
-              className={`w-fit rounded-full ${state.projetAffiche === p.id ? "bg-blue-300" : ""}`}
+              onClick={() => {
+                setVoirProjet(false);
+                dispatch({ type: "choisirProjet", afficher: ID_VUE_TOUTES });
+              }}
+              className={`flex flex-1 cursor-pointer rounded-xl flex-col items-start p-4 ${state.projetAffiche === ID_VUE_TOUTES ? "bg-blue-300" : ""}`}
             >
-              <span>{p.nom}</span>
-              <span>{reduceTaches[p.id] ?? "0"}</span>
+              <span>Toutes</span>
+              <span className="text-sm">{state.taches.length} tâches en cours</span>
             </button>
-            {p.id !== ID_PROJET_DEFAUT && (
-              <button
-                aria-label={`Supprimer le projet ${p.nom}`}
-                onClick={() => {
-                  setProjetSupprimer(p);
-                  refSuppression.current?.showModal();
-                }}
-              >
-                <Trash />
-              </button>
-            )}
           </li>
-        ))}
-      </ul>
-      <div>
-        <button onClick={() => refProjet.current?.showModal()}>Ajouter un Projet</button>
-      </div>
-
-      <div>
-        {tachesAffichees.length === 0 ? (
-          <p>Aucunes taches dans ce projet</p>
-        ) : (
-          <ul>
-            {tachesAffichees.map((t) => (
-              <li className="flex" key={t.id}>
-                <input
-                  aria-label={`Marquer ${t.titre} comme faite`}
-                  type="checkbox"
-                  checked={t.fait}
-                  onChange={() => dispatch({ type: "cocher", id: t.id })}
-                />
-                <details className="flex-1">
-                  <summary className="flex">
-                    <h3>{t.titre}</h3>
-                    <p>{t.priorite}</p>
-                    <p>{formaterEcheance(t.echeance)}</p>
-                    {estEnRetard(t.echeance, t.fait) && <span>En retard</span>}
-                  </summary>
-                  <p>{t.description}</p>
-                </details>
+          {state.projets.map((p) => (
+            <li className="flex w-full rounded-xl border" key={p.id}>
+              <button
+                onClick={() => {
+                  dispatch({ type: "choisirProjet", afficher: p.id });
+                  setVoirProjet(false);
+                }}
+                className={`flex flex-1 cursor-pointer flex-col items-start rounded-xl p-4 ${state.projetAffiche === p.id ? "bg-blue-300" : ""}`}
+              >
+                <span>{p.nom}</span>
+                <span className="text-sm">{reduceTaches[p.id] ?? "0"} tâche en cours</span>
+              </button>
+              {p.id !== ID_PROJET_DEFAUT && (
                 <button
-                  aria-label="Modifier"
+                  className="m-4 cursor-pointer self-center rounded-full border p-2"
+                  aria-label={`Supprimer le projet ${p.nom}`}
                   onClick={() => {
-                    setTacheAModifier(t);
-                    refModifier.current?.showModal();
+                    setProjetSupprimer(p);
+                    refSuppression.current?.showModal();
                   }}
                 >
-                  <Pencil />
+                  <Trash size={16} />
                 </button>
-                <button
-                  aria-label={`Supprimer la tâche ${t.titre}`}
-                  onClick={() => dispatch({ type: "supprimerTache", id: t.id })}
-                >
-                  <Trash />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div>
-          <button onClick={() => refTache.current?.showModal()}>Ajouter Tache</button>
+              )}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-auto flex w-full items-center justify-between">
+          <button
+            onClick={() => setVoirProjet((prev) => !prev)}
+            className="flex cursor-pointer gap-1 rounded-xl border px-4 py-2"
+          >
+            <ChevronLeft />
+            <p>TACHES</p>
+          </button>
+          <button className="cursor-pointer rounded-xl border px-4 py-2" onClick={() => refProjet.current?.showModal()}>
+            Ajouter un Projet
+          </button>
+        </div>
+      </div>
+      <div
+        inert={voirProjet}
+        className="mx-4 flex min-h-screen flex-col items-center justify-center gap-8 py-8 text-center inert:opacity-0"
+      >
+        <h1 className="mx-6 w-full rounded-xl border px-4 py-2 text-center">
+          {state.projets.find((p) => p.id === state.projetAffiche)?.nom || "Toutes"}
+        </h1>
+        <div className="flex min-h-0 w-full flex-1 flex-col items-center gap-4">
+          {tachesAffichees.length === 0 ? (
+            <p>Aucunes taches dans ce projet</p>
+          ) : (
+            <ul className="flex w-full flex-col gap-4 overflow-y-auto">
+              {tachesAffichees.map((t) => (
+                <li className="flex w-full justify-between rounded-xl border p-4" key={t.id}>
+                  <input
+                    aria-label={`Marquer ${t.titre} comme faite`}
+                    type="checkbox"
+                    checked={t.fait}
+                    onChange={() => dispatch({ type: "cocher", id: t.id })}
+                  />
+                  <details className="flex-1">
+                    <summary className="flex">
+                      <h3>{t.titre}</h3>
+                      <p>{t.priorite}</p>
+                      <p>{formaterEcheance(t.echeance)}</p>
+                      {estEnRetard(t.echeance, t.fait) && <span>En retard</span>}
+                    </summary>
+                    <p>{t.description}</p>
+                  </details>
+                  <button
+                    aria-label="Modifier"
+                    onClick={() => {
+                      setTacheAModifier(t);
+                      refModifier.current?.showModal();
+                    }}
+                  >
+                    <Pencil />
+                  </button>
+                  <button
+                    aria-label={`Supprimer la tâche ${t.titre}`}
+                    onClick={() => dispatch({ type: "supprimerTache", id: t.id })}
+                  >
+                    <Trash />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="mt-auto flex w-full items-center justify-between">
+            <button
+              onClick={() => setVoirProjet((prev) => !prev)}
+              className="flex cursor-pointer gap-1 rounded-xl border px-4 py-2"
+            >
+              <Folder />
+              <p>PROJETS</p>
+            </button>
+            <button
+              className="cursor-pointer rounded-xl border px-4 py-2"
+              onClick={() => refTache.current?.showModal()}
+            >
+              Ajouter une tache
+            </button>
+          </div>
         </div>
       </div>
 

@@ -6,8 +6,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 
-@layer base {
+/* @layer base {
   button {
     @apply border p-2 rounded-lg cursor-pointer;
   }
-}
+} */
