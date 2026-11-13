@@ -1,0 +1,16 @@
+@theme {
+  --color-todo-fond: var(--color-zinc-900);
+  --color-todo-section: var(--color-zinc-800);
+  --color-todo-surface: var(--color-zinc-700);
+  --color-todo-bordure: var(--color-zinc-600);
+  --color-todo-textP: var(--color-zinc-100);
+  --color-todo-textS: var(--color-zinc-400);
+  --color-todo-accent: var(--color-sky-400);
+  --color-todo-prioHaute: var(--color-red-400);
+  --color-todo-prioMoyenne: var(--color-amber-400);
+  --color-todo-prioBasse: var(--color-emerald-400);
+  --color-todo-retard: var(--color-red-400);
+
+  --shadow-todo-carte: 3px 3px 6px 0px rgba(0,0,0,0.47)
+;
+}

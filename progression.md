@@ -958,3 +958,60 @@ Liste des notions neuves de S149-S150 avec niveaux, puis résumé de cours : **`
 1. **Glissement** : `translate-x` + `transition` à la place de `inert:opacity-0` · panneau des tâches en hauteur fixe (liste qui défile) · boutons de bascule en valeur explicite (`false` / `true`) · deux colonnes à `md`.
 2. Habillage libre (couleurs de priorité, libellés, chevron, `<label>`), puis Lighthouse.
 3. PR de `todo-list`, puis **la Library**. Créneau court **event loop** toujours en attente.
+
+## Session 151 — Révisions crochets / `reduce` + habillage Todo List : glissement, liste qui défile, deux colonnes à `md`, palette sombre
+
+**Durée** : ~3h (vendredi, 13h05-14h10 + 16h45-18h50). Énergie bonne. Agacement passager (« tu t'enflammes ») sur la solution `matchMedia`, puis incompréhension sur `@layer theme` / `@theme`.
+
+**🎹 Raccourci** : `Alt+Maj+→` / `←` (Expand / Shrink Selection) — peu utilisé, reconduit.
+
+---
+
+### Révision éclair (2 items)
+
+- **Prédire — crochets vs point** 🟡 : `LIBELLES[priorite]` juste. Lignes `LIBELLES.priorite` / `LIBELLES["priorite"]` prédites en **erreur** au lieu de `undefined` → lire une clé absente renvoie `undefined` sans planter (le plantage vient de lire une propriété **sur** `undefined`). Son réflexe correspond à TS (souligné à l'écriture), pas à l'exécution.
+- **Écrire — `reduce` qui regroupe dans des tableaux** 🔴 → 🟡 : bloqué, indice demandé (tableau tour par tour + squelette à un trou, rapproché de `(acc[k] ?? 0) + 1`). 2ᵉ jet `(acc[k] || []) + [v.monture]` → `+` convertit les tableaux en chaînes. **Réponse donnée** : `[...(acc[k] ?? []), v.monture]`. Structure du `reduce` juste, geste « ajouter à un tableau » absent. Frustration (« après tout ce temps »). 3ᵉ forme de `reduce`, effort long → fragile.
+
+### Todo List — habillage
+
+**Étape 1 — glissement des deux panneaux** 🟢
+- Panneau Projets déjà en `inert:-translate-x-full` (son idée : le déplacement suit l'état `inert`, pas de désynchronisation possible).
+- Panneau Tâches en miroir : `fixed inset-0`, `bg-*`, `transition-transform`, **`inert:translate-x-full` trouvé seul** · `mx-4` → `px-4` (avec une marge, le fond laissait voir l'autre panneau sur les bords) · `ChevronRight` sur TACHES (direction réelle). Tests passés, barre de nav d'`App.tsx` reste au-dessus.
+
+**Étape 2 — liste qui défile** 🟢 : `min-h-0` **trouvé seul** en comparant ses deux listes · `min-h-screen` retiré (redondant avec `fixed inset-0`, `100vh` peut dépasser la zone visible sur mobile). Tests passés.
+
+**Étape 3 — deux colonnes à `md`**
+- Piège : `inert` est un attribut posé par le JS, aucune classe `md:` ne l'annule.
+- **Ma première proposition (`matchMedia` + hook `useEstLarge`) refusée par lui** : « tiré par les cheveux ». **Objection fondée.** Solution retenue, CSS seul : `invisible` (`visibility: hidden` = ni clic, ni Tab, ni lecteur d'écran, annulable par `md:visible`) + translate dans `cn(...)` conditionnel · `transition-all` pour que la visibilité attende la fin du glissement.
+- 1ᵉʳ jet du panneau Tâches avec `visible` au lieu d'`invisible` → corrigé.
+- Consigne `md:` : `md:flex md:h-screen` sur le conteneur · `md:static md:visible md:translate-x-0` sur les panneaux · `md:hidden` sur les boutons de bascule. **Deux colonnes visibles sur capture ; tests 3a / 3b non confirmés ; boutons de bascule encore visibles à `md` → `md:hidden` à vérifier.**
+- `visibility` (et pas `inert`) pour un blocage qui dépend de la largeur : motif pro compris. `inert` reste l'outil quand le blocage ne dépend pas de l'écran (fond d'une modale).
+
+**Palette sombre (tokens par rôle, `Todo-list.css`)**
+- Palette proposée (fond / surface / bordure / texte ×2 / accent / priorités / retard) : **identique à ce qu'il comptait faire seul.**
+- 🔴 → 🟡 **`@layer theme { --color-… }` au lieu de `@theme`** → erreurs `{ expected`. Deux explications par image (étagère / bon de commande) **sans succès** (« rien compris, change l'angle »). **Ce qui a débloqué : partir de ses propres fichiers** (`shopping-cart.css` et le CSS du portfolio collés par lui) → `@theme` **crée** les couleurs (fabrique les classes) · `.dark { }` (emballé ou non dans `@layer theme`) **change leur valeur**. Vérification par l'autocomplétion : classes `bg-todo-*` présentes (capture). Compris, à confirmer.
+- `var(--color-sky-400/15)` invalide (`/15` = syntaxe de classe) → opacité dans la classe (`bg-todo-accent/15`) · fond et surface sur la même valeur signalés.
+- `var()` expliqué : la palette Tailwind v4 est elle-même faite de variables CSS, `var()` en lit une (CSS natif). Variante `@theme inline` à lire sur la page « Theme variables » (non vérifiée).
+- Sélecteur de couleur de VS Code : ni sur une classe, ni sur un `var()` (renvoi, pas une couleur) → seulement sur une valeur écrite. `var()` gardé.
+- **Ombre sur les quatre côtés** : décalages à `0` + flou + étalement, token `--shadow-todo-carte`. Sur fond sombre : halo clair léger ou couleur d'accent.
+- **Ombre coupée sur les côtés** : hypothèse donnée sans le code à jour, `overflow-y-auto` force aussi l'axe x en `auto` → la liste découpe l'ombre des cartes en `w-full` → padding sur le `<ul>`. **Vérification (retirer `overflow-y-auto`) non faite.**
+
+---
+
+**Niveaux** : crochets avec variable 🟢 · clé absente → `undefined` 🟡 · `reduce` regroupement en tableaux 🔴 (réponse donnée) · `+` sur des tableaux → chaîne 🟡 · `translate-x` + `transition` sur deux panneaux 🟢 · variante `inert:` 🟢 · marge vs padding pour un fond 🟢 · `min-h-0` sur une liste qui défile 🟢 · `inert` non pilotable en CSS 🟢 compris · `invisible` / `visibility` 🟢 compris, appliqué avec un écart · `transition-all` pour la visibilité 🟡 · deux colonnes à `md` 🟡 (tests à confirmer) · `@theme` vs `@layer theme` / `.dark` 🟡 (compris par ses fichiers) · `var()` 🟢 · opacité `/` = classe, pas CSS 🟡 · `box-shadow` (décalage / flou / étalement) 🟢 · `overflow` un axe → l'autre `auto` 🟡 (hypothèse non vérifiée).
+
+**🆕 Notions ouvertes ce jour** : `visibility` comme alternative responsive à `inert` · `transition-all` + `visibility` · `box-shadow` à quatre côtés.
+
+**⚠️ Mes erreurs**
+1. **`matchMedia` + hook personnalisé proposé avant de chercher une solution CSS native**, avec une notion neuve (API navigateur) au milieu d'une étape d'habillage. Recadré par lui. **Correctif** : pour un problème de mise en page, chercher d'abord la solution CSS / Tailwind ; ne sortir du JS que si le CSS ne peut pas.
+2. **`@layer theme` / `@theme` expliqué deux fois par une image abstraite** avant de partir de son propre code. **Correctif** : quand une notion touche quelque chose qu'il a déjà écrit, montrer d'abord ses fichiers (deux blocs côte à côte), l'image ne vient qu'après.
+
+**🔄 Cycle de reprise** : `FormData` + `fromEntries` → ≈ 15 novembre · `Map` / `Set` → ≈ 18 novembre · `reduce` → regroupement en tableaux à reprendre sur un autre code · ErrorBoundary / code du parent → à recroiser · `date-fns` → couleur « En retard » à l'habillage.
+
+**🔄 Rotation** : **entrent** — `reduce` regroupement dans des tableaux (`[...(acc[k] ?? []), x]`, priorité haute) · `+` entre deux tableaux → chaîne · lire une clé absente → `undefined`, pas d'erreur · `@theme` (crée) vs `.dark` / `@layer theme` (change la valeur) · `inert` (attribut JS) vs `invisible` (classe, annulable par `md:`) · `overflow` sur un axe → l'autre passe en `auto`. **Restent** — crochets / table de traduction · `parseISO` avant toute échéance · `super.methode()` vs `this.methode()` · `setTimeout` / file d'attente.
+
+**⏭️ Prochaine étape**
+1. **Il partage le code à jour.** Confirmer : tests 3a / 3b · `md:hidden` sur les boutons de bascule · ombre coupée (retirer `overflow-y-auto` pour vérifier, puis padding sur le `<ul>`).
+2. **Habillage libre** : couleurs de priorité (table `Record<Priorite, string>` de classes complètes) · libellés stocké → affiché · couleur « En retard » · chevron du `<details>` · `<label>` visibles · contraste texte secondaire / surface (DevTools) · Lighthouse.
+3. PR de la branche `todo-list`, puis **la Library** (JS pur, classes, champ en flèche).
+4. En révision : `FormData` (≈ 15 novembre) · `reduce` regroupement · créneau court **event loop** toujours en attente.

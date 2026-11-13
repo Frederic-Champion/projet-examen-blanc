@@ -2,6 +2,7 @@
 @import "tailwindcss";
 @import "./pages/shopping-cart/shopping-cart.css";
 @import "./pages/memory-card/Memory-card.css";
+@import "./pages/todo-list/Todo-list.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

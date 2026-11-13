@@ -1,15 +1,21 @@
-
-
 export function Brouillon() {
-const nom = "Ray-Ban";
-const stock = 0;
+  interface Vente {
+    vendeur: string;
+    monture: string;
+  }
 
-return (
-  <div>
-    <p>`Monture ${nom}`</p>
-    <p>Monture {nom}</p>
-    <p>{`Stock : ${stock}`}</p>
-    <p>{stock && "En stock"}</p>
-  </div>
-);
+  const ventes: Vente[] = [
+    { vendeur: "Alice", monture: "Ray-Ban" },
+    { vendeur: "Bruno", monture: "Oakley" },
+    { vendeur: "Alice", monture: "Persol" },
+  ];
+
+  const liste = ventes.reduce((acc, v) => {
+    acc[v.vendeur] = (acc[v.monture] ?? []), v.monture
+    return acc;
+  }, {});
+
+  console.log(liste);
+
+  return <div>Brouillon</div>;
 }

@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import type { Priorite, Projet, StateTodo, Tache } from "./types";
 import { ID_PROJET_DEFAUT, ID_VUE_TOUTES, reducerTodo } from "./componentsReducer";
 import { Dialog } from "./Dialog";
-import { ChevronLeft, Folder, Pencil, Trash } from "lucide-react";
+import { ChevronRight, Folder, Pencil, Trash } from "lucide-react";
 import { creerTodo, estEnRetard, formaterEcheance, lireChampsTache } from "./Todo-utils";
 import { compareAsc, parseISO } from "date-fns";
 import { cn } from "../../utils/cn";
@@ -76,40 +76,53 @@ export function TodoList() {
   //Ebauche du return.
   //Translate à faire sur mobile
   return (
-    <div>
+    <div className="bg-todo-fond text-todo-textP md:flex md:h-screen md:justify-center md:gap-8 md:p-8">
       <div
-        inert={!voirProjet}
-        className="fixed inset-0 mx-4 flex min-h-screen flex-col items-center justify-center gap-8 py-8 text-center inert:opacity-0"
+        className={cn(
+          "md fixed inset-0 flex flex-col items-center justify-center gap-8 bg-todo-section p-4 text-center transition-all md:visible md:static md:flex-1 md:translate-x-0 md:rounded-xl",
+          !voirProjet && "invisible -translate-x-full",
+        )}
       >
-        <h1 className="mx-6 w-full rounded-xl border px-4 py-2 text-center">PROJETS</h1>
-        <ul className="flex min-h-0 w-full flex-1 flex-col items-center gap-4 overflow-y-auto">
-          <li className="flex w-full rounded-xl border">
+        <h1 className="mx-6 w-full rounded-xl bg-todo-surface px-4 py-2 text-center border border-todo-accent/50">PROJETS</h1>
+        <ul className="flex min-h-0 w-full flex-1 flex-col items-center gap-4 overflow-y-auto p-2">
+          <li
+            className={cn(
+              "flex w-full rounded-xl bg-linear-to-r from-todo-surface to-todo-section shadow-todo-carte",
+              state.projetAffiche === ID_VUE_TOUTES && "to-todo-accent/50",
+            )}
+          >
             <button
               onClick={() => {
                 setVoirProjet(false);
                 dispatch({ type: "choisirProjet", afficher: ID_VUE_TOUTES });
               }}
-              className={`flex flex-1 cursor-pointer rounded-xl flex-col items-start p-4 ${state.projetAffiche === ID_VUE_TOUTES ? "bg-blue-300" : ""}`}
+              className={`flex flex-1 cursor-pointer flex-col items-start rounded-xl p-4`}
             >
-              <span>Toutes</span>
+              <span className="font-semibold">Toutes</span>
               <span className="text-sm">{state.taches.length} tâches en cours</span>
             </button>
           </li>
           {state.projets.map((p) => (
-            <li className="flex w-full rounded-xl border" key={p.id}>
+            <li
+              className={cn(
+                "flex w-full rounded-xl bg-linear-to-r from-todo-surface to-todo-section shadow-todo-carte",
+                state.projetAffiche === p.id && "to-todo-accent/50",
+              )}
+              key={p.id}
+            >
               <button
                 onClick={() => {
                   dispatch({ type: "choisirProjet", afficher: p.id });
                   setVoirProjet(false);
                 }}
-                className={`flex flex-1 cursor-pointer flex-col items-start rounded-xl p-4 ${state.projetAffiche === p.id ? "bg-blue-300" : ""}`}
+                className="flex flex-1 cursor-pointer flex-col items-start rounded-xl p-4"
               >
-                <span>{p.nom}</span>
+                <span className="font-semibold">{p.nom}</span>
                 <span className="text-sm">{reduceTaches[p.id] ?? "0"} tâche en cours</span>
               </button>
               {p.id !== ID_PROJET_DEFAUT && (
                 <button
-                  className="m-4 cursor-pointer self-center rounded-full border p-2"
+                  className="m-4 cursor-pointer self-center rounded-full p-2"
                   aria-label={`Supprimer le projet ${p.nom}`}
                   onClick={() => {
                     setProjetSupprimer(p);
@@ -125,30 +138,32 @@ export function TodoList() {
         <div className="mt-auto flex w-full items-center justify-between">
           <button
             onClick={() => setVoirProjet((prev) => !prev)}
-            className="flex cursor-pointer gap-1 rounded-xl border px-4 py-2"
+            className="flex cursor-pointer gap-1 rounded-xl px-4 py-2 md:hidden shadow-todo-carte border border-todo-accent/50"
           >
-            <ChevronLeft />
+            <ChevronRight />
             <p>TACHES</p>
           </button>
-          <button className="cursor-pointer rounded-xl border px-4 py-2" onClick={() => refProjet.current?.showModal()}>
+          <button className="ml-auto cursor-pointer rounded-xl px-4 py-2 shadow-todo-carte border border-todo-accent/50" onClick={() => refProjet.current?.showModal()}>
             Ajouter un Projet
           </button>
         </div>
       </div>
       <div
-        inert={voirProjet}
-        className="mx-4 flex min-h-screen flex-col items-center justify-center gap-8 py-8 text-center inert:opacity-0"
+        className={cn(
+          "md fixed inset-0 flex flex-col items-center justify-center gap-8 bg-todo-section p-4 text-center transition-all md:visible md:static md:flex-2 md:translate-x-0 md:rounded-xl",
+          voirProjet && "invisible translate-x-full",
+        )}
       >
-        <h1 className="mx-6 w-full rounded-xl border px-4 py-2 text-center">
+        <h1 className="mx-6 w-full rounded-xl bg-todo-surface px-4 py-2 text-center border border-todo-accent/50">
           {state.projets.find((p) => p.id === state.projetAffiche)?.nom || "Toutes"}
         </h1>
         <div className="flex min-h-0 w-full flex-1 flex-col items-center gap-4">
           {tachesAffichees.length === 0 ? (
             <p>Aucunes taches dans ce projet</p>
           ) : (
-            <ul className="flex w-full flex-col gap-4 overflow-y-auto">
+            <ul className="flex min-h-0 w-full flex-col gap-4 p-2 overflow-y-auto">
               {tachesAffichees.map((t) => (
-                <li className="flex w-full justify-between rounded-xl border p-4" key={t.id}>
+                <li className="flex w-full justify-between rounded-xl bg-todo-surface p-4 shadow-todo-carte" key={t.id}>
                   <input
                     aria-label={`Marquer ${t.titre} comme faite`}
                     type="checkbox"
@@ -186,24 +201,21 @@ export function TodoList() {
           <div className="mt-auto flex w-full items-center justify-between">
             <button
               onClick={() => setVoirProjet((prev) => !prev)}
-              className="flex cursor-pointer gap-1 rounded-xl border px-4 py-2"
+              className="flex cursor-pointer gap-1 rounded-xl px-4 py-2 md:hidden shadow-todo-carte border border-todo-accent/50"
             >
               <Folder />
               <p>PROJETS</p>
             </button>
-            <button
-              className="cursor-pointer rounded-xl border px-4 py-2"
-              onClick={() => refTache.current?.showModal()}
-            >
+            <button className="cursor-pointer rounded-xl shadow-todo-carte px-4 py-2 border border-todo-accent/50" onClick={() => refTache.current?.showModal()}>
               Ajouter une tache
             </button>
           </div>
         </div>
       </div>
 
-      {/* <button className="border">Afficher Calendrier</button>
-      <button className="border">Paramètre des couleurs</button>
-      <button className="border">Switch liste et taches</button> */}
+      {/* <button className=">Afficher Calendrier</button>
+      <button className=">Paramètre des couleurs</button>
+      <button className=">Switch liste et taches</button> */}
 
       <Dialog
         ref={refProjet}
