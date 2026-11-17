@@ -35,3 +35,8 @@ export function estEnRetard(echeance: string, fait: boolean): boolean {
   const retard = isBefore(parseISO(echeance), startOfToday())
   return retard;
 }
+
+export function libelleCompteur(n: number) {
+  if (n <= 1) return `${n} tâche en cours`;
+  else return `${n} tâches en cours`;
+}

@@ -1,21 +1,17 @@
+const clients = [
+  { nom: "Martin", mutuelle: "MGEN" },
+  { nom: "Durand", mutuelle: "Harmonie" },
+  { nom: "Petit", mutuelle: "MGEN" },
+];
+
+const parMutuelle = clients.reduce((acc, c) => {
+  acc[c.mutuelle] = [...(acc[c.mutuelle]|| []), c.nom]
+  return acc;
+}, {});
+
+console.log(parMutuelle);
+// attendu : { MGEN: ["Martin", "Petit"], Harmonie: ["Durand"] }
+
 export function Brouillon() {
-  interface Vente {
-    vendeur: string;
-    monture: string;
-  }
-
-  const ventes: Vente[] = [
-    { vendeur: "Alice", monture: "Ray-Ban" },
-    { vendeur: "Bruno", monture: "Oakley" },
-    { vendeur: "Alice", monture: "Persol" },
-  ];
-
-  const liste = ventes.reduce((acc, v) => {
-    acc[v.vendeur] = (acc[v.monture] ?? []), v.monture
-    return acc;
-  }, {});
-
-  console.log(liste);
-
   return <div>Brouillon</div>;
 }
